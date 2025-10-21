@@ -1,0 +1,109 @@
+import { NextRequest, NextResponse } from 'next/server';
+import connectDB from '@/lib/mongodb';
+import Message from '@/models/Message';
+import * as UserModule from '@/models/User';
+const { User } = UserModule;
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+
+export async function GET(request: NextRequest) {
+  try {
+    await connectDB();
+
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Find the admin user
+    const admin = await User.findOne({ 
+      email: session.user.email,
+      role: 'admin'
+    });
+
+    if (!admin) {
+      return NextResponse.json({ error: 'Admin user not found' }, { status: 404 });
+    }
+
+    console.log(`Searching for messages for admin: ${admin.email} (ID: ${admin._id})`);
+
+    // Fetch all conversations for the admin
+    const conversations = await Message.aggregate([
+      {
+        $match: {
+          $or: [
+            { senderId: admin._id.toString() },
+            { recipientId: admin._id.toString() }
+          ],
+          conversationId: admin._id.toString()
+        }
+      },
+      {
+        $sort: { timestamp: -1 }
+      },
+      {
+        $group: {
+          _id: {
+            $cond: [
+              { $eq: ['$senderId', admin._id.toString()] },
+              '$recipientId',
+              '$senderId'
+            ]
+          },
+          lastMessage: { $first: '$$ROOT' },
+          customerName: { $first: '$senderName' },
+          customerEmail: { $first: '$senderEmail' },
+          unreadCount: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ['$senderId', admin._id.toString()] },
+                    { $eq: ['$isRead', false] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      },
+      {
+        $sort: { 'lastMessage.timestamp': -1 }
+      }
+    ]);
+
+    console.log(`Found ${conversations.length} conversations for admin: ${admin.email}`);
+    
+    // Debug: Show sample conversations
+    if (conversations.length > 0) {
+      console.log('Sample conversations:', conversations.slice(0, 2).map(conv => ({
+        customerName: conv.customerName,
+        customerEmail: conv.customerEmail,
+        lastMessage: conv.lastMessage.content?.substring(0, 50),
+        timestamp: conv.lastMessage.timestamp
+      })));
+    }
+
+    return NextResponse.json({
+      success: true,
+      conversations: conversations.map(conv => ({
+        _id: conv._id,
+        customerName: conv.customerName,
+        customerEmail: conv.customerEmail,
+        lastMessage: conv.lastMessage.content,
+        timestamp: conv.lastMessage.timestamp,
+        unreadCount: conv.unreadCount,
+        isFromMe: conv.lastMessage.senderId === admin._id.toString()
+      }))
+    });
+
+  } catch (error) {
+    console.error('Error fetching admin inbox:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch inbox' },
+      { status: 500 }
+    );
+  }
+}
