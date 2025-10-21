@@ -1,13 +1,32 @@
 import * as nodemailer from 'nodemailer';
 
-// Email configuration for Gmail SMTP (temporary solution)
+// Email configuration for Namecheap hosting (SSL/TLS)
 const emailConfig = {
-  service: 'gmail', // Use Gmail service
+  host: process.env.SMTP_HOST, // Your domain's mail server
+  port: parseInt(process.env.SMTP_PORT || '587'), // Port from environment
+  secure: process.env.SMTP_SECURE === 'true', // Use SSL based on environment
   auth: {
-    user: process.env.SMTP_USER || 'theaterszm@gmail.com', // Your Gmail address
-    pass: process.env.SMTP_PASS || '@M309877321k.' // Your Gmail App Password
+    user: process.env.SMTP_USER, // Your actual email address
+    pass: process.env.SMTP_PASS
+  },
+  tls: {
+    rejectUnauthorized: false // Allow self-signed certificates
   }
 };
+
+// Debug: Log the actual configuration being used
+console.log('=== Email Configuration Debug ===');
+console.log('SMTP_HOST:', process.env.SMTP_HOST);
+console.log('SMTP_PORT:', process.env.SMTP_PORT);
+console.log('SMTP_SECURE:', process.env.SMTP_SECURE);
+console.log('SMTP_USER:', process.env.SMTP_USER);
+console.log('SMTP_PASS_SET:', !!process.env.SMTP_PASS);
+console.log('Final config:', {
+  host: emailConfig.host,
+  port: emailConfig.port,
+  secure: emailConfig.secure,
+  user: emailConfig.auth.user
+});
 
 // Create transporter
 const transporter = nodemailer.createTransport(emailConfig);
@@ -428,7 +447,7 @@ export const emailTemplates = {
 export const sendEmail = async (to: string, template: any) => {
   try {
         const mailOptions = {
-          from: '"Shiteni Support" <theaterszm@gmail.com>',
+          from: '"Shiteni Support" <support@shiteni.com>',
           to: to,
           subject: template.subject,
           text: template.text,

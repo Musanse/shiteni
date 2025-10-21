@@ -45,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="preload" as="image" href="/uploads/image/shiteni%20logo%20(1).png" fetchPriority="high" />
+        <link rel="preload" as="image" href="/uploads/image/shiteni%20logo%20(1).png" fetchPriority="high" onLoad="this.onload=null;this.rel='prefetch';" />
         <link rel="icon" href="/icons/favicon.ico" type="image/x-icon" />
         <link rel="manifest" href="/api/manifest" type="application/manifest+json" />
         <meta name="theme-color" content="#3b82f6" />
