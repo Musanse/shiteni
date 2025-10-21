@@ -1,16 +1,11 @@
 import * as nodemailer from 'nodemailer';
 
-// Email configuration for Namecheap hosting
+// Email configuration for Gmail SMTP (temporary solution)
 const emailConfig = {
-  host: 'mail.shiteni.com', // Your domain's mail server
-  port: 587, // Standard SMTP port for Namecheap
-  secure: false, // Use STARTTLS (TLS encryption)
+  service: 'gmail', // Use Gmail service
   auth: {
-    user: 'support@shiteni.com', // Your actual email address
-    pass: '@M309877321k.'
-  },
-  tls: {
-    rejectUnauthorized: false // Allow self-signed certificates
+    user: process.env.SMTP_USER || 'theaterszm@gmail.com', // Your Gmail address
+    pass: process.env.SMTP_PASS || '@M309877321k.' // Your Gmail App Password
   }
 };
 
@@ -432,13 +427,13 @@ export const emailTemplates = {
 // Send email function
 export const sendEmail = async (to: string, template: any) => {
   try {
-    const mailOptions = {
-      from: '"Shiteni Support" <support@shiteni.com>',
-      to: to,
-      subject: template.subject,
-      text: template.text,
-      html: template.html
-    };
+        const mailOptions = {
+          from: '"Shiteni Support" <theaterszm@gmail.com>',
+          to: to,
+          subject: template.subject,
+          text: template.text,
+          html: template.html
+        };
 
     const result = await transporter.sendMail(mailOptions);
     console.log('✅ Email sent successfully:', result.messageId);

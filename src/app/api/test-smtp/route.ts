@@ -6,12 +6,15 @@ export async function GET(request: NextRequest) {
     
     // Test SMTP connection directly
     const transporter = nodemailer.createTransport({
-      host: 'server350.web-hosting.com',
-      port: 587,
-      secure: false,
+      host: process.env.SMTP_HOST || 'mail.shiteni.com',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: 'mankbvfr_musanse@server350.web-hosting.com',
-        pass: '@M309877321k.'
+        user: process.env.SMTP_USER || 'support@shiteni.com',
+        pass: process.env.SMTP_PASS || '@M309877321k.'
+      },
+      tls: {
+        rejectUnauthorized: false
       }
     });
 
@@ -32,10 +35,10 @@ export async function GET(request: NextRequest) {
 
     // Try to send a test email
     const testEmail = await transporter.sendMail({
-      from: '"Mankuca Support" <mankbvfr_musanse@server350.web-hosting.com>',
-      to: 'test@example.com',
-      subject: 'SMTP Test - Mankuca',
-      html: '<h1>SMTP Test</h1><p>This is a direct SMTP test.</p>',
+      from: `"Shiteni Support" <${process.env.SMTP_USER || 'support@shiteni.com'}>`,
+      to: 'kmusanse@gmail.com',
+      subject: 'SMTP Test - Shiteni Platform',
+      html: '<h1>SMTP Test</h1><p>This is a direct SMTP test from Shiteni Platform.</p><p>If you receive this email, the SMTP configuration is working correctly!</p>',
     });
 
     return NextResponse.json({

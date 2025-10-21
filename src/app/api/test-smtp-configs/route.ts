@@ -4,58 +4,55 @@ export async function GET(request: NextRequest) {
   try {
     const nodemailer = require('nodemailer');
     
-    // Try different SMTP configurations for Namecheap
+    console.log('=== SMTP Configuration Debug ===');
+    console.log('SMTP_HOST:', process.env.SMTP_HOST);
+    console.log('SMTP_PORT:', process.env.SMTP_PORT);
+    console.log('SMTP_USER:', process.env.SMTP_USER);
+    console.log('SMTP_PASS_SET:', !!process.env.SMTP_PASS);
+    console.log('SMTP_SECURE:', process.env.SMTP_SECURE);
+    
+    // Test different SMTP configurations
     const configs = [
       {
-        name: 'Config 1: Standard Namecheap',
+        name: 'Current Namecheap Config',
         config: {
-          host: 'server350.web-hosting.com',
+          host: 'mail.shiteni.com',
           port: 587,
           secure: false,
           auth: {
-            user: 'mankbvfr_musanse@server350.web-hosting.com',
+            user: 'support@shiteni.com',
             pass: '@M309877321k.'
           },
-          tls: { rejectUnauthorized: false }
+          tls: {
+            rejectUnauthorized: false
+          }
         }
       },
       {
-        name: 'Config 2: Alternative port',
+        name: 'Alternative Namecheap Config',
         config: {
-          host: 'server350.web-hosting.com',
+          host: 'mail.shiteni.com',
           port: 465,
           secure: true,
           auth: {
-            user: 'mankbvfr_musanse@server350.web-hosting.com',
+            user: 'support@shiteni.com',
             pass: '@M309877321k.'
           },
-          tls: { rejectUnauthorized: false }
+          tls: {
+            rejectUnauthorized: false
+          }
         }
       },
       {
-        name: 'Config 3: Different host format',
+        name: 'Gmail SMTP (for testing)',
         config: {
-          host: 'mail.server350.web-hosting.com',
+          host: 'smtp.gmail.com',
           port: 587,
           secure: false,
           auth: {
-            user: 'mankbvfr_musanse@server350.web-hosting.com',
-            pass: '@M309877321k.'
-          },
-          tls: { rejectUnauthorized: false }
-        }
-      },
-      {
-        name: 'Config 4: Username only',
-        config: {
-          host: 'server350.web-hosting.com',
-          port: 587,
-          secure: false,
-          auth: {
-            user: 'mankbvfr_musanse',
-            pass: '@M309877321k.'
-          },
-          tls: { rejectUnauthorized: false }
+            user: 'your-gmail@gmail.com',
+            pass: 'your-app-password'
+          }
         }
       }
     ];
@@ -64,9 +61,10 @@ export async function GET(request: NextRequest) {
 
     for (const { name, config } of configs) {
       try {
-        console.log(`Testing ${name}...`);
-        const transporter = nodemailer.createTransport(config);
+        console.log(`\nTesting ${name}...`);
+        const transporter = nodemailer.createTransporter(config);
         
+        // Test connection
         const connectionTest = await new Promise((resolve, reject) => {
           transporter.verify((error, success) => {
             if (error) {
@@ -79,50 +77,43 @@ export async function GET(request: NextRequest) {
 
         results.push({
           config: name,
-          success: true,
-          message: 'Connection successful'
+          connectionTest: connectionTest,
+          error: null
         });
 
-        // If connection successful, try sending email
-        const testEmail = await transporter.sendMail({
-          from: `"Mankuca Support" <${config.auth.user}>`,
-          to: 'test@example.com',
-          subject: `SMTP Test - ${name}`,
-          html: `<h1>SMTP Test</h1><p>This is a test from ${name}</p>`,
-        });
-
-        results.push({
-          config: name,
-          success: true,
-          message: 'Email sent successfully',
-          messageId: testEmail.messageId
-        });
-
-        break; // Stop at first successful config
+        console.log(`${name}: Connection successful`);
 
       } catch (error) {
+        console.log(`${name}: Connection failed -`, error.message);
         results.push({
           config: name,
-          success: false,
-          error: (error as Error).message,
-          code: (error as any).code
+          connectionTest: false,
+          error: error.message,
+          code: error.code
         });
       }
     }
 
     return NextResponse.json({
-      message: 'SMTP configuration test completed',
+      message: 'SMTP configuration diagnostic completed',
       results: results,
+      environment: {
+        SMTP_HOST: process.env.SMTP_HOST,
+        SMTP_PORT: process.env.SMTP_PORT,
+        SMTP_USER: process.env.SMTP_USER,
+        SMTP_PASS_SET: !!process.env.SMTP_PASS,
+        SMTP_SECURE: process.env.SMTP_SECURE
+      },
       timestamp: new Date().toISOString()
     });
 
   } catch (error) {
-    console.error('SMTP test error:', error);
+    console.error('SMTP diagnostic error:', error);
     return NextResponse.json(
       { 
-        error: 'SMTP test failed',
-        message: (error as Error).message,
-        stack: (error as Error).stack
+        error: 'SMTP diagnostic failed',
+        message: error.message,
+        stack: error.stack
       },
       { status: 500 }
     );
