@@ -17,6 +17,9 @@ export default withAuth(
       path === '/' || 
       path.startsWith('/auth/') || 
       path.startsWith('/api/') ||
+      path === '/reset-password' ||
+      path === '/verify-email' ||
+      path === '/forgot-password' ||
       path === '/favicon.ico' ||
       path === '/sw.js' ||
       path.startsWith('/icons/') ||
