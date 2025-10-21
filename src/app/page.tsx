@@ -373,6 +373,7 @@ export default function Home() {
                 width={120}
                 height={32}
                 className="h-8 w-auto"
+                style={{ width: 'auto', height: 'auto' }}
                 priority
               />
               <h1 className="text-2xl font-bold text-foreground">Shiteni</h1>
