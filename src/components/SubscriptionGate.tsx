@@ -25,6 +25,8 @@ interface SubscriptionStatus {
   hasActiveSubscription: boolean;
   subscription: any;
   error: string | null;
+  vendorApproved: boolean;
+  vendorStatus: string;
 }
 
 const formatCurrency = (amount: number, currency: string = 'ZMW') => {
@@ -64,20 +66,31 @@ export default function SubscriptionGate({ serviceType, children }: Subscription
   const checkSubscriptionStatus = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/${serviceType}/subscription/status`);
-      const data = await response.json();
+      
+      // Check both subscription status and vendor approval status
+      const [subscriptionResponse, vendorResponse] = await Promise.all([
+        fetch(`/api/${serviceType}/subscription/status`),
+        fetch('/api/vendor/approval-status')
+      ]);
+      
+      const subscriptionData = await subscriptionResponse.json();
+      const vendorData = await vendorResponse.json();
       
       setSubscriptionStatus({
-        hasActiveSubscription: data.hasActiveSubscription,
-        subscription: data.subscription,
-        error: data.error
+        hasActiveSubscription: subscriptionData.hasActiveSubscription,
+        subscription: subscriptionData.subscription,
+        error: subscriptionData.error,
+        vendorApproved: vendorData.approved || false,
+        vendorStatus: vendorData.status || 'pending'
       });
     } catch (error) {
       console.error('Error checking subscription status:', error);
       setSubscriptionStatus({
         hasActiveSubscription: false,
         subscription: null,
-        error: 'Failed to check subscription status'
+        error: 'Failed to check subscription status',
+        vendorApproved: false,
+        vendorStatus: 'unknown'
       });
     } finally {
       setLoading(false);
@@ -93,12 +106,113 @@ export default function SubscriptionGate({ serviceType, children }: Subscription
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Checking subscription status...</p>
+          <p className="mt-2 text-gray-600">Checking vendor approval and subscription status...</p>
         </div>
       </div>
     );
   }
 
+  // First check if vendor is approved
+  if (!subscriptionStatus?.vendorApproved) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-lg">
+          <CardHeader className="text-center pb-4">
+            <div className="mx-auto mb-3 w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+              <Clock className="h-6 w-6 text-yellow-600" />
+            </div>
+            <CardTitle className="text-xl font-bold text-gray-900">
+              Vendor Approval Required
+            </CardTitle>
+            <CardDescription className="text-sm text-gray-600">
+              Your vendor account is pending approval from our admin team
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="space-y-4">
+            {/* Current Status */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="flex items-center space-x-2">
+                <Clock className="h-4 w-4 text-yellow-600" />
+                <span className="font-medium text-yellow-800 text-sm">
+                  Status: {subscriptionStatus?.vendorStatus?.charAt(0).toUpperCase() + subscriptionStatus?.vendorStatus?.slice(1)}
+                </span>
+              </div>
+              <p className="text-yellow-700 mt-1 text-sm">
+                Your {getServiceTypeDisplay(serviceType)} vendor account is currently under review.
+              </p>
+            </div>
+
+            {/* What's Blocked */}
+            <div className="space-y-2">
+              <h3 className="font-semibold text-gray-900 text-sm">While waiting for approval, you cannot:</h3>
+              <ul className="space-y-1 text-gray-600 text-sm">
+                <li className="flex items-center space-x-2">
+                  <XCircle className="h-3 w-3 text-red-500" />
+                  <span>Subscribe to any plans</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <XCircle className="h-3 w-3 text-red-500" />
+                  <span>Access dashboard features</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <XCircle className="h-3 w-3 text-red-500" />
+                  <span>Show your services/products to customers</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <XCircle className="h-3 w-3 text-red-500" />
+                  <span>Receive bookings or orders</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* What happens after approval */}
+            <div className="space-y-2">
+              <h3 className="font-semibold text-gray-900 text-sm">After approval, you will be able to:</h3>
+              <ul className="space-y-1 text-gray-600 text-sm">
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-3 w-3 text-green-500" />
+                  <span>Subscribe to plans and access dashboard</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-3 w-3 text-green-500" />
+                  <span>Show your services/products to customers</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-3 w-3 text-green-500" />
+                  <span>Receive bookings and orders</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="h-3 w-3 text-green-500" />
+                  <span>Manage your business operations</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
+              <Button 
+                variant="outline" 
+                onClick={() => router.push('/dashboard')}
+                className="flex-1"
+                size="sm"
+              >
+                Back to Dashboard
+              </Button>
+            </div>
+
+            {/* Additional Info */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+              <AlertTriangle className="h-4 w-4 inline mr-2" />
+              <strong>Note:</strong> Approval typically takes 1-2 business days. You will receive an email notification once your account is approved.
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // If vendor is approved but no active subscription
   if (!subscriptionStatus?.hasActiveSubscription) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
