@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import { User } from '@/models/User';
 import { SubscriptionPlan } from '@/models/SubscriptionPlan';
-import axios from 'axios';
+import { lipilaPaymentService, PaymentType, CustomerInfo } from '@/lib/lipila-payment';
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,81 +53,70 @@ export async function POST(request: NextRequest) {
 
     console.log('Initializing Lipila payment with:', {
       amount,
-      currency: process.env.LIPILA_CURRENCY || 'ZMW',
+      currency: plan.currency || 'ZMW',
       customer_phone: mobileMoneyContact.phoneNumber,
       detectedNetwork,
-      lipilaBaseUrl: process.env.LIPILA_BASE_URL,
-      hasSecretKey: !!process.env.LIPILA_SECRET_KEY
+      planName: plan.name
     });
 
-    // Initialize Lipila payment
-    const lipilaResponse = await axios.post(
-      `${process.env.LIPILA_BASE_URL}/api/v1/payments`,
-      {
-        amount: amount,
-        currency: process.env.LIPILA_CURRENCY || 'ZMW',
-        description: `Store subscription upgrade to ${plan.name} (${detectedNetwork.toUpperCase()})`,
-        customer_email: user.email,
-        customer_name: user.name || `${user.firstName} ${user.lastName}`,
-        customer_phone: mobileMoneyContact.phoneNumber,
-        payment_method: 'mobile_money',
-        callback_url: `${process.env.NEXTAUTH_URL}/api/store/subscription/payment-callback`,
-        success_url: `${process.env.NEXTAUTH_URL}/dashboard/vendor/store/subscription?success=true`,
-        failure_url: `${process.env.NEXTAUTH_URL}/dashboard/vendor/store/subscription?error=true`
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${process.env.LIPILA_SECRET_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      }
+    // Prepare customer info for Lipila payment service
+    const customerInfo: CustomerInfo = {
+      phoneNumber: mobileMoneyContact.phoneNumber,
+      email: user.email,
+      fullName: user.name || `${user.firstName} ${user.lastName}`,
+      customerFirstName: user.firstName || user.name?.split(' ')[0] || 'Customer',
+      customerLastName: user.lastName || user.name?.split(' ').slice(1).join(' ') || 'User',
+      customerCity: 'Lusaka',
+      customerCountry: 'Zambia'
+    };
+
+    // Process payment using the working Lipila service
+    const paymentResponse = await lipilaPaymentService.processSubscriptionPayment(
+      `store-${planId}-${Date.now()}`,
+      amount,
+      'mobile-money' as PaymentType,
+      customerInfo,
+      `Store subscription upgrade to ${plan.name} (${detectedNetwork.toUpperCase()})`
     );
 
-    if (lipilaResponse.data.success) {
+    console.log('Lipila payment response:', paymentResponse);
+    
+    // Check if payment was initiated successfully
+    if (paymentResponse.status === 'Successful' || paymentResponse.status === 'Pending') {
       // Store payment reference in user record
       await User.findByIdAndUpdate(user._id, {
         $set: {
           'subscription.pendingPlanId': planId,
-          'subscription.pendingPaymentId': lipilaResponse.data.payment_id,
+          'subscription.pendingPaymentId': paymentResponse.transactionId,
           'subscription.pendingAmount': amount
         }
       });
 
       return NextResponse.json({
         success: true,
-        paymentUrl: lipilaResponse.data.payment_url,
-        paymentId: lipilaResponse.data.payment_id,
-        message: 'Payment initiated successfully'
+        paymentUrl: paymentResponse.redirectUrl || paymentResponse.clientRedirectUrl,
+        paymentId: paymentResponse.transactionId,
+        message: 'Payment initiated successfully. Please check your mobile money for payment prompt.',
+        paymentStatus: paymentResponse.status,
+        externalId: paymentResponse.externalId
       });
     } else {
+      console.error('Lipila payment failed:', paymentResponse);
       return NextResponse.json({
         success: false,
-        error: 'Failed to initialize payment with Lipila'
+        error: 'Failed to initialize payment',
+        details: paymentResponse.message || 'Payment initiation failed'
       }, { status: 500 });
     }
 
   } catch (error) {
     console.error('Store subscription upgrade error:', error);
     
-    if (axios.isAxiosError(error)) {
-      console.error('Lipila API Error:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message
-      });
-      
-      return NextResponse.json(
-        { 
-          error: 'Payment service error',
-          details: error.response?.data?.message || error.message
-        },
-        { status: 500 }
-      );
-    }
-    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Payment processing failed',
+        details: error instanceof Error ? error.message : 'Unknown error occurred'
+      },
       { status: 500 }
     );
   }
