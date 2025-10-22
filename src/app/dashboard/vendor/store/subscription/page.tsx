@@ -66,10 +66,63 @@ export default function StoreSubscriptionPage() {
   });
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showPaymentWaiting, setShowPaymentWaiting] = useState(false);
+  const [paymentTransactionId, setPaymentTransactionId] = useState('');
+  const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed' | 'error'>('pending');
 
   useEffect(() => {
     fetchSubscriptionData();
   }, []);
+
+  // Payment monitoring effect
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    if (showPaymentWaiting && paymentTransactionId && paymentStatus === 'pending') {
+      console.log('Starting payment monitoring for transaction:', paymentTransactionId);
+      
+      intervalId = setInterval(async () => {
+        try {
+          const response = await fetch(`/api/store/subscription/payment-status?transactionId=${paymentTransactionId}`);
+          const data = await response.json();
+
+          console.log('Payment status check:', data);
+
+          if (data.success) {
+            if (data.status === 'success') {
+              setPaymentStatus('success');
+              setShowPaymentWaiting(false);
+              // Refresh subscription data
+              await fetchSubscriptionData();
+              // Show success message
+              setErrorMessage('Payment successful! Your subscription has been activated.');
+              setShowErrorModal(true);
+            } else if (data.status === 'failed') {
+              setPaymentStatus('failed');
+              setShowPaymentWaiting(false);
+              setErrorMessage(data.message || 'Payment failed. Please try again.');
+              setShowErrorModal(true);
+            }
+            // If still pending, continue monitoring
+          } else {
+            setPaymentStatus('error');
+            setShowPaymentWaiting(false);
+            setErrorMessage(data.message || 'Error checking payment status.');
+            setShowErrorModal(true);
+          }
+        } catch (error) {
+          console.error('Error monitoring payment:', error);
+          // Continue monitoring on error (might be temporary network issue)
+        }
+      }, 3000); // Check every 3 seconds
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [showPaymentWaiting, paymentTransactionId, paymentStatus]);
 
   const fetchSubscriptionData = async () => {
     try {
@@ -141,13 +194,10 @@ export default function StoreSubscriptionPage() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Redirect to Lipila payment page or show payment instructions
-        if (data.paymentUrl) {
-          window.location.href = data.paymentUrl;
-        } else {
-          setErrorMessage('Payment initiated! Please check your mobile money for payment prompt.');
-          setShowErrorModal(true);
-        }
+        // Show waiting screen and start monitoring
+        setPaymentTransactionId(data.transactionId);
+        setPaymentStatus('pending');
+        setShowPaymentWaiting(true);
         setShowUpgradeDialog(false);
         // Reset form
         setMobileMoneyContact({ phoneNumber: '' });
@@ -492,6 +542,49 @@ export default function StoreSubscriptionPage() {
               <div className="flex justify-end">
                 <Button onClick={() => setShowErrorModal(false)} className="bg-red-600 hover:bg-red-700 text-white">
                   OK
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Payment Waiting Screen */}
+          <Dialog open={showPaymentWaiting} onOpenChange={() => {}}>
+            <DialogContent className="bg-blue-50 border-blue-200 max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-blue-800 text-center">Processing Payment</DialogTitle>
+                <DialogDescription className="text-blue-600 text-center">
+                  Please wait while we process your payment
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-6 text-center">
+                <div className="mb-4">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-blue-700 font-medium">Payment Status: {paymentStatus.toUpperCase()}</p>
+                  <p className="text-blue-600 text-sm">
+                    Please check your mobile money for payment prompt
+                  </p>
+                  <p className="text-blue-500 text-xs">
+                    Transaction ID: {paymentTransactionId.substring(0, 8)}...
+                  </p>
+                </div>
+                <div className="mt-4 text-xs text-blue-500">
+                  <p>⏱️ This may take up to 2 minutes</p>
+                  <p>🔄 Checking payment status automatically...</p>
+                </div>
+              </div>
+              <div className="flex justify-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setShowPaymentWaiting(false);
+                    setPaymentStatus('pending');
+                    setPaymentTransactionId('');
+                  }}
+                  className="bg-white text-blue-600 border-blue-300 hover:bg-blue-50"
+                >
+                  Cancel Payment
                 </Button>
               </div>
             </DialogContent>

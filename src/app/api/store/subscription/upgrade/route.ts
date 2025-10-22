@@ -96,9 +96,11 @@ export async function POST(request: NextRequest) {
         success: true,
         paymentUrl: paymentResponse.redirectUrl || paymentResponse.clientRedirectUrl,
         paymentId: paymentResponse.transactionId,
+        transactionId: paymentResponse.transactionId, // For monitoring
         message: 'Payment initiated successfully. Please check your mobile money for payment prompt.',
         paymentStatus: paymentResponse.status,
-        externalId: paymentResponse.externalId
+        externalId: paymentResponse.externalId,
+        monitoringUrl: `/api/store/subscription/payment-status?transactionId=${paymentResponse.transactionId}`
       });
     } else {
       console.error('Lipila payment failed:', paymentResponse);
