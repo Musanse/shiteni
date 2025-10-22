@@ -75,8 +75,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Check if user has pending payment
-    if (!user.subscription?.pendingPaymentId || user.subscription.pendingPaymentId !== transactionId) {
+    // Find pending subscription with this transaction ID
+    const pendingSubscription = await StoreSubscription.findOne({
+      userId: session.user.id,
+      transactionId: transactionId,
+      status: 'pending'
+    });
+
+    if (!pendingSubscription) {
       return NextResponse.json({ error: 'No pending payment found for this transaction' }, { status: 404 });
     }
 
@@ -92,59 +98,22 @@ export async function GET(request: NextRequest) {
 
       // If payment is successful, activate subscription
       if (paymentStatus.status === 'Successful') {
-        const planId = user.subscription.pendingPlanId;
-        const amount = user.subscription.pendingAmount;
-
         // Get plan details
-        const plan = await SubscriptionPlan.findById(planId);
+        const plan = await SubscriptionPlan.findById(pendingSubscription.planId);
         if (!plan) {
           return NextResponse.json({ error: 'Subscription plan not found' }, { status: 404 });
         }
 
-        // Create active subscription
-        const subscriptionId = `store-${user._id}-${Date.now()}`;
-        const startDate = new Date();
-        const endDate = new Date();
-        
-        // Calculate end date based on billing cycle
-        if (plan.billingCycle === 'monthly') {
-          endDate.setMonth(endDate.getMonth() + 1);
-        } else if (plan.billingCycle === 'quarterly') {
-          endDate.setMonth(endDate.getMonth() + 3);
-        } else if (plan.billingCycle === 'yearly') {
-          endDate.setFullYear(endDate.getFullYear() + 1);
-        }
-
-        const newSubscription = new StoreSubscription({
-          subscriptionId,
-          userId: user._id,
-          planId: plan._id,
+        // Update pending subscription to active
+        await StoreSubscription.findByIdAndUpdate(pendingSubscription._id, {
           status: 'active',
-          startDate,
-          endDate,
-          nextBillingDate: endDate,
-          autoRenew: true,
-          paymentMethod: 'mobile_money',
           paymentStatus: 'paid',
-          transactionId: transactionId,
-          lipilaTransactionId: transactionId,
           lipilaExternalId: paymentStatus.externalId,
-          serviceType: 'store'
-        });
-
-        await newSubscription.save();
-
-        // Clear pending payment from user record
-        await User.findByIdAndUpdate(user._id, {
-          $unset: {
-            'subscription.pendingPlanId': 1,
-            'subscription.pendingPaymentId': 1,
-            'subscription.pendingAmount': 1
-          }
+          updatedAt: new Date()
         });
 
         console.log('Subscription activated successfully:', {
-          subscriptionId,
+          subscriptionId: pendingSubscription.subscriptionId,
           userId: user._id,
           planId: plan._id,
           transactionId
@@ -155,23 +124,21 @@ export async function GET(request: NextRequest) {
           status: 'success',
           message: 'Payment successful! Subscription activated.',
           subscription: {
-            id: newSubscription._id,
+            id: pendingSubscription._id,
             planName: plan.name,
             status: 'active',
-            startDate: startDate.toISOString(),
-            endDate: endDate.toISOString(),
-            amount: amount,
+            startDate: pendingSubscription.startDate.toISOString(),
+            endDate: pendingSubscription.endDate.toISOString(),
+            amount: plan.price,
             currency: plan.currency
           }
         });
       } else if (paymentStatus.status === 'Failed') {
-        // Clear pending payment on failure
-        await User.findByIdAndUpdate(user._id, {
-          $unset: {
-            'subscription.pendingPlanId': 1,
-            'subscription.pendingPaymentId': 1,
-            'subscription.pendingAmount': 1
-          }
+        // Mark subscription as failed
+        await StoreSubscription.findByIdAndUpdate(pendingSubscription._id, {
+          status: 'cancelled',
+          paymentStatus: 'failed',
+          updatedAt: new Date()
         });
 
         return NextResponse.json({

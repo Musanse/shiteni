@@ -5,6 +5,52 @@ import connectDB from '@/lib/mongodb';
 import { User } from '@/models/User';
 import { SubscriptionPlan } from '@/models/SubscriptionPlan';
 import { lipilaPaymentService, PaymentType, CustomerInfo } from '@/lib/lipila-payment';
+import mongoose from 'mongoose';
+
+// Store subscription schema
+const StoreSubscriptionSchema = new mongoose.Schema({
+  subscriptionId: { type: String, required: true, unique: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  planId: { type: mongoose.Schema.Types.ObjectId, ref: 'SubscriptionPlan', required: true },
+  status: { 
+    type: String, 
+    enum: ['active', 'inactive', 'cancelled', 'expired', 'pending'], 
+    default: 'pending' 
+  },
+  startDate: { type: Date, required: true },
+  endDate: { type: Date, required: true },
+  nextBillingDate: { type: Date },
+  autoRenew: { type: Boolean, default: true },
+  paymentMethod: { 
+    type: String, 
+    enum: ['card', 'mobile_money', 'bank_transfer'], 
+    required: true 
+  },
+  paymentStatus: { 
+    type: String, 
+    enum: ['pending', 'paid', 'failed', 'refunded'], 
+    default: 'pending' 
+  },
+  transactionId: { type: String },
+  lipilaTransactionId: { type: String },
+  lipilaExternalId: { type: String },
+  usage: {
+    products: { type: Number, default: 0 },
+    orders: { type: Number, default: 0 },
+    customers: { type: Number, default: 0 },
+    staff: { type: Number, default: 0 }
+  },
+  serviceType: { type: String, default: 'store' },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+// Clear model cache
+if (mongoose.models.StoreSubscription) {
+  delete mongoose.models.StoreSubscription;
+}
+
+const StoreSubscription = mongoose.model('StoreSubscription', StoreSubscriptionSchema);
 
 export async function POST(request: NextRequest) {
   try {
@@ -83,13 +129,50 @@ export async function POST(request: NextRequest) {
     
     // Check if payment was initiated successfully
     if (paymentResponse.status === 'Successful' || paymentResponse.status === 'Pending') {
-      // Store payment reference in user record
-      await User.findByIdAndUpdate(user._id, {
-        $set: {
-          'subscription.pendingPlanId': planId,
-          'subscription.pendingPaymentId': paymentResponse.transactionId,
-          'subscription.pendingAmount': amount
-        }
+      // Calculate subscription dates
+      const startDate = new Date();
+      const endDate = new Date();
+      
+      switch (plan.billingCycle) {
+        case 'monthly':
+          endDate.setMonth(endDate.getMonth() + 1);
+          break;
+        case 'quarterly':
+          endDate.setMonth(endDate.getMonth() + 3);
+          break;
+        case 'yearly':
+          endDate.setFullYear(endDate.getFullYear() + 1);
+          break;
+        default:
+          endDate.setMonth(endDate.getMonth() + 1); // Default to monthly
+      }
+
+      // Create pending subscription record
+      const subscriptionId = `store-${user._id}-${Date.now()}`;
+      const pendingSubscription = new StoreSubscription({
+        subscriptionId,
+        userId: user._id,
+        planId: plan._id,
+        status: 'pending',
+        startDate,
+        endDate,
+        nextBillingDate: endDate,
+        autoRenew: true,
+        paymentMethod: 'mobile_money',
+        paymentStatus: 'pending',
+        transactionId: paymentResponse.transactionId,
+        lipilaTransactionId: paymentResponse.transactionId,
+        lipilaExternalId: paymentResponse.externalId,
+        serviceType: 'store'
+      });
+
+      await pendingSubscription.save();
+
+      console.log('Pending subscription created:', {
+        subscriptionId,
+        userId: user._id,
+        planId: plan._id,
+        transactionId: paymentResponse.transactionId
       });
 
       return NextResponse.json({
