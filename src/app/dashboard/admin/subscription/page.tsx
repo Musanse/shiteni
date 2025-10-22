@@ -79,6 +79,10 @@ export default function SubscriptionPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [vendorTypeFilter, setVendorTypeFilter] = useState('all');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null);
+  const [showEditSubscriptionForm, setShowEditSubscriptionForm] = useState(false);
+  const [editingSubscription, setEditingSubscription] = useState<Subscription | null>(null);
   const [activeTab, setActiveTab] = useState('plans');
   const [formData, setFormData] = useState({
     name: '',
@@ -258,6 +262,181 @@ export default function SubscriptionPage() {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleEditPlan = (plan: SubscriptionPlan) => {
+    setEditingPlan(plan);
+    setFormData({
+      name: plan.name,
+      description: plan.description,
+      vendorType: plan.vendorType,
+      planType: plan.planType,
+      price: plan.price.toString(),
+      currency: plan.currency,
+      billingCycle: plan.billingCycle,
+      features: plan.features.join(', '),
+      maxProducts: plan.maxProducts.toString(),
+      maxStaffAccounts: plan.maxStaffAccounts.toString(),
+      isPopular: plan.isPopular,
+      isActive: plan.status === 'active'
+    });
+    setShowEditForm(true);
+  };
+
+  const handleUpdatePlan = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPlan) return;
+    
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      // Parse features from comma-separated string
+      const features = formData.features
+        .split(',')
+        .map(feature => feature.trim())
+        .filter(feature => feature.length > 0);
+
+      const planData = {
+        name: formData.name,
+        description: formData.description,
+        vendorType: formData.vendorType,
+        planType: formData.planType,
+        price: parseFloat(formData.price),
+        currency: formData.currency,
+        billingCycle: formData.billingCycle,
+        features: features,
+        maxProducts: parseInt(formData.maxProducts) || 10,
+        maxStaffAccounts: parseInt(formData.maxStaffAccounts) || 2,
+        isPopular: formData.isPopular,
+        isActive: formData.isActive
+      };
+
+      const response = await fetch(`/api/admin/subscription-plans/${editingPlan._id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(planData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.plan) {
+        // Update the plan in the list
+        setPlans(plans.map(plan => 
+          plan._id === editingPlan._id 
+            ? {
+                ...plan,
+                name: data.plan.name,
+                description: data.plan.description,
+                vendorType: data.plan.vendorType,
+                planType: data.plan.planType,
+                price: data.plan.price,
+                currency: data.plan.currency,
+                billingCycle: data.plan.billingCycle,
+                features: data.plan.features,
+                maxProducts: data.plan.maxLoans || data.plan.maxProducts,
+                maxStaffAccounts: data.plan.maxStaffAccounts,
+                status: data.plan.isActive ? 'active' : 'inactive',
+                isPopular: data.plan.isPopular,
+                updatedAt: data.plan.updatedAt
+              }
+            : plan
+        ));
+        
+        // Reset form and close modal
+        setFormData({
+          name: '',
+          description: '',
+          vendorType: 'hotel',
+          planType: 'basic',
+          price: '',
+          currency: 'ZMW',
+          billingCycle: 'monthly',
+          features: '',
+          maxProducts: '',
+          maxStaffAccounts: '',
+          isPopular: false,
+          isActive: true
+        });
+        setShowEditForm(false);
+        setEditingPlan(null);
+      } else {
+        setError(data.error || 'Failed to update subscription plan');
+      }
+    } catch (error) {
+      console.error('Error updating subscription plan:', error);
+      setError('Failed to update subscription plan');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditForm(false);
+    setEditingPlan(null);
+    setFormData({
+      name: '',
+      description: '',
+      vendorType: 'hotel',
+      planType: 'basic',
+      price: '',
+      currency: 'ZMW',
+      billingCycle: 'monthly',
+      features: '',
+      maxProducts: '',
+      maxStaffAccounts: '',
+      isPopular: false,
+      isActive: true
+    });
+  };
+
+  const handleEditSubscription = (subscription: Subscription) => {
+    setEditingSubscription(subscription);
+    setShowEditSubscriptionForm(true);
+  };
+
+  const handleUpdateSubscription = async (action: string, updateData?: any) => {
+    if (!editingSubscription) return;
+    
+    try {
+      const response = await fetch('/api/admin/subscription', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subscriptionId: editingSubscription._id,
+          action: action,
+          ...updateData
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update the subscription in the list
+        setSubscriptions(subscriptions.map(sub => 
+          sub._id === editingSubscription._id 
+            ? { ...sub, ...data.subscription }
+            : sub
+        ));
+        
+        setShowEditSubscriptionForm(false);
+        setEditingSubscription(null);
+      } else {
+        setError(data.error || 'Failed to update subscription');
+      }
+    } catch (error) {
+      console.error('Error updating subscription:', error);
+      setError('Failed to update subscription');
+    }
+  };
+
+  const handleCancelSubscriptionEdit = () => {
+    setShowEditSubscriptionForm(false);
+    setEditingSubscription(null);
   };
 
   const filteredPlans = plans.filter(plan => {
@@ -539,7 +718,12 @@ export default function SubscriptionPage() {
                       </div>
 
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => handleEditPlan(plan)}
+                        >
                           <Edit className="h-4 w-4 mr-1" />
                           Edit
                         </Button>
@@ -666,7 +850,11 @@ export default function SubscriptionPage() {
                         <Button variant="outline" size="sm">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditSubscription(subscription)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                       </div>
@@ -887,6 +1075,273 @@ export default function SubscriptionPage() {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Plan Dialog */}
+      <Dialog open={showEditForm} onOpenChange={setShowEditForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Subscription Plan</DialogTitle>
+            <DialogDescription>
+              Update the subscription plan details
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleUpdatePlan} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="edit-name">Plan Name *</Label>
+                <Input
+                  id="edit-name"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="e.g., Basic Plan, Premium Plan"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-vendorType">Vendor Type *</Label>
+                <Select value={formData.vendorType} onValueChange={(value) => handleInputChange('vendorType', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select vendor type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hotel">Hotel</SelectItem>
+                    <SelectItem value="store">Store</SelectItem>
+                    <SelectItem value="pharmacy">Pharmacy</SelectItem>
+                    <SelectItem value="bus">Bus</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-planType">Plan Type *</Label>
+                <Select value={formData.planType} onValueChange={(value) => handleInputChange('planType', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select plan type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="basic">Basic</SelectItem>
+                    <SelectItem value="premium">Premium</SelectItem>
+                    <SelectItem value="enterprise">Enterprise</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-description">Description *</Label>
+              <Textarea
+                id="edit-description"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Describe what this plan includes..."
+                rows={3}
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <Label htmlFor="edit-price">Price *</Label>
+                <Input
+                  id="edit-price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.price}
+                  onChange={(e) => handleInputChange('price', e.target.value)}
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-currency">Currency *</Label>
+                <Select value={formData.currency} onValueChange={(value) => handleInputChange('currency', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ZMW">ZMW</SelectItem>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="EUR">EUR</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-billingCycle">Billing Cycle *</Label>
+                <Select value={formData.billingCycle} onValueChange={(value) => handleInputChange('billingCycle', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select billing cycle" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                    <SelectItem value="yearly">Yearly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="edit-isPopular"
+                  checked={formData.isPopular}
+                  onChange={(e) => handleInputChange('isPopular', e.target.checked)}
+                  className="rounded"
+                />
+                <Label htmlFor="edit-isPopular">Popular Plan</Label>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-features">Features *</Label>
+              <Textarea
+                id="edit-features"
+                value={formData.features}
+                onChange={(e) => handleInputChange('features', e.target.value)}
+                placeholder="Enter features separated by commas (e.g., Feature 1, Feature 2, Feature 3)"
+                rows={3}
+                required
+              />
+              <p className="text-sm text-muted-foreground mt-1">
+                Separate multiple features with commas
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-maxProducts">Max Products</Label>
+                <Input
+                  id="edit-maxProducts"
+                  type="number"
+                  min="1"
+                  value={formData.maxProducts}
+                  onChange={(e) => handleInputChange('maxProducts', e.target.value)}
+                  placeholder="10"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="edit-maxStaffAccounts">Max Staff Accounts</Label>
+                <Input
+                  id="edit-maxStaffAccounts"
+                  type="number"
+                  min="1"
+                  value={formData.maxStaffAccounts}
+                  onChange={(e) => handleInputChange('maxStaffAccounts', e.target.value)}
+                  placeholder="2"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="edit-isActive"
+                checked={formData.isActive}
+                onChange={(e) => handleInputChange('isActive', e.target.checked)}
+                className="rounded"
+              />
+              <Label htmlFor="edit-isActive">Active Plan</Label>
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <Button type="button" variant="outline" onClick={handleCancelEdit}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Updating...' : 'Update Plan'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Subscription Dialog */}
+      <Dialog open={showEditSubscriptionForm} onOpenChange={setShowEditSubscriptionForm}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manage Subscription</DialogTitle>
+            <DialogDescription>
+              Update subscription status and settings
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editingSubscription && (
+            <div className="space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium mb-2">Subscription Details</h4>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span>User:</span>
+                    <span>{editingSubscription.user.firstName} {editingSubscription.user.lastName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Plan:</span>
+                    <span>{editingSubscription.plan.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Status:</span>
+                    <Badge variant={editingSubscription.status === 'active' ? 'default' : 'secondary'}>
+                      {editingSubscription.status}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Amount:</span>
+                    <span>ZMW {editingSubscription.amount}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-medium">Quick Actions</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {editingSubscription.status !== 'active' && (
+                    <Button 
+                      onClick={() => handleUpdateSubscription('activate')}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Activate
+                    </Button>
+                  )}
+                  {editingSubscription.status === 'active' && (
+                    <Button 
+                      onClick={() => handleUpdateSubscription('suspend')}
+                      variant="outline"
+                      className="text-orange-600 hover:text-orange-700"
+                    >
+                      Suspend
+                    </Button>
+                  )}
+                  <Button 
+                    onClick={() => handleUpdateSubscription('cancel')}
+                    variant="outline"
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={() => handleUpdateSubscription('renew')}
+                    variant="outline"
+                    className="text-blue-600 hover:text-blue-700"
+                  >
+                    Renew
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={handleCancelSubscriptionEdit}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
