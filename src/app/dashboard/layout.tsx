@@ -230,7 +230,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 alt="Shiteni" 
                 width={60}
                 height={16}
-                className="h-4 w-auto"
+                className="h-5 w-auto"
                 style={{ width: 'auto', height: 'auto' }}
                 priority
               />

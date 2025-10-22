@@ -372,7 +372,7 @@ export default function Home() {
                 alt="Shiteni" 
                 width={80}
                 height={21}
-                className="h-6 w-auto"
+                className="h-5 w-auto"
                 style={{ width: 'auto', height: 'auto' }}
                 priority
               />
