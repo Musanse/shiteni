@@ -230,8 +230,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 alt="Shiteni" 
                 width={60}
                 height={16}
-                className="h-5 w-auto"
-                style={{ width: 'auto', height: 'auto' }}
+                className="h-4 w-auto"
                 priority
               />
               <h1 className="text-lg font-semibold text-foreground">Shiteni</h1>
