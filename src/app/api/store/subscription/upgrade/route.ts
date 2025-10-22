@@ -15,10 +15,14 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    const { planId, paymentMethod } = await request.json();
+    const { planId, paymentMethod, mobileMoneyContact } = await request.json();
 
     if (!planId) {
       return NextResponse.json({ error: 'Plan ID is required' }, { status: 400 });
+    }
+
+    if (!mobileMoneyContact?.phoneNumber) {
+      return NextResponse.json({ error: 'Mobile money phone number is required' }, { status: 400 });
     }
 
     // Get user details
@@ -45,7 +49,7 @@ export async function POST(request: NextRequest) {
         description: `Store subscription upgrade to ${planId}`,
         customer_email: user.email,
         customer_name: user.name || `${user.firstName} ${user.lastName}`,
-        customer_phone: user.phone || '',
+        customer_phone: mobileMoneyContact.phoneNumber,
         payment_method: 'mobile_money',
         callback_url: `${process.env.NEXTAUTH_URL}/api/store/subscription/payment-callback`,
         success_url: `${process.env.NEXTAUTH_URL}/dashboard/vendor/store/subscription?success=true`,

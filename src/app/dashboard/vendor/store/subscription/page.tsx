@@ -61,6 +61,10 @@ export default function StoreSubscriptionPage() {
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [mobileMoneyContact, setMobileMoneyContact] = useState({
+    phoneNumber: '',
+    network: 'mtn' // Default to MTN
+  });
 
   useEffect(() => {
     fetchSubscriptionData();
@@ -98,8 +102,24 @@ export default function StoreSubscriptionPage() {
     setShowUpgradeDialog(true);
   };
 
+  const handleCloseDialog = () => {
+    setShowUpgradeDialog(false);
+    setMobileMoneyContact({ phoneNumber: '', network: 'mtn' });
+  };
+
   const handleLipilaPayment = async () => {
     if (!selectedPlan) return;
+    
+    // Validate mobile money contact details
+    if (!mobileMoneyContact.phoneNumber.trim()) {
+      alert('Please enter your mobile money phone number');
+      return;
+    }
+
+    if (!mobileMoneyContact.phoneNumber.match(/^0[0-9]{9}$/)) {
+      alert('Please enter a valid Zambian phone number (e.g., 0977123456)');
+      return;
+    }
     
     setPaymentProcessing(true);
     try {
@@ -110,7 +130,8 @@ export default function StoreSubscriptionPage() {
         },
         body: JSON.stringify({
           planId: selectedPlan.id,
-          paymentMethod: 'lipila_mobile_money'
+          paymentMethod: 'lipila_mobile_money',
+          mobileMoneyContact: mobileMoneyContact
         }),
       });
 
@@ -121,9 +142,11 @@ export default function StoreSubscriptionPage() {
         if (data.paymentUrl) {
           window.location.href = data.paymentUrl;
         } else {
-          alert('Payment initiated! Please check your mobile money for payment prompt.');
+          alert(`Payment initiated! Please check your ${mobileMoneyContact.network.toUpperCase()} mobile money for payment prompt.`);
         }
         setShowUpgradeDialog(false);
+        // Reset form
+        setMobileMoneyContact({ phoneNumber: '', network: 'mtn' });
       } else {
         alert(data.error || 'Failed to initiate payment');
       }
@@ -382,7 +405,7 @@ export default function StoreSubscriptionPage() {
           </Card>
 
           {/* Upgrade Dialog */}
-          <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
+          <Dialog open={showUpgradeDialog} onOpenChange={handleCloseDialog}>
             <DialogContent className="bg-bush-green border-bush-green">
               <DialogHeader>
                 <DialogTitle className="text-white">Upgrade to {selectedPlan?.name}</DialogTitle>
@@ -414,16 +437,41 @@ export default function StoreSubscriptionPage() {
                     </div>
                   </div>
                   
-                  <div className="bg-white p-3 rounded-lg">
-                    <p className="text-sm text-gray-700 mb-2">Payment Method:</p>
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <CreditCard className="w-4 h-4" />
-                      <span>Lipila Mobile Money</span>
+                  <div className="bg-white p-4 rounded-lg">
+                    <h3 className="font-semibold mb-3 text-gray-900">Mobile Money Contact Details</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          value={mobileMoneyContact.phoneNumber}
+                          onChange={(e) => setMobileMoneyContact(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                          placeholder="e.g., 0977123456"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-bush-green focus:border-transparent"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Mobile Network
+                        </label>
+                        <select
+                          value={mobileMoneyContact.network}
+                          onChange={(e) => setMobileMoneyContact(prev => ({ ...prev, network: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-bush-green focus:border-transparent"
+                        >
+                          <option value="mtn">MTN Mobile Money</option>
+                          <option value="airtel">Airtel Money</option>
+                          <option value="zamtel">Zamtel Kwacha</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                   
                   <div className="flex justify-end space-x-2">
-                    <Button variant="outline" onClick={() => setShowUpgradeDialog(false)} className="bg-white text-gray-700 border-gray-300 hover:bg-gray-50">
+                    <Button variant="outline" onClick={handleCloseDialog} className="bg-white text-gray-700 border-gray-300 hover:bg-gray-50">
                       Cancel
                     </Button>
                     <Button onClick={handleLipilaPayment} className="bg-white text-bush-green hover:bg-gray-50 border border-white" disabled={paymentProcessing}>
