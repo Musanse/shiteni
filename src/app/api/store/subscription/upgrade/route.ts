@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import { User } from '@/models/User';
-import SubscriptionPlan from '@/models/SubscriptionPlan';
+import { SubscriptionPlan } from '@/models/SubscriptionPlan';
 import axios from 'axios';
 
 export async function POST(request: NextRequest) {
