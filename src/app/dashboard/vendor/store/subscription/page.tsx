@@ -62,9 +62,10 @@ export default function StoreSubscriptionPage() {
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [mobileMoneyContact, setMobileMoneyContact] = useState({
-    phoneNumber: '',
-    network: 'mtn' // Default to MTN
+    phoneNumber: ''
   });
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     fetchSubscriptionData();
@@ -104,7 +105,7 @@ export default function StoreSubscriptionPage() {
 
   const handleCloseDialog = () => {
     setShowUpgradeDialog(false);
-    setMobileMoneyContact({ phoneNumber: '', network: 'mtn' });
+    setMobileMoneyContact({ phoneNumber: '' });
   };
 
   const handleLipilaPayment = async () => {
@@ -112,12 +113,14 @@ export default function StoreSubscriptionPage() {
     
     // Validate mobile money contact details
     if (!mobileMoneyContact.phoneNumber.trim()) {
-      alert('Please enter your mobile money phone number');
+      setErrorMessage('Please enter your mobile money phone number');
+      setShowErrorModal(true);
       return;
     }
 
     if (!mobileMoneyContact.phoneNumber.match(/^0[0-9]{9}$/)) {
-      alert('Please enter a valid Zambian phone number (e.g., 0977123456)');
+      setErrorMessage('Please enter a valid Zambian phone number (e.g., 0977123456)');
+      setShowErrorModal(true);
       return;
     }
     
@@ -142,17 +145,20 @@ export default function StoreSubscriptionPage() {
         if (data.paymentUrl) {
           window.location.href = data.paymentUrl;
         } else {
-          alert(`Payment initiated! Please check your ${mobileMoneyContact.network.toUpperCase()} mobile money for payment prompt.`);
+          setErrorMessage('Payment initiated! Please check your mobile money for payment prompt.');
+          setShowErrorModal(true);
         }
         setShowUpgradeDialog(false);
         // Reset form
-        setMobileMoneyContact({ phoneNumber: '', network: 'mtn' });
+        setMobileMoneyContact({ phoneNumber: '' });
       } else {
-        alert(data.error || 'Failed to initiate payment');
+        setErrorMessage(data.error || 'Failed to initiate payment');
+        setShowErrorModal(true);
       }
     } catch (error) {
       console.error('Payment error:', error);
-      alert('Payment failed. Please try again.');
+      setErrorMessage('Payment failed. Please try again.');
+      setShowErrorModal(true);
     } finally {
       setPaymentProcessing(false);
     }
@@ -438,11 +444,11 @@ export default function StoreSubscriptionPage() {
                   </div>
                   
                   <div className="bg-white p-4 rounded-lg">
-                    <h3 className="font-semibold mb-3 text-gray-900">Mobile Money Contact Details</h3>
+                    <h3 className="font-semibold mb-3 text-gray-900">Enter Mobile Number</h3>
                     <div className="space-y-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Phone Number
+                          Mobile Number
                         </label>
                         <input
                           type="tel"
@@ -452,20 +458,7 @@ export default function StoreSubscriptionPage() {
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-bush-green focus:border-transparent"
                           required
                         />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Mobile Network
-                        </label>
-                        <select
-                          value={mobileMoneyContact.network}
-                          onChange={(e) => setMobileMoneyContact(prev => ({ ...prev, network: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-bush-green focus:border-transparent"
-                        >
-                          <option value="mtn">MTN Mobile Money</option>
-                          <option value="airtel">Airtel Money</option>
-                          <option value="zamtel">Zamtel Kwacha</option>
-                        </select>
+                        <p className="text-xs text-gray-500 mt-1">We'll automatically detect your mobile network</p>
                       </div>
                     </div>
                   </div>
@@ -481,6 +474,23 @@ export default function StoreSubscriptionPage() {
                   </div>
                 </div>
               )}
+            </DialogContent>
+          </Dialog>
+
+          {/* Custom Error Modal */}
+          <Dialog open={showErrorModal} onOpenChange={setShowErrorModal}>
+            <DialogContent className="bg-red-50 border-red-200">
+              <DialogHeader>
+                <DialogTitle className="text-red-800">Payment Status</DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                <p className="text-red-700">{errorMessage}</p>
+              </div>
+              <div className="flex justify-end">
+                <Button onClick={() => setShowErrorModal(false)} className="bg-red-600 hover:bg-red-700 text-white">
+                  OK
+                </Button>
+              </div>
             </DialogContent>
           </Dialog>
         </>

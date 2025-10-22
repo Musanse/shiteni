@@ -25,6 +25,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Mobile money phone number is required' }, { status: 400 });
     }
 
+    // Auto-detect network based on phone number
+    const detectNetwork = (phoneNumber: string) => {
+      if (phoneNumber.startsWith('097') || phoneNumber.startsWith('096')) return 'mtn';
+      if (phoneNumber.startsWith('077') || phoneNumber.startsWith('076')) return 'airtel';
+      if (phoneNumber.startsWith('095')) return 'zamtel';
+      return 'mtn'; // Default fallback
+    };
+
+    const detectedNetwork = detectNetwork(mobileMoneyContact.phoneNumber);
+
     // Get user details
     const user = await User.findById(session.user.id);
     if (!user) {
@@ -46,7 +56,7 @@ export async function POST(request: NextRequest) {
       {
         amount: amount,
         currency: process.env.LIPILA_CURRENCY || 'ZMW',
-        description: `Store subscription upgrade to ${planId}`,
+        description: `Store subscription upgrade to ${planId} (${detectedNetwork.toUpperCase()})`,
         customer_email: user.email,
         customer_name: user.name || `${user.firstName} ${user.lastName}`,
         customer_phone: mobileMoneyContact.phoneNumber,
