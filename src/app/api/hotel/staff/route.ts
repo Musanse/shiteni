@@ -5,6 +5,8 @@ const { User } = UserModule;
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import { sendEmail, emailTemplates } from '@/lib/email';
 
 export async function GET(request: NextRequest) {
   try {
@@ -174,6 +176,10 @@ export async function POST(request: NextRequest) {
     // Hash the provided password
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    // Generate verification token for email verification
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
     // Create new staff member
     console.log('Creating staff with institutionId:', hotelVendor._id);
     console.log('Hotel vendor _id type:', typeof hotelVendor._id);
@@ -193,7 +199,9 @@ export async function POST(request: NextRequest) {
       status: 'active',
       performance: 'good',
       kycStatus: 'pending',
-      isEmailVerified: false
+      emailVerified: false, // Staff must verify email
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpires
     });
 
     await newStaff.save();
@@ -203,9 +211,33 @@ export async function POST(request: NextRequest) {
 
     console.log(`Created new staff member: ${firstName} ${lastName} (${email}) for hotel: ${hotelVendor.businessName || hotelVendor.hotelName || hotelVendor.firstName + ' ' + hotelVendor.lastName}`);
 
+    // Send verification email to the new staff member
+    try {
+      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+      const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`;
+      
+      const emailTemplate = emailTemplates.staffAccountCreated(
+        `${firstName} ${lastName}`,
+        hotelVendor.businessName || hotelVendor.hotelName || 'Hotel',
+        { email, password: '[Password provided during creation]' }
+      );
+      
+      const emailResult = await sendEmail(email, emailTemplate);
+      
+      if (emailResult.success) {
+        console.log('✅ Verification email sent to hotel staff:', email);
+      } else {
+        console.error('❌ Failed to send verification email to:', email);
+        // Don't fail the staff creation if email fails
+      }
+    } catch (emailError) {
+      console.error('Error sending verification email:', emailError);
+      // Don't fail the staff creation if email fails
+    }
+
     return NextResponse.json({
       success: true,
-      message: 'Staff member created successfully',
+      message: 'Staff member created successfully. A verification email has been sent to their email address.',
       staff: {
         id: newStaff._id.toString(),
         name: `${newStaff.firstName} ${newStaff.lastName}`,
@@ -218,7 +250,8 @@ export async function POST(request: NextRequest) {
         shift: newStaff.shift || 'flexible',
         performance: newStaff.performance || 'good',
         role: newStaff.role,
-        kycStatus: newStaff.kycStatus || 'pending'
+        kycStatus: newStaff.kycStatus || 'pending',
+        emailVerified: newStaff.emailVerified
       }
     });
 
