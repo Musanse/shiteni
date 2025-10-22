@@ -15,6 +15,12 @@ export async function GET() {
         sizes: "32x32",
         type: "image/x-icon",
         purpose: "any"
+      },
+      {
+        src: "/icons/favicon.ico",
+        sizes: "32x32",
+        type: "image/x-icon",
+        purpose: "any"
       }
     ]
   };

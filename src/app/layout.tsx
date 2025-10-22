@@ -7,9 +7,11 @@ export const metadata: Metadata = {
   description: "Comprehensive multi-vending platform that transforms institutions into digital businesses, offering hotel management, online stores, pharmacy stores, and bus ticketing solutions",
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
       { url: "/icons/favicon.ico", sizes: "32x32", type: "image/x-icon" }
     ],
     apple: [
+      { url: "/favicon.ico", sizes: "180x180", type: "image/x-icon" },
       { url: "/icons/favicon.ico", sizes: "180x180", type: "image/x-icon" }
     ]
   },
@@ -45,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/icons/favicon.ico" type="image/x-icon" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
         <link rel="manifest" href="/api/manifest" type="application/manifest+json" />
         <meta name="theme-color" content="#3b82f6" />
         <meta name="application-name" content="Shiteni" />
