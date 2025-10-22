@@ -60,6 +60,7 @@ export default function StoreSubscriptionPage() {
   const [error, setError] = useState<string | null>(null);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
 
   useEffect(() => {
     fetchSubscriptionData();
@@ -95,6 +96,43 @@ export default function StoreSubscriptionPage() {
   const handleUpgrade = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
     setShowUpgradeDialog(true);
+  };
+
+  const handleLipilaPayment = async () => {
+    if (!selectedPlan) return;
+    
+    setPaymentProcessing(true);
+    try {
+      const response = await fetch('/api/store/subscription/upgrade', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId: selectedPlan.id,
+          paymentMethod: 'lipila_mobile_money'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Redirect to Lipila payment page or show payment instructions
+        if (data.paymentUrl) {
+          window.location.href = data.paymentUrl;
+        } else {
+          alert('Payment initiated! Please check your mobile money for payment prompt.');
+        }
+        setShowUpgradeDialog(false);
+      } else {
+        alert(data.error || 'Failed to initiate payment');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      alert('Payment failed. Please try again.');
+    } finally {
+      setPaymentProcessing(false);
+    }
   };
 
   const handleCancelSubscription = async () => {
@@ -345,44 +383,52 @@ export default function StoreSubscriptionPage() {
 
           {/* Upgrade Dialog */}
           <Dialog open={showUpgradeDialog} onOpenChange={setShowUpgradeDialog}>
-            <DialogContent>
+            <DialogContent className="bg-bush-green border-bush-green">
               <DialogHeader>
-                <DialogTitle>Upgrade to {selectedPlan?.name}</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-white">Upgrade to {selectedPlan?.name}</DialogTitle>
+                <DialogDescription className="text-gray-200">
                   Confirm your plan upgrade and billing details
                 </DialogDescription>
               </DialogHeader>
               {selectedPlan && (
                 <div className="space-y-4">
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h3 className="font-semibold mb-2">Plan Details</h3>
+                  <div className="p-4 bg-white rounded-lg">
+                    <h3 className="font-semibold mb-2 text-gray-900">Plan Details</h3>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
-                        <span>Plan:</span>
-                        <span className="font-medium">{selectedPlan.name}</span>
+                        <span className="text-gray-700">Plan:</span>
+                        <span className="font-medium text-gray-900">{selectedPlan.name}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Price:</span>
-                        <span className="font-medium">{selectedPlan.currency} {selectedPlan.price.toFixed(2)}/{selectedPlan.billingCycle}</span>
+                        <span className="text-gray-700">Price:</span>
+                        <span className="font-medium text-gray-900">{selectedPlan.currency} {selectedPlan.price.toFixed(2)}/{selectedPlan.billingCycle}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Staff Accounts:</span>
-                        <span className="font-medium">{selectedPlan.maxStaffAccounts === -1 ? 'Unlimited' : selectedPlan.maxStaffAccounts}</span>
+                        <span className="text-gray-700">Staff Accounts:</span>
+                        <span className="font-medium text-gray-900">{selectedPlan.maxStaffAccounts === -1 ? 'Unlimited' : selectedPlan.maxStaffAccounts}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Products:</span>
-                        <span className="font-medium">{selectedPlan.maxProducts === -1 ? 'Unlimited' : selectedPlan.maxProducts}</span>
+                        <span className="text-gray-700">Products:</span>
+                        <span className="font-medium text-gray-900">{selectedPlan.maxProducts === -1 ? 'Unlimited' : selectedPlan.maxProducts}</span>
                       </div>
                     </div>
                   </div>
                   
+                  <div className="bg-white p-3 rounded-lg">
+                    <p className="text-sm text-gray-700 mb-2">Payment Method:</p>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <CreditCard className="w-4 h-4" />
+                      <span>Lipila Mobile Money</span>
+                    </div>
+                  </div>
+                  
                   <div className="flex justify-end space-x-2">
-                    <Button variant="outline" onClick={() => setShowUpgradeDialog(false)}>
+                    <Button variant="outline" onClick={() => setShowUpgradeDialog(false)} className="bg-white text-gray-700 border-gray-300 hover:bg-gray-50">
                       Cancel
                     </Button>
-                    <Button onClick={() => setShowUpgradeDialog(false)}>
+                    <Button onClick={handleLipilaPayment} className="bg-white text-bush-green hover:bg-gray-50 border border-white" disabled={paymentProcessing}>
                       <CreditCard className="w-4 h-4 mr-2" />
-                      Upgrade Now
+                      {paymentProcessing ? 'Processing...' : 'Pay with Mobile Money'}
                     </Button>
                   </div>
                 </div>
