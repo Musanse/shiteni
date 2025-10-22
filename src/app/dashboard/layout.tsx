@@ -228,9 +228,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <Image 
                 src="/uploads/image/shiteni%20logo%20(1).png" 
                 alt="Shiteni" 
-                width={90}
-                height={24}
-                className="h-6 w-auto"
+                width={60}
+                height={16}
+                className="h-4 w-auto"
                 style={{ width: 'auto', height: 'auto' }}
                 priority
               />

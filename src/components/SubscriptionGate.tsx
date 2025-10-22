@@ -102,92 +102,92 @@ export default function SubscriptionGate({ serviceType, children }: Subscription
   if (!subscriptionStatus?.hasActiveSubscription) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-2xl">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-              <Lock className="h-8 w-8 text-red-600" />
+        <Card className="w-full max-w-lg">
+          <CardHeader className="text-center pb-4">
+            <div className="mx-auto mb-3 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+              <Lock className="h-6 w-6 text-red-600" />
             </div>
-            <CardTitle className="text-2xl font-bold text-gray-900">
+            <CardTitle className="text-xl font-bold text-gray-900">
               Subscription Required
             </CardTitle>
-            <CardDescription className="text-lg text-gray-600">
+            <CardDescription className="text-sm text-gray-600">
               You need an active subscription to access your {getServiceTypeDisplay(serviceType)} dashboard
             </CardDescription>
           </CardHeader>
           
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             {/* Current Status */}
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
               <div className="flex items-center space-x-2">
-                <XCircle className="h-5 w-5 text-red-600" />
-                <span className="font-medium text-red-800">No Active Subscription</span>
+                <XCircle className="h-4 w-4 text-red-600" />
+                <span className="font-medium text-red-800 text-sm">No Active Subscription</span>
               </div>
-              <p className="text-red-700 mt-1">
+              <p className="text-red-700 mt-1 text-sm">
                 Your {getServiceTypeDisplay(serviceType)} services are currently offline and not visible to customers.
               </p>
             </div>
 
             {/* What's Blocked */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-gray-900">Without an active subscription, you cannot:</h3>
-              <ul className="space-y-2 text-gray-600">
+            <div className="space-y-2">
+              <h3 className="font-semibold text-gray-900 text-sm">Without an active subscription, you cannot:</h3>
+              <ul className="space-y-1 text-gray-600 text-sm">
                 <li className="flex items-center space-x-2">
-                  <XCircle className="h-4 w-4 text-red-500" />
+                  <XCircle className="h-3 w-3 text-red-500" />
                   <span>Access dashboard features</span>
                 </li>
                 <li className="flex items-center space-x-2">
-                  <XCircle className="h-4 w-4 text-red-500" />
+                  <XCircle className="h-3 w-3 text-red-500" />
                   <span>Show your services/products to customers</span>
                 </li>
                 <li className="flex items-center space-x-2">
-                  <XCircle className="h-4 w-4 text-red-500" />
+                  <XCircle className="h-3 w-3 text-red-500" />
                   <span>Receive bookings or orders</span>
                 </li>
                 <li className="flex items-center space-x-2">
-                  <XCircle className="h-4 w-4 text-red-500" />
+                  <XCircle className="h-3 w-3 text-red-500" />
                   <span>Manage your business operations</span>
                 </li>
               </ul>
             </div>
 
             {/* Benefits of Subscription */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-gray-900">With an active subscription, you can:</h3>
-              <ul className="space-y-2 text-gray-600">
+            <div className="space-y-2">
+              <h3 className="font-semibold text-gray-900 text-sm">With an active subscription, you can:</h3>
+              <ul className="space-y-1 text-gray-600 text-sm">
                 <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <CheckCircle className="h-3 w-3 text-green-500" />
                   <span>Access all dashboard features</span>
                 </li>
                 <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <CheckCircle className="h-3 w-3 text-green-500" />
                   <span>Show your services/products to customers</span>
                 </li>
                 <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <CheckCircle className="h-3 w-3 text-green-500" />
                   <span>Receive bookings and orders</span>
                 </li>
                 <li className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <CheckCircle className="h-3 w-3 text-green-500" />
                   <span>Manage your business operations</span>
                 </li>
               </ul>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
               <Button 
                 onClick={handleSubscribe}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                size="lg"
+                size="sm"
               >
-                <CreditCard className="h-5 w-5 mr-2" />
+                <CreditCard className="h-4 w-4 mr-2" />
                 Subscribe Now
               </Button>
               <Button 
                 variant="outline" 
                 onClick={() => router.push('/dashboard')}
                 className="flex-1"
-                size="lg"
+                size="sm"
               >
                 Back to Dashboard
               </Button>

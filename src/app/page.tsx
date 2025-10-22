@@ -370,9 +370,9 @@ export default function Home() {
               <Image 
                 src="/uploads/image/shiteni%20logo%20(1).png" 
                 alt="Shiteni" 
-                width={120}
-                height={32}
-                className="h-8 w-auto"
+                width={80}
+                height={21}
+                className="h-6 w-auto"
                 style={{ width: 'auto', height: 'auto' }}
                 priority
               />
