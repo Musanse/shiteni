@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import { User } from '@/models/User';
+import SubscriptionPlan from '@/models/SubscriptionPlan';
 import axios from 'axios';
 
 export async function POST(request: NextRequest) {
@@ -41,14 +42,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Mock plan data - in real implementation, fetch from database
-    const planPrices: { [key: string]: number } = {
-      'starter': 2.00,
-      'professional': 5.00,
-      'enterprise': 10.00
-    };
+    // Get subscription plan details
+    const plan = await SubscriptionPlan.findById(planId);
+    if (!plan) {
+      return NextResponse.json({ error: 'Subscription plan not found' }, { status: 404 });
+    }
 
-    const amount = planPrices[planId] || 2.00;
+    const amount = plan.price;
+    const currency = plan.currency || 'ZMW';
 
     console.log('Initializing Lipila payment with:', {
       amount,
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
       {
         amount: amount,
         currency: process.env.LIPILA_CURRENCY || 'ZMW',
-        description: `Store subscription upgrade to ${planId} (${detectedNetwork.toUpperCase()})`,
+        description: `Store subscription upgrade to ${plan.name} (${detectedNetwork.toUpperCase()})`,
         customer_email: user.email,
         customer_name: user.name || `${user.firstName} ${user.lastName}`,
         customer_phone: mobileMoneyContact.phoneNumber,
