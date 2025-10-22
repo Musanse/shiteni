@@ -50,6 +50,15 @@ export async function POST(request: NextRequest) {
 
     const amount = planPrices[planId] || 2.00;
 
+    console.log('Initializing Lipila payment with:', {
+      amount,
+      currency: process.env.LIPILA_CURRENCY || 'ZMW',
+      customer_phone: mobileMoneyContact.phoneNumber,
+      detectedNetwork,
+      lipilaBaseUrl: process.env.LIPILA_BASE_URL,
+      hasSecretKey: !!process.env.LIPILA_SECRET_KEY
+    });
+
     // Initialize Lipila payment
     const lipilaResponse = await axios.post(
       `${process.env.LIPILA_BASE_URL}/api/v1/payments`,
@@ -98,6 +107,24 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Store subscription upgrade error:', error);
+    
+    if (axios.isAxiosError(error)) {
+      console.error('Lipila API Error:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message
+      });
+      
+      return NextResponse.json(
+        { 
+          error: 'Payment service error',
+          details: error.response?.data?.message || error.message
+        },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -482,6 +482,9 @@ export default function StoreSubscriptionPage() {
             <DialogContent className="bg-red-50 border-red-200">
               <DialogHeader>
                 <DialogTitle className="text-red-800">Payment Status</DialogTitle>
+                <DialogDescription className="text-red-600">
+                  Payment processing result
+                </DialogDescription>
               </DialogHeader>
               <div className="py-4">
                 <p className="text-red-700">{errorMessage}</p>
