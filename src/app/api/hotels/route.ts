@@ -19,12 +19,21 @@ export async function GET(request: NextRequest) {
     const city = searchParams.get('city') || '';
 
     // Get all hotel vendors
-    const hotelVendors = await User.find({
-      serviceType: 'hotel',
-      role: { $in: ['manager', 'admin'] }
-    }).lean();
-
-    console.log('Found hotel vendors:', hotelVendors.length);
+    let hotelVendors;
+    try {
+      hotelVendors = await User.find({
+        serviceType: 'hotel',
+        role: { $in: ['manager', 'admin'] }
+      }).lean();
+      console.log('Found hotel vendors:', hotelVendors.length);
+    } catch (dbError) {
+      console.error('Error fetching hotel vendors:', dbError);
+      return NextResponse.json({
+        success: true,
+        hotels: [],
+        message: 'Database error, no hotels available'
+      });
+    }
     console.log('Hotel vendors:', hotelVendors.map(v => ({ 
       id: v._id, 
       name: v.hotelName, 
@@ -32,7 +41,7 @@ export async function GET(request: NextRequest) {
     })));
 
     // Get all rooms (including occupied ones since customers can book for future dates)
-    const roomsQuery: any = {
+    const roomsQuery: Record<string, unknown> = {
       price: { $gte: minPrice, $lte: maxPrice }
     };
 
@@ -44,8 +53,18 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const rooms = await Room.find(roomsQuery).lean();
-    console.log('Found rooms:', rooms.length);
+    let rooms;
+    try {
+      rooms = await Room.find(roomsQuery).lean();
+      console.log('Found rooms:', rooms.length);
+    } catch (dbError) {
+      console.error('Error fetching rooms:', dbError);
+      return NextResponse.json({
+        success: true,
+        hotels: [],
+        message: 'Database error fetching rooms, no hotels available'
+      });
+    }
 
     // Group rooms by hotel vendor
     const hotelsMap = new Map();
@@ -82,7 +101,7 @@ export async function GET(request: NextRequest) {
               ? vendor.hotelGalleryImages 
               : ['/hotel-placeholder.jpg'], // Use gallery images or default
             rooms: vendorRooms.map(room => ({
-              _id: room._id.toString(),
+              _id: (room._id as { toString(): string })?.toString() || 'unknown',
               roomNumber: room.number,
               roomType: room.type,
               floor: room.floor,
