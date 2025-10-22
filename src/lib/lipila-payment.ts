@@ -12,7 +12,7 @@ const LIPILA_CONFIG = {
 const validateLipilaConfig = () => {
   const issues = [];
   
-  if (!LIPILA_CONFIG.secretKey || LIPILA_CONFIG.secretKey === 'your-lipila-secret-key-here' || LIPILA_CONFIG.secretKey === 'LPLSECK-1e60018354064c8bb933b19044c22170') {
+  if (!LIPILA_CONFIG.secretKey || LIPILA_CONFIG.secretKey === 'your-lipila-secret-key-here') {
     issues.push('LIPILA_SECRET_KEY is using placeholder/default value - REAL PAYMENTS WILL FAIL');
   }
   
@@ -116,8 +116,7 @@ class LipilaPaymentService {
     });
 
     // Check if using placeholder API key
-    const isPlaceholderKey = this.secretKey === 'LPLSECK-1e60018354064c8bb933b19044c22170' || 
-                            this.secretKey === 'your-lipila-secret-key-here';
+    const isPlaceholderKey = this.secretKey === 'your-lipila-secret-key-here';
 
     if (isPlaceholderKey) {
       console.error('🚨 CRITICAL ERROR: Using placeholder Lipila API key');

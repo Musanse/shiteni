@@ -14,8 +14,7 @@ console.log('  Mock Mode:', lipilaMockMode);
 console.log('');
 
 // Check if using placeholder key
-const isPlaceholderKey = lipilaSecretKey === 'LPLSECK-1e60018354064c8bb933b19044c22170' || 
-                        lipilaSecretKey === 'your-lipila-secret-key-here';
+const isPlaceholderKey = lipilaSecretKey === 'your-lipila-secret-key-here';
 
 if (isPlaceholderKey) {
   console.log('🚨 CRITICAL ISSUE: Using placeholder API key');
