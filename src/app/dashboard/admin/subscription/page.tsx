@@ -312,12 +312,15 @@ export default function SubscriptionPage() {
         isActive: formData.isActive
       };
 
-      const response = await fetch(`/api/admin/subscription-plans/${editingPlan._id}`, {
+      const response = await fetch('/api/admin/subscription-plans', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(planData),
+        body: JSON.stringify({
+          planId: editingPlan._id,
+          ...planData
+        }),
       });
 
       const data = await response.json();
