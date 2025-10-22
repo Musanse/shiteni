@@ -1,10 +1,15 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run build",
+  "buildCommand": "npx next build",
   "installCommand": "npm install",
   "regions": ["iad1"],
   "outputDirectory": ".next",
   "public": true,
+  "functions": {
+    "src/app/api/manifest/route.ts": {
+      "maxDuration": 10
+    }
+  },
   "headers": [
     {
       "source": "/favicon.ico",
@@ -12,6 +17,10 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Content-Type",
+          "value": "image/vnd.microsoft.icon"
         }
       ]
     },
@@ -30,6 +39,10 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
         }
       ]
     },
@@ -43,6 +56,32 @@
         {
           "key": "Access-Control-Allow-Methods",
           "value": "GET"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json"
+        }
+      ]
+    },
+    {
+      "source": "/uploads/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/background.jpg",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Content-Type",
+          "value": "image/jpeg"
         }
       ]
     }

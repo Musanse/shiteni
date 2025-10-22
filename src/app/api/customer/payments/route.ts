@@ -162,25 +162,25 @@ export async function GET(request: NextRequest) {
     // 5. Fetch Billing History (subscriptions, etc.)
     try {
       const billingHistory = await BillingHistory.find({ userId })
-        .sort({ createdAt: -1 })
-        .lean();
+      .sort({ createdAt: -1 })
+      .lean();
 
       billingHistory.forEach(payment => {
         allPayments.push({
-          _id: payment._id,
+      _id: payment._id,
           paymentType: payment.type || 'subscription',
-          serviceType: payment.serviceType || 'general',
-          serviceName: payment.description || 'Payment',
-          amount: payment.amount,
-          currency: payment.currency || 'ZMW',
-          status: payment.status || 'completed',
-          paymentMethod: payment.paymentMethod || 'card',
-          transactionId: payment.transactionId || payment._id.toString(),
-          reference: payment.reference || payment._id.toString(),
-          description: payment.description,
-          relatedBookingId: payment.relatedBookingId,
-          createdAt: payment.createdAt,
-          updatedAt: payment.updatedAt
+      serviceType: payment.serviceType || 'general',
+      serviceName: payment.description || 'Payment',
+      amount: payment.amount,
+      currency: payment.currency || 'ZMW',
+      status: payment.status || 'completed',
+      paymentMethod: payment.paymentMethod || 'card',
+      transactionId: payment.transactionId || payment._id.toString(),
+      reference: payment.reference || payment._id.toString(),
+      description: payment.description,
+      relatedBookingId: payment.relatedBookingId,
+      createdAt: payment.createdAt,
+      updatedAt: payment.updatedAt
         });
       });
     } catch (error) {

@@ -240,4 +240,4 @@ For support and questions:
 
 ---
 
-**Built with ❤️ for Zambia's e-commerce ecosystem**# shiteni
+**Built with ❤️ for Zambia's e-commerce ecosystem**
