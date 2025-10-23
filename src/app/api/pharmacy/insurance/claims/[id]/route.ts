@@ -62,7 +62,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     // Dynamic import to avoid build issues
     const { default: InsuranceClaim } = await import('@/models/InsuranceClaim');
 
-    const { id } = params;
     const body = await request.json();
     const { status, approvedAmount, notes } = body;
 

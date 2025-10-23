@@ -4,8 +4,6 @@ import mongoose from 'mongoose';
 import connectDB from '@/lib/mongodb';
 import { User } from '@/models/User';
 
-import { LoanProduct } from '@/models/LoanProduct';
-
 // Load environment variables
 dotenv.config({ path: '.env.local' });
 
@@ -19,124 +17,147 @@ async function seedDatabase() {
     const admin = new User({
       firstName: 'Admin',
       lastName: 'User',
-      email: 'admin@mankuca.com',
+      email: 'admin@shiteni.com',
       password: adminPassword,
-      role: 'admin',
+      role: 'super_admin',
       kycStatus: 'verified',
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
+
     await admin.save();
     console.log('✅ Admin user created');
 
-    // Create institution admin
-    const institutionPassword = await bcrypt.hash('institution123', 12);
-    const institutionAdmin = new User({
-      firstName: 'Bank',
-      lastName: 'Manager',
-      email: 'manager@firstbank.com',
-      password: institutionPassword,
-      role: 'institution',
+    // Create sample vendor users
+    const vendorPassword = await bcrypt.hash('vendor123', 12);
+    
+    // Bus vendor
+    const busVendor = new User({
+      firstName: 'Bus',
+      lastName: 'Company',
+      email: 'bus@shiteni.com',
+      password: vendorPassword,
+      role: 'manager',
+      serviceType: 'bus',
+      businessName: 'Express Bus Services',
+      businessType: 'Transportation',
+      businessDescription: 'Reliable bus transportation services',
+      businessPhone: '+260 123 456 789',
+      businessAddress: 'Lusaka, Zambia',
+      city: 'Lusaka',
+      country: 'Zambia',
       kycStatus: 'verified',
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
-    await institutionAdmin.save();
-    console.log('✅ Institution admin created');
 
-    // Create institution
-    const institution = new Institution({
-      name: 'First National Bank',
-      description: 'A leading financial institution providing comprehensive banking services',
-      licenseNumber: 'FNB-2024-001',
-      contactEmail: 'info@firstbank.com',
-      contactPhone: '+1-555-0123',
-      address: {
-        street: '123 Financial District',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10001',
-        country: 'USA',
-      },
-      status: 'approved',
-      adminUserId: institutionAdmin._id.toString(),
-      staffUsers: [],
-      loanProducts: [],
+    await busVendor.save();
+    console.log('✅ Bus vendor created');
+
+    // Hotel vendor
+    const hotelVendor = new User({
+      firstName: 'Hotel',
+      lastName: 'Manager',
+      email: 'hotel@shiteni.com',
+      password: vendorPassword,
+      role: 'manager',
+      serviceType: 'hotel',
+      businessName: 'Grand Hotel Lusaka',
+      businessType: 'Hospitality',
+      businessDescription: 'Luxury hotel accommodation',
+      businessPhone: '+260 987 654 321',
+      businessAddress: 'Cairo Road, Lusaka',
+      city: 'Lusaka',
+      country: 'Zambia',
+      kycStatus: 'verified',
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
-    await institution.save();
-    console.log('✅ Institution created');
 
-    // Create loan products
-    const personalLoan = new LoanProduct({
-      institutionId: institution._id.toString(),
-      name: 'Personal Loan',
-      description: 'Flexible personal loan for various needs',
-      minAmount: 1000,
-      maxAmount: 50000,
-      interestRate: 8.5,
-      termMonths: 36,
-      requirements: {
-        minCreditScore: 650,
-        minIncome: 30000,
-        employmentDuration: 12,
-        documents: ['id', 'income_proof', 'bank_statement'],
-      },
-      isActive: true,
+    await hotelVendor.save();
+    console.log('✅ Hotel vendor created');
+
+    // Pharmacy vendor
+    const pharmacyVendor = new User({
+      firstName: 'Pharmacy',
+      lastName: 'Owner',
+      email: 'pharmacy@shiteni.com',
+      password: vendorPassword,
+      role: 'manager',
+      serviceType: 'pharmacy',
+      businessName: 'Health Plus Pharmacy',
+      businessType: 'Healthcare',
+      businessDescription: 'Complete pharmaceutical services',
+      businessPhone: '+260 555 123 456',
+      businessAddress: 'Manda Hill, Lusaka',
+      city: 'Lusaka',
+      country: 'Zambia',
+      kycStatus: 'verified',
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
-    await personalLoan.save();
 
-    const homeLoan = new LoanProduct({
-      institutionId: institution._id.toString(),
-      name: 'Home Loan',
-      description: 'Competitive rates for home purchases',
-      minAmount: 50000,
-      maxAmount: 500000,
-      interestRate: 6.2,
-      termMonths: 240,
-      requirements: {
-        minCreditScore: 700,
-        minIncome: 50000,
-        employmentDuration: 24,
-        documents: ['id', 'income_proof', 'bank_statement', 'property_documents'],
-      },
-      isActive: true,
+    await pharmacyVendor.save();
+    console.log('✅ Pharmacy vendor created');
+
+    // Store vendor
+    const storeVendor = new User({
+      firstName: 'Store',
+      lastName: 'Owner',
+      email: 'store@shiteni.com',
+      password: vendorPassword,
+      role: 'manager',
+      serviceType: 'store',
+      businessName: 'SuperMart Lusaka',
+      businessType: 'Retail',
+      businessDescription: 'One-stop shopping destination',
+      businessPhone: '+260 777 888 999',
+      businessAddress: 'East Park Mall, Lusaka',
+      city: 'Lusaka',
+      country: 'Zambia',
+      kycStatus: 'verified',
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
-    await homeLoan.save();
-    console.log('✅ Loan products created');
 
-    // Create customer
+    await storeVendor.save();
+    console.log('✅ Store vendor created');
+
+    // Create sample customer
     const customerPassword = await bcrypt.hash('customer123', 12);
     const customer = new User({
       firstName: 'John',
       lastName: 'Doe',
-      email: 'john.doe@email.com',
+      email: 'customer@shiteni.com',
       password: customerPassword,
       role: 'customer',
-      phone: '+1-555-0456',
-      kycStatus: 'verified',
+      phone: '+260 111 222 333',
       address: {
-        street: '456 Main Street',
-        city: 'Los Angeles',
-        state: 'CA',
-        zipCode: '90210',
-        country: 'USA',
+        street: '123 Main Street',
+        city: 'Lusaka',
+        country: 'Zambia'
       },
+      kycStatus: 'verified',
+      createdAt: new Date(),
+      updatedAt: new Date()
     });
+
     await customer.save();
     console.log('✅ Customer created');
 
-    // Update institution with loan products
-    institution.loanProducts = [personalLoan._id.toString(), homeLoan._id.toString()];
-    await institution.save();
-
     console.log('🎉 Database seeding completed successfully!');
-    console.log('');
-    console.log('Demo accounts created:');
-    console.log('👤 Admin: admin@mankuca.com / admin123');
-    console.log('🏦 Institution: manager@firstbank.com / institution123');
-    console.log('👤 Customer: john.doe@email.com / customer123');
-    console.log('');
-    console.log('You can now start the application and test with these accounts.');
+    console.log('\n📋 Sample Users Created:');
+    console.log('Admin: admin@shiteni.com / admin123');
+    console.log('Bus Vendor: bus@shiteni.com / vendor123');
+    console.log('Hotel Vendor: hotel@shiteni.com / vendor123');
+    console.log('Pharmacy Vendor: pharmacy@shiteni.com / vendor123');
+    console.log('Store Vendor: store@shiteni.com / vendor123');
+    console.log('Customer: customer@shiteni.com / customer123');
 
   } catch (error) {
     console.error('❌ Error seeding database:', error);
   } finally {
+    await mongoose.connection.close();
     process.exit(0);
   }
 }

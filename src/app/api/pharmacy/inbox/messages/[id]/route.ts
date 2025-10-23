@@ -22,7 +22,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     await connectDB();
 
-    const { id } = params;
     const body = await request.json();
     const { status } = body;
 

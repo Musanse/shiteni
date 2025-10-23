@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import { User } from '@/models/User';
-import { Loan } from '@/models/Loan';
 import mongoose from 'mongoose';
 
 export async function GET(request: NextRequest) {
@@ -27,8 +26,6 @@ export async function GET(request: NextRequest) {
 
     // Get collection statistics
     const userCount = await User.countDocuments();
-    const institutionCount = await Institution.countDocuments();
-    const loanCount = await Loan.countDocuments();
 
     // Get recent activity (last 24 hours)
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -36,34 +33,6 @@ export async function GET(request: NextRequest) {
     const recentUsers = await User.countDocuments({
       createdAt: { $gte: oneDayAgo }
     });
-
-    const recentInstitutions = await Institution.countDocuments({
-      createdAt: { $gte: oneDayAgo }
-    });
-
-    const recentLoans = await Loan.countDocuments({
-      createdAt: { $gte: oneDayAgo }
-    });
-
-    // Get loan status distribution
-    const loanStatusStats = await Loan.aggregate([
-      {
-        $group: {
-          _id: '$status',
-          count: { $sum: 1 }
-        }
-      }
-    ]);
-
-    // Get institution status distribution
-    const institutionStatusStats = await Institution.aggregate([
-      {
-        $group: {
-          _id: '$status',
-          count: { $sum: 1 }
-        }
-      }
-    ]);
 
     // Get user role distribution
     const userRoleStats = await User.aggregate([
@@ -76,15 +45,13 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Calculate system health score
-    const totalEntities = userCount + institutionCount + loanCount;
-    const activeEntities = loanStatusStats.find(s => s._id === 'active')?.count || 0;
-    const approvedInstitutions = institutionStatusStats.find(s => s._id === 'active')?.count || 0;
+    const totalEntities = userCount;
+    const activeUsers = userRoleStats.find(s => s._id === 'active')?.count || 0;
     
     let healthScore = 100;
     if (dbState !== 1) healthScore -= 50; // Database disconnected
-    if (recentUsers === 0 && recentInstitutions === 0 && recentLoans === 0) healthScore -= 20; // No recent activity
-    if (approvedInstitutions === 0) healthScore -= 15; // No approved institutions
-    if (activeEntities === 0) healthScore -= 10; // No active loans
+    if (recentUsers === 0) healthScore -= 20; // No recent activity
+    if (activeUsers === 0) healthScore -= 10; // No active users
 
     // Get database performance metrics
     const dbStats = await mongoose.connection.db.stats();
@@ -99,9 +66,7 @@ export async function GET(request: NextRequest) {
         status: dbStates[dbState as keyof typeof dbStates],
         connected: dbState === 1,
         collections: {
-          users: userCount,
-          institutions: institutionCount,
-          loans: loanCount
+          users: userCount
         },
         storage: {
           dataSize: dbStats.dataSize || 0,
@@ -111,23 +76,11 @@ export async function GET(request: NextRequest) {
       },
       metrics: {
         totalUsers: userCount,
-        totalInstitutions: institutionCount,
-        totalLoans: loanCount,
         recentActivity: {
-          users: recentUsers,
-          institutions: recentInstitutions,
-          loans: recentLoans
+          users: recentUsers
         }
       },
       distributions: {
-        loanStatus: loanStatusStats.reduce((acc, stat) => {
-          acc[stat._id] = stat.count;
-          return acc;
-        }, {} as Record<string, number>),
-        institutionStatus: institutionStatusStats.reduce((acc, stat) => {
-          acc[stat._id] = stat.count;
-          return acc;
-        }, {} as Record<string, number>),
         userRoles: userRoleStats.reduce((acc, stat) => {
           acc[stat._id] = stat.count;
           return acc;
@@ -164,7 +117,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    if (recentUsers === 0 && recentInstitutions === 0 && recentLoans === 0) {
+    if (recentUsers === 0) {
       systemHealth.alerts.push({
         type: 'info',
         message: 'No recent activity detected in the last 24 hours',

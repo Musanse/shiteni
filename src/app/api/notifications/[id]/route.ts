@@ -14,7 +14,6 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
     const body = await request.json();
 
     // In a real app, you would update the notification in the database
