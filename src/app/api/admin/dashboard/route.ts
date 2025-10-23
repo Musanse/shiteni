@@ -2,11 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
-import { User } from '@/models/User';
-import { StoreProduct, StoreOrder } from '@/models/Store';
-import { PharmacyMedicine } from '@/models/Pharmacy';
-import { HotelRoom, HotelBooking } from '@/models/Hotel';
-import { BusRoute, BusBooking } from '@/models/Bus';
+import mongoose from 'mongoose';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 
 export async function GET(request: NextRequest) {
@@ -18,6 +14,29 @@ export async function GET(request: NextRequest) {
     }
 
     await connectDB();
+
+    // Access models through mongoose.models
+    const User = mongoose.models.User;
+    const StoreProduct = mongoose.models.StoreProduct;
+    const StoreOrder = mongoose.models.StoreOrder;
+    const PharmacyMedicine = mongoose.models.PharmacyMedicine;
+    const HotelRoom = mongoose.models.HotelRoom;
+    const HotelBooking = mongoose.models.HotelBooking;
+    const BusRoute = mongoose.models.BusRoute;
+    const BusBooking = mongoose.models.BusBooking;
+
+    // Verify all models are available
+    const models = {
+      User, StoreProduct, StoreOrder, PharmacyMedicine,
+      HotelRoom, HotelBooking, BusRoute, BusBooking
+    };
+
+    for (const [name, model] of Object.entries(models)) {
+      if (!model) {
+        console.error(`❌ Model ${name} not found`);
+        throw new Error(`Model ${name} not found`);
+      }
+    }
 
     // Fetch all data in parallel
     const [
