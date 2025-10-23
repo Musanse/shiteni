@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
-import Message from '@/models/Message';
-import { User } from '@/models/User';
+import mongoose from 'mongoose';
 
 // GET - Fetch messages for a conversation or list conversations
 export async function GET(request: NextRequest) {
@@ -15,6 +14,20 @@ export async function GET(request: NextRequest) {
     }
 
     await connectDB();
+
+    // Access models through mongoose.models
+    const Message = mongoose.models.Message;
+    const User = mongoose.models.User;
+
+    // Verify models are available
+    if (!Message) {
+      console.error('❌ Message model not found');
+      throw new Error('Message model not found');
+    }
+    if (!User) {
+      console.error('❌ User model not found');
+      throw new Error('User model not found');
+    }
 
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
@@ -229,6 +242,20 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
+    // Access models through mongoose.models
+    const Message = mongoose.models.Message;
+    const User = mongoose.models.User;
+
+    // Verify models are available
+    if (!Message) {
+      console.error('❌ Message model not found');
+      throw new Error('Message model not found');
+    }
+    if (!User) {
+      console.error('❌ User model not found');
+      throw new Error('User model not found');
+    }
+
     // Get sender information
     const sender = await User.findOne({ email: session.user?.email });
     if (!sender) {
@@ -287,6 +314,15 @@ export async function PATCH(request: NextRequest) {
     }
 
     await connectDB();
+
+    // Access models through mongoose.models
+    const Message = mongoose.models.Message;
+
+    // Verify model is available
+    if (!Message) {
+      console.error('❌ Message model not found');
+      throw new Error('Message model not found');
+    }
 
     let updateData;
     switch (action) {
