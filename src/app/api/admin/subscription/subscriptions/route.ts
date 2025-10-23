@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
-import * as SubscriptionModule from '@/models/Subscription';
-const { Subscription } = SubscriptionModule;
+import mongoose from 'mongoose';
 
 interface SessionUser {
   id: string;
@@ -27,6 +26,16 @@ export async function GET() {
     }
 
     await connectDB();
+
+    // Access Subscription model through mongoose.models
+    const Subscription = mongoose.models.Subscription;
+
+    if (!Subscription) {
+      return NextResponse.json(
+        { error: 'Subscription model not found' },
+        { status: 500 }
+      );
+    }
 
     const subscriptions = await Subscription.find({})
       .populate('userId', 'firstName lastName email businessName serviceType')
