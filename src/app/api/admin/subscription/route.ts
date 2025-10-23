@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       matchStage.planType = planFilter;
     }
 
-    const subscriptions = await Subscription.aggregate([
+    const subscriptions = await (Subscription as any).aggregate([
       { $match: matchStage },
       {
         $lookup: {
@@ -260,7 +260,7 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
 
-    const subscription = await Subscription.findByIdAndUpdate(
+    const subscription = await (Subscription as any).findByIdAndUpdate(
       subscriptionId,
       updateFields,
       { new: true }
