@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    const plans = await SubscriptionPlan.find({})
+    const plans = await (SubscriptionPlan as any).find({})
       .sort({ vendorType: 1, sortOrder: 1, price: 1 })
       .lean();
 
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if plan with same vendorType and planType already exists
-    const existingPlan = await SubscriptionPlan.findOne({ 
+    const existingPlan = await (SubscriptionPlan as any).findOne({ 
       vendorType, 
       planType 
     });
