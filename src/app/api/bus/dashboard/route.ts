@@ -28,22 +28,22 @@ export async function GET(request: NextRequest) {
     const db = await connectDB();
 
     // Find the bus vendor or staff member
-    let vendor = await User.findOne({ 
+    let vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'bus'
     });
 
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
-      const staff = await User.findOne({ 
+      const staff = await (User as any).findOne({ 
         email: session.user.email,
         role: { $in: ['driver', 'conductor', 'ticket_seller', 'dispatcher', 'maintenance', 'admin'] },
         serviceType: 'bus'
       });
       
-      if (staff && staff.institutionId) {
-        // Find the actual bus vendor using institutionId
-        vendor = await User.findById(staff.institutionId);
+      if (staff && staff.businessId) {
+        // Find the actual bus vendor using businessId
+        vendor = await (User as any).findById(staff.businessId);
         console.log(`Staff member ${staff.email} accessing dashboard for bus vendor: ${vendor?.email}`);
       }
     }
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
       // Get fleet for this vendor
       db.collection('buses').find({ busCompanyId: userId }).toArray(),
       // Get staff members
-      User.find({ institutionId: userId, serviceType: 'bus', role: { $in: ['driver', 'conductor', 'ticket_seller', 'dispatcher', 'maintenance'] } }).lean()
+      (User as any).find({ businessId: userId, serviceType: 'bus', role: { $in: ['driver', 'conductor', 'ticket_seller', 'dispatcher', 'maintenance'] } }).lean()
     ]);
 
     // Filter bookings to only include those for this vendor's trips
