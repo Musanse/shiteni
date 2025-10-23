@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || !['admin', 'super_admin'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'super_admin'].includes((session.user as { role: string }).role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const period = searchParams.get('period') || 'current';
 
     // Build query based on filters
-    let query: any = {};
+    const query: Record<string, string> = {};
     
     if (status !== 'all') {
       query.status = status;
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       .lean();
 
     // Transform data to compliance report format
-    const complianceReports = institutions.map((institution, index) => {
+    const complianceReports = institutions.map((institution) => {
       // Generate mock compliance data based on institution data
       const baseScore = institution.status === 'active' ? 85 + Math.random() * 15 : 60 + Math.random() * 20;
       const score = Math.round(baseScore);
@@ -114,11 +114,11 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || !['admin', 'super_admin'].includes((session.user as any).role)) {
+    if (!session || !['admin', 'super_admin'].includes((session.user as { role: string }).role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { reportType, period, format = 'excel' } = await request.json();
+    const { period } = await request.json();
 
     await connectDB();
 
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
       .lean();
 
     // Transform data for Excel export
-    const excelData = institutions.map((institution, index) => {
+    const excelData = institutions.map((institution) => {
       const baseScore = institution.status === 'active' ? 85 + Math.random() * 15 : 60 + Math.random() * 20;
       const score = Math.round(baseScore);
       
