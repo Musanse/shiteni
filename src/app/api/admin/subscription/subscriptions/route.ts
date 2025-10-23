@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
-import { Subscription } from '@/models/Subscription';
+import * as SubscriptionModule from '@/models/Subscription';
+const { Subscription } = SubscriptionModule;
 
 interface SessionUser {
   id: string;
