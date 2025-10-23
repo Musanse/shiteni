@@ -20,10 +20,20 @@ const nextConfig: NextConfig = {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
   },
-  // Disable caching in development to prevent chunk loading issues
+  // Development configuration to prevent chunk loading issues
   ...(process.env.NODE_ENV === 'development' && {
     generateEtags: false,
     poweredByHeader: false,
+    // Disable static optimization in development
+    experimental: {
+      optimizePackageImports: ['lucide-react', '@heroicons/react'],
+    },
+  }),
+  // Production configuration
+  ...(process.env.NODE_ENV === 'production' && {
+    experimental: {
+      optimizePackageImports: ['lucide-react', '@heroicons/react'],
+    },
   }),
   async headers() {
     return [

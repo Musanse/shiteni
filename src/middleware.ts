@@ -1,14 +1,25 @@
-import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export default withAuth(
-  async function middleware(request: NextRequest, { token }) {
-    const path = request.nextUrl.pathname;
+export async function middleware(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+  
+  // Try to get token from cookies directly
+  let token = null;
+  try {
+    const { getToken } = await import('next-auth/jwt');
+    token = await getToken({ 
+      req: request, 
+      secret: process.env.NEXTAUTH_SECRET 
+    });
+  } catch (error) {
+    console.log('⚠️ Error getting token:', error);
+  }
 
-    console.log('🔒 Auth Middleware');
-    console.log('Path:', path);
-    console.log('Role:', token?.role);
+  console.log('🔒 Auth Middleware');
+  console.log('Path:', path);
+  console.log('Token:', token ? 'Present' : 'Missing');
+  console.log('Role:', token?.role);
 
     // Allow public paths, API routes, and static files
     if (
@@ -192,14 +203,19 @@ export default withAuth(
       }
     }
 
-    console.log('✅ Access granted');
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => {
-        return true; // We'll handle authorization in the middleware function
-      },
-    },
-  }
-);
+  console.log('✅ Access granted');
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
+}
