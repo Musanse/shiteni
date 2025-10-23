@@ -24,7 +24,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Dynamic import to avoid build issues
     const { default: InsuranceClaim } = await import('@/models/InsuranceClaim');
 
-    const { id } = params;
     const claim = await InsuranceClaim.findOne({ 
       _id: id, 
       pharmacyId: session.user.id 
@@ -126,7 +125,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     // Dynamic import to avoid build issues
     const { default: InsuranceClaim } = await import('@/models/InsuranceClaim');
 
-    const { id } = params;
     const claim = await InsuranceClaim.findOneAndDelete({ 
       _id: id, 
       pharmacyId: session.user.id 

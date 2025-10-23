@@ -23,7 +23,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     await connectDB();
 
-    const { orderId } = params;
     const body = await request.json();
     const { status, paymentStatus, notes } = body;
 
@@ -100,8 +99,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     await connectDB();
-
-    const { orderId } = params;
 
     const order = await PharmacyOrder.findOne({ 
       _id: orderId, 
