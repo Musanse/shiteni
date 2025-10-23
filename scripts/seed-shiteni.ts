@@ -3,7 +3,7 @@ import { User } from '../src/models/User';
 import { HotelRoom, HotelBooking, HotelGuest } from '../src/models/Hotel';
 import { StoreProduct, StoreOrder, StoreCustomer } from '../src/models/Store';
 import { PharmacyMedicine, PharmacyPrescription, PharmacyPatient } from '../src/models/Pharmacy';
-import { BusRoute, BusSchedule, BusBooking, BusFleet, BusPassenger } from '../src/models/Bus';
+import { BusRoute, BusSchedule, BusBooking, BusPassenger } from '../src/models/Bus';
 import bcrypt from 'bcryptjs';
 
 async function seedShiteni() {
@@ -31,7 +31,6 @@ async function seedShiteni() {
     await BusRoute.deleteMany({});
     await BusSchedule.deleteMany({});
     await BusBooking.deleteMany({});
-    await BusFleet.deleteMany({});
     await BusPassenger.deleteMany({});
 
     // Create Super Admin
@@ -307,29 +306,7 @@ async function seedShiteni() {
     }
     console.log(`✅ Created ${busRoutes.length} bus routes`);
 
-    // Create Bus Fleet
-    const busFleet = [];
-    for (let i = 1; i <= 25; i++) {
-      const bus = new BusFleet({
-        busNumber: `CB-${String(i).padStart(3, '0')}`,
-        make: 'Volvo',
-        model: 'B12M',
-        year: 2020 + Math.floor(Math.random() * 4),
-        capacity: 50,
-        seatTypes: ['Standard', 'Premium'],
-        amenities: ['WiFi', 'AC', 'USB Charging', 'Reclining Seats'],
-        licensePlate: `BUS-${String(i).padStart(3, '0')}`,
-        insuranceNumber: `INS-${String(i).padStart(3, '0')}`,
-        registrationNumber: `REG-${String(i).padStart(3, '0')}`,
-        status: Math.random() > 0.1 ? 'active' : 'maintenance',
-        lastServiceDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
-        nextServiceDate: new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000),
-        mileage: Math.floor(Math.random() * 100000) + 50000
-      });
-      await bus.save();
-      busFleet.push(bus);
-    }
-    console.log(`✅ Created ${busFleet.length} buses in fleet`);
+    // Bus fleet functionality removed - no BusFleet model available
 
     console.log('🎉 Shiteni database seeding completed successfully!');
     console.log('\n📊 Summary:');
