@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       query.isActive = true;
     }
 
-    const plans = await SubscriptionPlan.find(query)
+    const plans = await (SubscriptionPlan as any).find(query)
       .sort({ sortOrder: 1, createdAt: -1 });
 
     return NextResponse.json({ plans });
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if plan type already exists for this vendor type
-    const existingPlan = await SubscriptionPlan.findOne({ vendorType, planType });
+    const existingPlan = await (SubscriptionPlan as any).findOne({ vendorType, planType });
     if (existingPlan) {
       console.log('Plan type already exists for vendor type:', vendorType, planType, 'Existing plan:', existingPlan.name);
       return NextResponse.json(
@@ -151,7 +151,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Missing plan ID' }, { status: 400 });
     }
 
-    const plan = await SubscriptionPlan.findByIdAndUpdate(
+    const plan = await (SubscriptionPlan as any).findByIdAndUpdate(
       planId,
       updateData,
       { new: true }
@@ -191,7 +191,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Missing plan ID' }, { status: 400 });
     }
 
-    const plan = await SubscriptionPlan.findByIdAndDelete(planId);
+    const plan = await (SubscriptionPlan as any).findByIdAndDelete(planId);
 
     if (!plan) {
       return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
