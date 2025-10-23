@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+<<<<<<< HEAD
   reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: false,
@@ -90,6 +91,9 @@ const nextConfig: NextConfig = {
       }
     ];
   }
+=======
+  /* config options here */
+>>>>>>> 13d9f7df1939df1caaf4db35a002fae775e46ce2
 };
 
 export default nextConfig;

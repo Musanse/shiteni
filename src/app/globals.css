@@ -1,157 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  /* Light theme colors */
   --background: #ffffff;
   --foreground: #171717;
-  --primary: #4f46e5; /* Deep indigo */
-  --primary-foreground: #ffffff;
-  --secondary: #10b981; /* Emerald green */
-  --secondary-foreground: #ffffff;
-  --accent: #f59e0b; /* Gold */
-  --accent-foreground: #ffffff;
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
-  --border: #e5e7eb;
-  --card: #ffffff;
-  --card-foreground: #171717;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --info: #3b82f6;
-  --coffee-brown: #3C2415;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-error: var(--error);
-  --color-info: var(--info);
-  --color-coffee-brown: var(--coffee-brown);
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
-/* System dark theme preference */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
+  :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-    --primary: #6366f1;
-    --primary-foreground: #ffffff;
-    --secondary: #059669;
-    --secondary-foreground: #ffffff;
-    --accent: #d97706;
-    --accent-foreground: #ffffff;
-    --muted: #1f2937;
-    --muted-foreground: #9ca3af;
-    --border: #374151;
-    --card: #111827;
-    --card-foreground: #ededed;
-    --success: #059669;
-    --warning: #d97706;
-    --error: #dc2626;
-    --info: #2563eb;
   }
-}
-
-/* Manual dark theme */
-[data-theme="dark"] {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --primary: #6366f1;
-  --primary-foreground: #ffffff;
-  --secondary: #059669;
-  --secondary-foreground: #ffffff;
-  --accent: #d97706;
-  --accent-foreground: #ffffff;
-  --muted: #1f2937;
-  --muted-foreground: #9ca3af;
-  --border: #374151;
-  --card: #111827;
-  --card-foreground: #ededed;
-  --success: #059669;
-  --warning: #d97706;
-  --error: #dc2626;
-  --info: #2563eb;
-}
-
-/* Manual light theme */
-[data-theme="light"] {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #4f46e5;
-  --primary-foreground: #ffffff;
-  --secondary: #10b981;
-  --secondary-foreground: #ffffff;
-  --accent: #f59e0b;
-  --accent-foreground: #ffffff;
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
-  --border: #e5e7eb;
-  --card: #ffffff;
-  --card-foreground: #171717;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --info: #3b82f6;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--muted);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
-}
-
-/* Smooth transitions for theme switching */
-* {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
-
-/* Coffee brown dropdown styling */
-select {
-  background-color: var(--coffee-brown) !important;
-  color: white !important;
-}
-
-select option {
-  background-color: var(--coffee-brown) !important;
-  color: white !important;
-}
-
-select:focus {
-  background-color: var(--coffee-brown) !important;
-  color: white !important;
+  font-family: Arial, Helvetica, sans-serif;
 }
