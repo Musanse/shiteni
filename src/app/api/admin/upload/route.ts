@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     const fileUrl = `/uploads/${fileName}`;
 
     // Get file metadata
-    const metadata = {
+    const metadata: any = {
       originalFileName: file.name,
       fileSize: file.size,
       fileType: file.type,
