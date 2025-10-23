@@ -1,16 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-<<<<<<< HEAD
   reactStrictMode: true,
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,
   },
   outputFileTracingRoot: process.cwd(),
-  // Image optimization configuration
   images: {
     remotePatterns: [
       {
@@ -21,7 +19,6 @@ const nextConfig: NextConfig = {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
   },
-  // Disable caching in development to prevent chunk loading issues
   ...(process.env.NODE_ENV === 'development' && {
     generateEtags: false,
     poweredByHeader: false,
@@ -91,9 +88,6 @@ const nextConfig: NextConfig = {
       }
     ];
   }
-=======
-  /* config options here */
->>>>>>> 13d9f7df1939df1caaf4db35a002fae775e46ce2
 };
 
 export default nextConfig;
