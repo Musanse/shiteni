@@ -1,11 +1,9 @@
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 
 export default withAuth(
-  async function middleware(request: NextRequest) {
-    const token = await getToken({ req: request });
+  async function middleware(request: NextRequest, { token }) {
     const path = request.nextUrl.pathname;
 
     console.log('🔒 Auth Middleware');
@@ -103,8 +101,17 @@ export default withAuth(
             redirectPath = '/auth/signup?error=service_type_required';
             console.log('⚠️ ServiceType not found for bus staff, redirecting to signup');
           }
-        } else if (['institution', 'loan_officer', 'credit_analyst', 'customer_service'].includes(role)) {
-          redirectPath = '/dashboard/institution';
+        } else if (['pharmacist', 'technician', 'pharmacy_cashier'].includes(role)) {
+          // For pharmacy staff, check their service type
+          const serviceType = (token as any).serviceType;
+          if (serviceType && serviceType === 'pharmacy') {
+            redirectPath = `/dashboard/vendor/pharmacy`;
+            console.log('✅ Redirecting pharmacy staff to pharmacy dashboard:', redirectPath);
+          } else {
+            // If no serviceType, redirect to signup to complete profile
+            redirectPath = '/auth/signup?error=service_type_required';
+            console.log('⚠️ ServiceType not found for pharmacy staff, redirecting to signup');
+          }
         } else if (role === 'customer') {
           redirectPath = '/dashboard/customer';
         }
@@ -160,7 +167,7 @@ export default withAuth(
         }
       } else if (path.startsWith('/dashboard/vendor/')) {
         // Only managers (vendors) and staff can access vendor routes
-        const allowedRoles = ['manager', 'cashier', 'inventory_manager', 'sales_associate', 'admin', 'receptionist', 'housekeeping', 'driver', 'conductor', 'ticket_seller', 'dispatcher', 'maintenance'];
+        const allowedRoles = ['manager', 'cashier', 'inventory_manager', 'sales_associate', 'admin', 'receptionist', 'housekeeping', 'driver', 'conductor', 'ticket_seller', 'dispatcher', 'maintenance', 'pharmacist', 'technician', 'pharmacy_cashier'];
         if (!allowedRoles.includes(role)) {
           console.log('⛔ Non-vendor/staff attempting to access vendor route');
           return NextResponse.redirect(new URL('/dashboard/customer', request.url));
