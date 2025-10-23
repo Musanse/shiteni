@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
-import { User } from '@/models/User';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import { sendEmail, emailTemplates } from '@/lib/email';
@@ -26,6 +25,15 @@ export async function GET() {
     }
 
     await connectDB();
+
+    // Access models through mongoose.models
+    const User = mongoose.models.User;
+
+    // Verify model is available
+    if (!User) {
+      console.error('❌ User model not found');
+      throw new Error('User model not found');
+    }
     
     // Fetch all staff members (users with role 'staff' or other admin roles)
     const staff = await User.find({
@@ -85,8 +93,14 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    // Clear Mongoose models cache to ensure fresh schema
-    delete mongoose.models.User;
+    // Access models through mongoose.models
+    const User = mongoose.models.User;
+
+    // Verify model is available
+    if (!User) {
+      console.error('❌ User model not found');
+      throw new Error('User model not found');
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -102,7 +116,6 @@ export async function POST(request: NextRequest) {
 
     // Create new staff member
     console.log('Creating staff with role:', role);
-    console.log('Available roles in schema:', User.schema.paths.role.enumValues);
     
     const newStaff = new User({
       firstName,
@@ -122,11 +135,10 @@ export async function POST(request: NextRequest) {
 
     // Send welcome email to the new staff member
     try {
-      // Get institution name for the email
-      let institutionName = 'Mankuca System';
-      if (newStaff.institutionId) {
-        const institution = await Institution.findById(newStaff.institutionId);
-        institutionName = institution?.name || 'Mankuca System';
+      // Get business name for the email
+      let businessName = 'Shiteni Platform';
+      if (newStaff.businessName) {
+        businessName = newStaff.businessName;
       }
 
       const staffName = `${newStaff.firstName} ${newStaff.lastName}`;
@@ -134,7 +146,7 @@ export async function POST(request: NextRequest) {
       
       const emailTemplate = emailTemplates.staffWelcomeAdmin(
         staffName,
-        institutionName,
+        businessName,
         roleLabel,
         password // Send the plain text password
       );
@@ -190,6 +202,15 @@ export async function PATCH(request: NextRequest) {
     }
 
     await connectDB();
+
+    // Access models through mongoose.models
+    const User = mongoose.models.User;
+
+    // Verify model is available
+    if (!User) {
+      console.error('❌ User model not found');
+      throw new Error('User model not found');
+    }
 
     let updateData: any = {};
     let message = '';
