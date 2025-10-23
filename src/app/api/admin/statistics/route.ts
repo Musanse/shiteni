@@ -56,13 +56,13 @@ export async function GET(request: NextRequest) {
     ] = await Promise.all([
       User.find({}).select('role createdAt').lean(),
       User.find({ role: { $in: ['manager', 'admin', 'super_admin'] } }).select('businessType createdAt').lean(),
-      StoreProduct.find({}).select('name price').lean(),
-      StoreOrder.find({}).select('total createdAt').lean(),
-      PharmacyMedicine.find({}).select('name sellingPrice').lean(),
-      HotelRoom.find({}).select('pricePerNight').lean(),
-      HotelBooking.find({}).select('totalAmount createdAt').lean(),
-      BusRoute.find({}).select('fare').lean(),
-      BusBooking.find({}).select('totalAmount createdAt').lean()
+      (StoreProduct as any).find({}).select('name price').lean(),
+      (StoreOrder as any).find({}).select('total createdAt').lean(),
+      (PharmacyMedicine as any).find({}).select('name sellingPrice').lean(),
+      (HotelRoom as any).find({}).select('pricePerNight').lean(),
+      (HotelBooking as any).find({}).select('totalAmount createdAt').lean(),
+      (BusRoute as any).find({}).select('fare').lean(),
+      (BusBooking as any).find({}).select('totalAmount createdAt').lean()
     ]);
 
     // Calculate overview statistics
