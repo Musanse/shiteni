@@ -10,12 +10,38 @@ async function seedShiteni() {
     await connectDB();
     console.log('✅ Connected to MongoDB');
 
-    // Import models after connection
-    const { User } = await import('../src/models/User');
-    const { HotelRoom, HotelBooking, HotelGuest } = await import('../src/models/Hotel');
-    const { StoreProduct, StoreOrder, StoreCustomer } = await import('../src/models/Store');
-    const { PharmacyMedicine, PharmacyPrescription, PharmacyPatient } = await import('../src/models/Pharmacy');
-    const { BusRoute, BusSchedule, BusBooking, BusPassenger } = await import('../src/models/Bus');
+    // Access models through mongoose.models
+    const User = mongoose.models.User;
+    const HotelRoom = mongoose.models.HotelRoom;
+    const HotelBooking = mongoose.models.HotelBooking;
+    const HotelGuest = mongoose.models.HotelGuest;
+    const StoreProduct = mongoose.models.StoreProduct;
+    const StoreOrder = mongoose.models.StoreOrder;
+    const StoreCustomer = mongoose.models.StoreCustomer;
+    const PharmacyMedicine = mongoose.models.PharmacyMedicine;
+    const PharmacyPrescription = mongoose.models.PharmacyPrescription;
+    const PharmacyPatient = mongoose.models.PharmacyPatient;
+    const BusRoute = mongoose.models.BusRoute;
+    const BusSchedule = mongoose.models.BusSchedule;
+    const BusBooking = mongoose.models.BusBooking;
+    const BusPassenger = mongoose.models.BusPassenger;
+
+    // Verify all models are available
+    const models = {
+      User, HotelRoom, HotelBooking, HotelGuest,
+      StoreProduct, StoreOrder, StoreCustomer,
+      PharmacyMedicine, PharmacyPrescription, PharmacyPatient,
+      BusRoute, BusSchedule, BusBooking, BusPassenger
+    };
+
+    for (const [name, model] of Object.entries(models)) {
+      if (!model) {
+        console.error(`❌ Model ${name} not found`);
+        throw new Error(`Model ${name} not found`);
+      }
+    }
+
+    console.log('✅ All models loaded successfully');
 
     // Clear existing data
     console.log('🧹 Clearing existing data...');
