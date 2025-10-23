@@ -25,7 +25,7 @@ export async function GET() {
 
     // Find the bus vendor using the session email
     const User = mongoose.models.User || mongoose.model('User', new mongoose.Schema({}, { strict: false }));
-    const vendor = await User.findOne({ 
+    const vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'bus'
     });
@@ -37,14 +37,14 @@ export async function GET() {
     const busCompanyId = vendor._id;
     
     // Get all bookings for this bus company
-    const bookings = await BusBooking.find({})
+    const bookings = await (BusBooking as any).find({})
       .sort({ bookingDate: -1 })
       .lean();
     
     // Filter bookings by bus company (we'll need to match scheduleId to trips)
     const BusTripSchema = new mongoose.Schema({}, { strict: false });
     const BusTrip = mongoose.models.BusTrip || mongoose.model('BusTrip', BusTripSchema);
-    const trips = await BusTrip.find({ busCompanyId }).lean();
+    const trips = await (BusTrip as any).find({ busCompanyId }).lean();
     const tripIds = trips.map(t => String(t._id));
     
     // Filter bookings that match our trips
