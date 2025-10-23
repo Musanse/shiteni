@@ -33,7 +33,7 @@ if (mongoose.models.BusRoute) {
 
 const BusRoute = mongoose.model('BusRoute', BusRouteSchema);
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -60,9 +60,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     await connectDB();
 
     const busCompanyId = session.user.id;
+    const { id } = await params;
     const route = await BusRoute.findOneAndUpdate(
       { 
-        _id: new mongoose.Types.ObjectId(params.id),
+        _id: new mongoose.Types.ObjectId(id),
         busCompanyId: new mongoose.Types.ObjectId(busCompanyId)
       },
       {
@@ -108,7 +109,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -127,8 +128,9 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     await connectDB();
 
     const busCompanyId = session.user.id;
+    const { id } = await params;
     const route = await BusRoute.findOneAndDelete({
-      _id: new mongoose.Types.ObjectId(params.id),
+      _id: new mongoose.Types.ObjectId(id),
       busCompanyId: new mongoose.Types.ObjectId(busCompanyId)
     });
 

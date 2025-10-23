@@ -1,16 +1,13 @@
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 
 export default withAuth(
-  async function middleware(request: NextRequest) {
-    const token = await getToken({ req: request });
+  async function middleware(request) {
     const path = request.nextUrl.pathname;
 
     console.log('🔒 Auth Middleware');
     console.log('Path:', path);
-    console.log('Role:', token?.role);
+    console.log('Role:', request.nextauth?.token?.role);
 
     // Allow public paths, API routes, and static files
     if (
@@ -30,7 +27,7 @@ export default withAuth(
     }
 
     // Require authentication for all other routes
-    if (!token) {
+    if (!request.nextauth?.token) {
       console.log('❌ No token, redirecting to signin');
       const signInUrl = new URL('/auth/signin', request.url);
       signInUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
@@ -39,8 +36,8 @@ export default withAuth(
 
     // Handle dashboard routes
     if (path.startsWith('/dashboard')) {
-      const role = token.role as string;
-      const serviceType = (token as any).serviceType;
+      const role = request.nextauth?.token?.role as string;
+      const serviceType = request.nextauth?.token?.serviceType;
       console.log('🔍 Middleware - Role:', role, 'ServiceType:', serviceType, 'Path:', path);
 
       // Default dashboard redirect
@@ -51,8 +48,8 @@ export default withAuth(
           redirectPath = '/dashboard/admin';
         } else if (role === 'admin') {
           // Check if this is a store admin or system admin
-          const serviceType = (token as any).serviceType;
-          if (serviceType && ['hotel', 'store', 'pharmacy', 'bus'].includes(serviceType)) {
+          const serviceType = request.nextauth?.token?.serviceType;
+          if (serviceType && typeof serviceType === 'string' && ['hotel', 'store', 'pharmacy', 'bus'].includes(serviceType)) {
             redirectPath = `/dashboard/vendor/${serviceType}`;
             console.log('✅ Redirecting store admin to service-specific dashboard:', redirectPath);
           } else {
@@ -61,8 +58,8 @@ export default withAuth(
           }
         } else if (role === 'manager') {
           // For vendors, check their service type
-          const serviceType = (token as any).serviceType;
-          if (serviceType && ['hotel', 'store', 'pharmacy', 'bus'].includes(serviceType)) {
+          const serviceType = request.nextauth?.token?.serviceType;
+          if (serviceType && typeof serviceType === 'string' && ['hotel', 'store', 'pharmacy', 'bus'].includes(serviceType)) {
             redirectPath = `/dashboard/vendor/${serviceType}`;
             console.log('✅ Redirecting to service-specific dashboard:', redirectPath);
           } else {
@@ -72,8 +69,8 @@ export default withAuth(
           }
         } else if (['cashier', 'inventory_manager', 'sales_associate'].includes(role)) {
           // For store staff, check their service type
-          const serviceType = (token as any).serviceType;
-          if (serviceType && ['hotel', 'store', 'pharmacy', 'bus'].includes(serviceType)) {
+          const serviceType = request.nextauth?.token?.serviceType;
+          if (serviceType && typeof serviceType === 'string' && ['hotel', 'store', 'pharmacy', 'bus'].includes(serviceType)) {
             redirectPath = `/dashboard/vendor/${serviceType}`;
             console.log('✅ Redirecting store staff to service-specific dashboard:', redirectPath);
           } else {
@@ -83,7 +80,7 @@ export default withAuth(
           }
         } else if (['receptionist', 'housekeeping'].includes(role)) {
           // For hotel staff, check their service type
-          const serviceType = (token as any).serviceType;
+          const serviceType = request.nextauth?.token?.serviceType;
           if (serviceType && serviceType === 'hotel') {
             redirectPath = `/dashboard/vendor/hotel`;
             console.log('✅ Redirecting hotel staff to hotel dashboard:', redirectPath);
@@ -94,7 +91,7 @@ export default withAuth(
           }
         } else if (['driver', 'conductor', 'ticket_seller', 'dispatcher', 'maintenance'].includes(role)) {
           // For bus staff, check their service type
-          const serviceType = (token as any).serviceType;
+          const serviceType = request.nextauth?.token?.serviceType;
           if (serviceType && serviceType === 'bus') {
             redirectPath = `/dashboard/vendor/bus`;
             console.log('✅ Redirecting bus staff to bus dashboard:', redirectPath);
@@ -120,8 +117,8 @@ export default withAuth(
           console.log('⛔ Non-admin attempting to access admin route');
           // Redirect store staff to their vendor dashboard
           if (['manager', 'cashier', 'inventory_manager', 'sales_associate'].includes(role)) {
-            const serviceType = (token as any).serviceType;
-            if (serviceType && ['hotel', 'store', 'pharmacy', 'bus'].includes(serviceType)) {
+            const serviceType = request.nextauth?.token?.serviceType;
+            if (serviceType && typeof serviceType === 'string' && ['hotel', 'store', 'pharmacy', 'bus'].includes(serviceType)) {
               return NextResponse.redirect(new URL(`/dashboard/vendor/${serviceType}`, request.url));
             }
           }
@@ -133,21 +130,21 @@ export default withAuth(
           console.log('⛔ Non-customer attempting to access customer route');
           // Redirect store staff to their vendor dashboard
           if (['manager', 'cashier', 'inventory_manager', 'sales_associate'].includes(role)) {
-            const serviceType = (token as any).serviceType;
-            if (serviceType && ['hotel', 'store', 'pharmacy', 'bus'].includes(serviceType)) {
+            const serviceType = request.nextauth?.token?.serviceType;
+            if (serviceType && typeof serviceType === 'string' && ['hotel', 'store', 'pharmacy', 'bus'].includes(serviceType)) {
               return NextResponse.redirect(new URL(`/dashboard/vendor/${serviceType}`, request.url));
             }
           }
           // Redirect hotel staff to their vendor dashboard
           if (['receptionist', 'housekeeping'].includes(role)) {
-            const serviceType = (token as any).serviceType;
+            const serviceType = request.nextauth?.token?.serviceType;
             if (serviceType && serviceType === 'hotel') {
               return NextResponse.redirect(new URL(`/dashboard/vendor/hotel`, request.url));
             }
           }
           // Redirect bus staff to their vendor dashboard
           if (['driver', 'conductor', 'ticket_seller', 'dispatcher', 'maintenance'].includes(role)) {
-            const serviceType = (token as any).serviceType;
+            const serviceType = request.nextauth?.token?.serviceType;
             if (serviceType && serviceType === 'bus') {
               return NextResponse.redirect(new URL(`/dashboard/vendor/bus`, request.url));
             }
@@ -168,7 +165,7 @@ export default withAuth(
         
         // Check if the service type matches the user's service type
         const pathServiceType = path.split('/')[3]; // Extract service type from /dashboard/vendor/{serviceType}
-        const userServiceType = (token as any).serviceType;
+        const userServiceType = request.nextauth?.token?.serviceType;
         
         if (pathServiceType !== userServiceType) {
           console.log('⛔ Service type mismatch, redirecting to correct dashboard');
@@ -190,7 +187,7 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => {
+      authorized: () => {
         return true; // We'll handle authorization in the middleware function
       },
     },

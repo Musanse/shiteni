@@ -7,7 +7,7 @@ import connectDB from '@/lib/mongodb';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -43,8 +43,9 @@ export async function PUT(
 
     await connectDB();
 
+    const { id } = await params;
     const booking = await Booking.findOne({ 
-      _id: params.id, 
+      _id: id, 
       vendorId: user.id 
     });
     
@@ -135,7 +136,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -153,8 +154,9 @@ export async function DELETE(
 
     await connectDB();
 
+    const { id } = await params;
     const booking = await Booking.findOneAndDelete({ 
-      _id: params.id, 
+      _id: id, 
       vendorId: user.id 
     });
     

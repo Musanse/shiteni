@@ -6,7 +6,7 @@ import Message from '@/models/Message';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,7 +18,7 @@ export async function PATCH(
     await connectDB();
 
     const { status } = await request.json();
-    const messageId = params.id;
+    const { id: messageId } = await params;
 
     if (!['unread', 'read', 'replied', 'archived'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });

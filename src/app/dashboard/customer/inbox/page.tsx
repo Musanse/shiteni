@@ -85,7 +85,7 @@ export default function CustomerInboxPage() {
         throw new Error('Failed to fetch conversations');
       }
       
-      const data = await response.json();
+        const data = await response.json();
       setConversations(data.conversations || []);
     } catch (error) {
       console.error('Error fetching conversations:', error);
@@ -125,7 +125,7 @@ export default function CustomerInboxPage() {
 
     try {
       const response = await fetch('/api/customer/conversation', {
-        method: 'POST',
+              method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -148,7 +148,7 @@ export default function CustomerInboxPage() {
       }));
 
       setNewMessage('');
-    } catch (error) {
+          } catch (error) {
       console.error('Error sending message:', error);
       setError('Failed to send message');
     }

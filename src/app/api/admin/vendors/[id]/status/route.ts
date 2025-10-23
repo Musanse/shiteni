@@ -6,7 +6,7 @@ import { User } from '@/models/User';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,7 +17,7 @@ export async function PATCH(
 
     await connectDB();
 
-    const { id } = params;
+    const { id } = await params;
     const { status } = await request.json();
 
     if (!status || !['pending', 'approved', 'suspended', 'rejected'].includes(status)) {

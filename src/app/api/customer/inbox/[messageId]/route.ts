@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import * as UserModule from '@/models/User';
@@ -8,7 +8,7 @@ import Message from '@/models/Message';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { messageId: string } }
+  { params }: { params: Promise<{ messageId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,7 +18,7 @@ export async function PATCH(
     }
 
     const userId = session.user.id;
-    const { messageId } = params;
+    const { messageId } = await params;
     const { status } = await request.json();
 
     await connectDB();
