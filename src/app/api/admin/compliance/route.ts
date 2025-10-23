@@ -51,9 +51,11 @@ export async function GET(request: NextRequest) {
 
       return {
         id: institution._id.toString(),
-        institution: institution.name,
-        reportType: institution.type === 'bank' ? 'Quarterly Compliance' : 
-                   institution.type === 'credit_union' ? 'Annual Audit' : 'Monthly Compliance',
+        institution: institution.businessName || `${institution.firstName} ${institution.lastName}`,
+        reportType: institution.serviceType === 'hotel' ? 'Hotel Compliance' : 
+                   institution.serviceType === 'pharmacy' ? 'Pharmacy Compliance' :
+                   institution.serviceType === 'store' ? 'Store Compliance' :
+                   institution.serviceType === 'bus' ? 'Bus Compliance' : 'General Compliance',
         period: period === 'current' ? 'Q4 2023' : 
                 period === 'last_quarter' ? 'Q3 2023' : '2022',
         status: institution.status === 'active' ? 'approved' :
@@ -67,7 +69,7 @@ export async function GET(request: NextRequest) {
         nextDue: nextDue.toISOString().split('T')[0],
         documents: Math.floor(Math.random() * 20) + 10,
         institutionId: institution._id.toString(),
-        institutionType: institution.type,
+        institutionType: institution.serviceType || 'general',
         registrationDate: institution.createdAt,
         totalCustomers: institution.totalCustomers || Math.floor(Math.random() * 1000) + 100,
         totalAssets: institution.totalAssets || Math.floor(Math.random() * 10000000) + 1000000,
