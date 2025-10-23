@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
       User.find({}).select('role createdAt').lean(),
       User.find({ role: { $in: ['manager', 'admin', 'super_admin'] } }).select('businessType createdAt').lean(),
       StoreProduct.find({}).select('name price').lean(),
-      StoreOrder.find({}).select('totalAmount createdAt').lean(),
+      StoreOrder.find({}).select('total createdAt').lean(),
       PharmacyMedicine.find({}).select('name sellingPrice').lean(),
       HotelRoom.find({}).select('pricePerNight').lean(),
       HotelBooking.find({}).select('totalAmount createdAt').lean(),
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
       totalUsers: users.length,
       totalBusinesses: businesses.length,
       totalRevenue: 
-        storeOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0) +
+        storeOrders.reduce((sum, order) => sum + (order.total || 0), 0) +
         hotelBookings.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0) +
         busBookings.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0),
       totalOrders: storeOrders.length,
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
       ];
       
       const monthRevenue = 
-        monthOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0) +
+        monthOrders.reduce((sum, order) => sum + (order.total || 0), 0) +
         monthBookings.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0);
       
       userGrowth.push({
@@ -173,9 +173,9 @@ export async function GET(request: NextRequest) {
     recentOrders.forEach(order => {
       recentActivity.push({
         type: 'order',
-        description: `New order placed - Total: ZMW ${order.totalAmount || 0}`,
+        description: `New order placed - Total: ZMW ${order.total || 0}`,
         timestamp: order.createdAt,
-        amount: order.totalAmount || 0
+        amount: order.total || 0
       });
     });
     
