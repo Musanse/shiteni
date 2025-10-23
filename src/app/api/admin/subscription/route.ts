@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import { Subscription } from '@/models/Subscription';
+import { User } from '@/models/User';
 
 export async function GET(request: NextRequest) {
   try {
@@ -166,7 +167,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Get institution info
-    const institution = await Institution.findById(institutionId);
+    const institution = await (User as any).findById(institutionId);
     if (!institution) {
       return NextResponse.json({ error: 'Institution not found' }, { status: 404 });
     }
@@ -183,7 +184,7 @@ export async function POST(request: NextRequest) {
 
     const subscription = new Subscription({
       institutionId,
-      institutionName: institution.name,
+      institutionName: institution.businessName || `${institution.firstName} ${institution.lastName}`,
       planType,
       status: 'active',
       startDate: new Date(startDate),
