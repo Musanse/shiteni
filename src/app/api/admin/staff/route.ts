@@ -144,18 +144,16 @@ export async function POST(request: NextRequest) {
       const staffName = `${newStaff.firstName} ${newStaff.lastName}`;
       const roleLabel = availableRoles.find(r => r.value === newStaff.role)?.label || newStaff.role;
       
-      const emailTemplate = emailTemplates.staffWelcomeAdmin(
+      const emailTemplate = emailTemplates.staffAccountCreated(
         staffName,
         businessName,
-        roleLabel,
-        password // Send the plain text password
+        { email: newStaff.email, password: password }
       );
 
-      const emailSent = await sendEmail({
-        to: newStaff.email,
-        subject: emailTemplate.subject,
-        html: emailTemplate.html,
-      });
+      const emailSent = await sendEmail(
+        newStaff.email,
+        emailTemplate
+      );
 
       if (!emailSent) {
         console.warn('Failed to send welcome email to:', newStaff.email);
