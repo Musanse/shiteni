@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CheckCircle, XCircle, Loader2, Mail, ArrowLeft } from 'lucide-react';
+import { CheckCircleIcon as CheckCircle, XCircleIcon as XCircle, ArrowPathIcon as Loader2, EnvelopeIcon as Mail, ArrowLeftIcon as ArrowLeft } from '@heroicons/react/24/outline';
 
 export default function ForgotPasswordPage() {
   const [status, setStatus] = useState<'form' | 'loading' | 'success' | 'error'>('form');
