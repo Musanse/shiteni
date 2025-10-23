@@ -1,20 +1,21 @@
 import mongoose from 'mongoose';
-import { User } from '../src/models/User';
-import { HotelRoom, HotelBooking, HotelGuest } from '../src/models/Hotel';
-import { StoreProduct, StoreOrder, StoreCustomer } from '../src/models/Store';
-import { PharmacyMedicine, PharmacyPrescription, PharmacyPatient } from '../src/models/Pharmacy';
-import { BusRoute, BusSchedule, BusBooking, BusPassenger } from '../src/models/Bus';
+import connectDB from '../src/lib/mongodb';
 import bcrypt from 'bcryptjs';
 
 async function seedShiteni() {
   try {
     console.log('🌱 Starting Shiteni database seeding...');
     
-    // MongoDB connection string
-    const MONGODB_URI = 'mongodb+srv://zeedemypartners_db_user:Oup88TrQDNdIwc4M@cluster0.fhzjpdc.mongodb.net/shiteni?retryWrites=true&w=majority&appName=Cluster0';
-    
-    await mongoose.connect(MONGODB_URI);
+    // Connect to MongoDB using the proper connection function
+    await connectDB();
     console.log('✅ Connected to MongoDB');
+
+    // Import models after connection
+    const { User } = await import('../src/models/User');
+    const { HotelRoom, HotelBooking, HotelGuest } = await import('../src/models/Hotel');
+    const { StoreProduct, StoreOrder, StoreCustomer } = await import('../src/models/Store');
+    const { PharmacyMedicine, PharmacyPrescription, PharmacyPatient } = await import('../src/models/Pharmacy');
+    const { BusRoute, BusSchedule, BusBooking, BusPassenger } = await import('../src/models/Bus');
 
     // Clear existing data
     console.log('🧹 Clearing existing data...');
