@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         switch (vendor.businessType) {
           case 'store':
             const storeProducts = await StoreProduct.countDocuments({ userId: vendor._id });
-            const storeOrders = await StoreOrder.find({ userId: vendor._id });
+            const storeOrders = await (StoreOrder as any).find({ userId: vendor._id });
             totalProducts = storeProducts;
             totalOrders = storeOrders.length;
             revenue = storeOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
@@ -45,14 +45,14 @@ export async function GET(request: NextRequest) {
             break;
           case 'hotel':
             const hotelRooms = await HotelRoom.countDocuments({ userId: vendor._id });
-            const hotelBookings = await HotelBooking.find({ userId: vendor._id });
+            const hotelBookings = await (HotelBooking as any).find({ userId: vendor._id });
             totalProducts = hotelRooms;
             totalOrders = hotelBookings.length;
             revenue = hotelBookings.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0);
             break;
           case 'bus':
             const busRoutes = await BusRoute.countDocuments({ userId: vendor._id });
-            const busBookings = await BusBooking.find({ userId: vendor._id });
+            const busBookings = await (BusBooking as any).find({ userId: vendor._id });
             totalProducts = busRoutes;
             totalOrders = busBookings.length;
             revenue = busBookings.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0);
