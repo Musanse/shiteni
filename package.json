@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "install-deps": "npm install --legacy-peer-deps"
   },
   "dependencies": {
     "next": "15.5.4",
@@ -17,7 +18,7 @@
     "bcryptjs": "^2.4.3",
     "nodemailer": "^6.9.7",
     "axios": "^1.6.2",
-    "lucide-react": "^0.400.0",
+    "lucide-react": "^0.294.0",
     "chart.js": "^4.4.0",
     "react-chartjs-2": "^5.2.0",
     "date-fns": "^2.30.0",
