@@ -91,9 +91,9 @@ export default function StatisticsPage() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-ZM', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'ZMW'
     }).format(amount);
   };
 

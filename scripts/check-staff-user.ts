@@ -27,7 +27,8 @@ async function checkStaffUser() {
     console.log('Last Name:', staffUser.lastName);
     console.log('Role:', staffUser.role);
     console.log('KYC Status:', staffUser.kycStatus);
-    console.log('Institution ID:', staffUser.institutionId);
+    console.log('Service Type:', staffUser.serviceType);
+    console.log('Business Name:', staffUser.businessName);
     console.log('Created At:', staffUser.createdAt);
     console.log('================================\n');
 
@@ -40,24 +41,25 @@ async function checkStaffUser() {
     console.log('lastName:', staffUser.lastName);
     console.log('role:', staffUser.role);
     console.log('kycStatus:', staffUser.kycStatus);
-    console.log('institutionId:', staffUser.institutionId?.toString());
+    console.log('serviceType:', staffUser.serviceType);
+    console.log('businessName:', staffUser.businessName);
     console.log('================================\n');
 
     // Verify role is correct
-    if (staffUser.role === 'staff') {
-      console.log('✅ Role is correctly set to "staff"');
+    if (staffUser.role === 'admin') {
+      console.log('✅ Role is correctly set to "admin"');
     } else {
-      console.log('❌ Role is NOT "staff", it is:', staffUser.role);
+      console.log('❌ Role is NOT "admin", it is:', staffUser.role);
       console.log('This is why the user is being redirected to the wrong dashboard!');
     }
 
-    // Check all users with staff role
-    console.log('\nAll users with "staff" role:');
+    // Check all users with admin role
+    console.log('\nAll users with "admin" role:');
     console.log('================================');
-    const allStaff = await User.find({ role: 'staff' });
-    console.log(`Found ${allStaff.length} staff users:`);
-    allStaff.forEach(staff => {
-      console.log(`- ${staff.email} (${staff.firstName} ${staff.lastName})`);
+    const allAdmins = await User.find({ role: 'admin' });
+    console.log(`Found ${allAdmins.length} admin users:`);
+    allAdmins.forEach(admin => {
+      console.log(`- ${admin.email} (${admin.firstName} ${admin.lastName})`);
     });
     console.log('================================\n');
 

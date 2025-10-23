@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { HomeIcon as Home } from '@heroicons/react/24/outline';
+import { Home } from 'lucide-react';
 
 function SignInContent() {
   const [email, setEmail] = useState('');

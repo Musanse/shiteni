@@ -49,16 +49,18 @@ export default function AdminInboxPage() {
           // Ensure all conversation fields are properly defined
           const safeConversations = data.conversations.map((conv: {
             _id: string;
-            customerName: string;
-            customerEmail: string;
+            participantName?: string;
+            participantEmail?: string;
+            customerName?: string;
+            customerEmail?: string;
             lastMessage: string;
             timestamp: string;
             unreadCount: number;
             isFromMe: boolean;
           }) => ({
             _id: conv._id || '',
-            contactName: conv.customerName || 'Unknown',
-            contactEmail: conv.customerEmail || '',
+            contactName: conv.participantName || conv.customerName || 'Unknown',
+            contactEmail: conv.participantEmail || conv.customerEmail || '',
             lastMessage: conv.lastMessage || '',
             timestamp: conv.timestamp || new Date().toISOString(),
             unreadCount: conv.unreadCount || 0,

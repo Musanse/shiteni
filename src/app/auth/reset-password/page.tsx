@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CheckCircleIcon as CheckCircle, XCircleIcon as XCircle, ArrowPathIcon as Loader2, LockClosedIcon as Lock, EyeIcon as Eye, EyeSlashIcon as EyeOff } from '@heroicons/react/24/outline';
+import { CheckCircle, XCircle, Loader2, Lock, Eye, EyeOff } from 'lucide-react';
 
 function ResetPasswordContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'form'>('form');

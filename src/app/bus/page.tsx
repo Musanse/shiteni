@@ -778,7 +778,7 @@ export default function BusBrowsePage() {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {vendors.map(vendor => (
+          {vendors.map((vendor, index) => (
             <Card key={vendor._id} className="overflow-hidden">
               <div className="relative h-48 bg-muted">
                 <Image
@@ -786,7 +786,8 @@ export default function BusBrowsePage() {
                   alt={vendor.name}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  priority={vendor._id === vendors[0]?._id}
+                  priority={index < 2}
+                  loading={index < 2 ? "eager" : "lazy"}
                   className="object-cover"
                 />
                 <div className="absolute top-4 right-4">

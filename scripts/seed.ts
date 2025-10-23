@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import connectDB from '@/lib/mongodb';
 import { User } from '@/models/User';
-import { Institution } from '@/models/Institution';
+
 import { LoanProduct } from '@/models/LoanProduct';
 
 // Load environment variables

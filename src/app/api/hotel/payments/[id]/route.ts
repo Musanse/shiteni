@@ -6,9 +6,10 @@ import Payment from '@/models/Payment';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -24,7 +25,7 @@ export async function GET(
     await connectDB();
 
     const payment = await Payment.findOne({
-      _id: params.id,
+      _id: id,
       vendorId: user.id
     }).lean();
 
@@ -44,9 +45,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -77,7 +79,7 @@ export async function PUT(
     if (notes) updateData.notes = notes;
 
     const payment = await Payment.findOneAndUpdate(
-      { _id: params.id, vendorId: user.id },
+      { _id: id, vendorId: user.id },
       updateData,
       { new: true }
     ).lean();
@@ -101,9 +103,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -119,7 +122,7 @@ export async function DELETE(
     await connectDB();
 
     const payment = await Payment.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       vendorId: user.id
     });
 

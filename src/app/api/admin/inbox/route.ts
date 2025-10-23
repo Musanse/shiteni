@@ -1,24 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Message from '@/models/Message';
-import * as UserModule from '@/models/User';
-const { User } = UserModule;
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { User } from '@/models/User';
 
 export async function GET(request: NextRequest) {
   try {
-    await connectDB();
-
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+
+    if (!session || !['admin', 'super_admin'].includes((session.user as any).role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    await connectDB();
 
     // Find the admin user
     const admin = await User.findOne({ 
       email: session.user.email,
-      role: 'admin'
+      role: { $in: ['admin', 'super_admin'] }
     });
 
     if (!admin) {
@@ -27,19 +27,18 @@ export async function GET(request: NextRequest) {
 
     console.log(`Searching for messages for admin: ${admin.email} (ID: ${admin._id})`);
 
-    // Fetch all conversations for the admin
+    // Fetch all conversations for the admin - simplified approach
     const conversations = await Message.aggregate([
       {
         $match: {
           $or: [
             { senderId: admin._id.toString() },
             { recipientId: admin._id.toString() }
-          ],
-          conversationId: admin._id.toString()
+          ]
         }
       },
       {
-        $sort: { timestamp: -1 }
+        $sort: { createdAt: -1 }
       },
       {
         $group: {
@@ -51,8 +50,6 @@ export async function GET(request: NextRequest) {
             ]
           },
           lastMessage: { $first: '$$ROOT' },
-          customerName: { $first: '$senderName' },
-          customerEmail: { $first: '$senderEmail' },
           unreadCount: {
             $sum: {
               $cond: [
@@ -70,7 +67,7 @@ export async function GET(request: NextRequest) {
         }
       },
       {
-        $sort: { 'lastMessage.timestamp': -1 }
+        $sort: { 'lastMessage.createdAt': -1 }
       }
     ]);
 
@@ -79,10 +76,10 @@ export async function GET(request: NextRequest) {
     // Debug: Show sample conversations
     if (conversations.length > 0) {
       console.log('Sample conversations:', conversations.slice(0, 2).map(conv => ({
-        customerName: conv.customerName,
-        customerEmail: conv.customerEmail,
+        participantId: conv._id,
         lastMessage: conv.lastMessage.content?.substring(0, 50),
-        timestamp: conv.lastMessage.timestamp
+        timestamp: conv.lastMessage.createdAt,
+        unreadCount: conv.unreadCount
       })));
     }
 
@@ -90,12 +87,19 @@ export async function GET(request: NextRequest) {
       success: true,
       conversations: conversations.map(conv => ({
         _id: conv._id,
-        customerName: conv.customerName,
-        customerEmail: conv.customerEmail,
+        participantId: conv._id,
+        participantName: conv.lastMessage.senderId === admin._id.toString() 
+          ? conv.lastMessage.recipientName 
+          : conv.lastMessage.senderName,
+        participantEmail: conv.lastMessage.senderId === admin._id.toString() 
+          ? conv.lastMessage.recipientId 
+          : conv.lastMessage.senderId,
         lastMessage: conv.lastMessage.content,
-        timestamp: conv.lastMessage.timestamp,
+        timestamp: conv.lastMessage.createdAt,
         unreadCount: conv.unreadCount,
-        isFromMe: conv.lastMessage.senderId === admin._id.toString()
+        isFromMe: conv.lastMessage.senderId === admin._id.toString(),
+        messageType: conv.lastMessage.messageType || 'text',
+        status: conv.lastMessage.status || 'sent'
       }))
     });
 

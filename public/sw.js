@@ -3,7 +3,6 @@ const CACHE_NAME = 'shiteni-v9';
 // Add all the files you want to cache
 const urlsToCache = [
   '/',
-  '/favicon.ico'
 ];
 
 self.addEventListener('install', (event) => {

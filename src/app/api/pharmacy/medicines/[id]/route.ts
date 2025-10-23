@@ -7,9 +7,10 @@ import Medicine from '@/models/Medicine';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -18,7 +19,7 @@ export async function GET(
 
     await connectDB();
 
-    const medicine = await Medicine.findById(params.id).lean();
+    const medicine = await Medicine.findById(id).lean();
 
     if (!medicine) {
       return NextResponse.json({ error: 'Medicine not found' }, { status: 404 });
@@ -39,9 +40,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -85,7 +87,7 @@ export async function PUT(
     }
 
     // Check if medicine exists
-    const existingMedicine = await Medicine.findById(params.id);
+    const existingMedicine = await Medicine.findById(id);
     if (!existingMedicine) {
       return NextResponse.json({ error: 'Medicine not found' }, { status: 404 });
     }
@@ -103,7 +105,7 @@ export async function PUT(
 
     // Update medicine
     const updatedMedicine = await Medicine.findByIdAndUpdate(
-      params.id,
+      id,
       {
         name,
         genericName,
@@ -143,9 +145,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -162,12 +165,12 @@ export async function DELETE(
 
     await connectDB();
 
-    const medicine = await Medicine.findById(params.id);
+    const medicine = await Medicine.findById(id);
     if (!medicine) {
       return NextResponse.json({ error: 'Medicine not found' }, { status: 404 });
     }
 
-    await Medicine.findByIdAndDelete(params.id);
+    await Medicine.findByIdAndDelete(id);
 
     return NextResponse.json({
       success: true,

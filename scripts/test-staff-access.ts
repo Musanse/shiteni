@@ -24,7 +24,8 @@ async function testStaffAccess() {
     console.log('Email:', staffUser.email);
     console.log('Name:', staffUser.firstName, staffUser.lastName);
     console.log('Role:', staffUser.role);
-    console.log('Institution ID:', staffUser.institutionId);
+    console.log('Service Type:', staffUser.serviceType);
+    console.log('Business Name:', staffUser.businessName);
     console.log('================================\n');
 
     // Simulate what NextAuth will return
@@ -34,7 +35,8 @@ async function testStaffAccess() {
       firstName: staffUser.firstName,
       lastName: staffUser.lastName,
       role: staffUser.role,
-      institutionId: staffUser.institutionId?.toString()
+      serviceType: staffUser.serviceType,
+      businessName: staffUser.businessName
     };
 
     console.log('✅ NextAuth Session Data:');
@@ -57,14 +59,11 @@ async function testStaffAccess() {
       case 'customer':
         console.log('→ Would redirect to: /dashboard/customer');
         break;
-      case 'institution':
-        console.log('→ Would redirect to: /dashboard/institution');
-        break;
-      case 'staff':
-        console.log('→ Would redirect to: /dashboard/institution ✅');
-        break;
       case 'admin':
-        console.log('→ Would redirect to: /dashboard/admin');
+        console.log('→ Would redirect to: /dashboard/admin ✅');
+        break;
+      case 'manager':
+        console.log('→ Would redirect to: /dashboard/vendor');
         break;
       default:
         console.log('→ Would redirect to: /dashboard/customer (fallback)');
@@ -76,14 +75,13 @@ async function testStaffAccess() {
     console.log('✅ Sidebar Navigation Test:');
     console.log('================================');
     
-    const institutionNavItems = [
-      'Dashboard', 'Applications', 'Assessment', 'Products', 'Staff',
-      'Approvals', 'Disbursement', 'Recovery', 'Defaulty', 'Customers',
-      'Due Diligence', 'Analytics', 'Settings', 'Inbox', 'Subscription'
+    const adminNavItems = [
+      'Dashboard', 'Users', 'Vendors', 'Staff', 'Analytics', 
+      'Settings', 'Inbox', 'Subscription', 'System Health'
     ];
     
-    console.log('Staff users will see these navigation items:');
-    institutionNavItems.forEach((item, index) => {
+    console.log('Admin users will see these navigation items:');
+    adminNavItems.forEach((item, index) => {
       console.log(`${index + 1}. ${item}`);
     });
     

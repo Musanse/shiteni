@@ -2,165 +2,211 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
-import { Loan } from '@/models/Loan';
 import { User } from '@/models/User';
+import { StoreOrder } from '@/models/Store';
+import PharmacyOrder from '@/models/PharmacyOrder';
+import { BusBooking } from '@/models/Bus';
+import { HotelBooking } from '@/models/Hotel';
 import mongoose from 'mongoose';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('Customer dashboard API called');
     const session = await getServerSession(authOptions);
-    console.log('Session:', session);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     await connectDB();
 
-    // For testing, allow access even without authentication
-    // if (!session || (session.user as any).role !== 'customer') {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
-
-    // For testing, use a mock customer ID if no session
-    let customerId, customerObjectId, customer;
+    const userId = session.user.id;
     
-    if (session && (session.user as any).id) {
-      customerId = (session.user as any).id;
-      customerObjectId = new mongoose.Types.ObjectId(customerId);
-      customer = await User.findById(customerObjectId);
-    } else {
-      // Use a mock customer ID for testing
-      customerId = '507f1f77bcf86cd799439011';
-      customerObjectId = new mongoose.Types.ObjectId(customerId);
-      customer = await User.findById(customerObjectId);
-    }
-    
-    // If no customer found, create a basic customer record
-    if (!customer) {
-      console.log('No customer found, creating basic customer record');
-      customer = new User({
-        _id: customerObjectId,
-        email: 'test@example.com',
-        password: 'hashedpassword',
-        firstName: 'Test',
-        lastName: 'Customer',
-        role: 'customer',
-        kycStatus: 'pending'
-      });
-      await customer.save();
+    // Get user details
+    const user = await User.findById(userId);
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    console.log('Customer found:', { name: customer.firstName, email: customer.email });
+    // Fetch recent orders from different services
+    const [storeOrders, pharmacyOrders, busBookings, hotelBookings] = await Promise.all([
+      // Store orders
+      StoreOrder.find({ customerId: userId })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean(),
+      
+      // Pharmacy orders
+      PharmacyOrder.find({ 
+        $or: [
+          { customerId: new mongoose.Types.ObjectId(userId) },
+          { customerId: userId },
+          { customerEmail: user.email }
+        ]
+      })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean(),
+      
+      // Bus bookings
+      BusBooking.find({ 
+        $or: [
+          { customerId: userId },
+          { customerEmail: user.email }
+        ]
+      })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean(),
+      
+      // Hotel bookings
+      HotelBooking.find({ 
+        $or: [
+          { customerId: userId },
+          { customerEmail: user.email }
+        ]
+      })
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean()
+    ]);
 
-    // Ensure customer has a valid name
-    const customerName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim() || 'Customer';
-
-    // Fetch customer loans
-    console.log('Fetching loans for customer:', customerObjectId);
-    const loans = await Loan.find({ customerId: customerObjectId })
-      .populate('institutionId', 'name')
-      .sort({ applicationDate: -1 });
-
-    console.log('Found loans:', loans.length);
-
-    // Calculate overview metrics
-    const totalLoans = loans.length;
-    const activeLoans = loans.filter(loan => loan.status === 'recovery').length;
-    const totalBorrowed = loans.reduce((sum, loan) => sum + loan.amount, 0);
-    const outstandingBalance = loans.reduce((sum, loan) => sum + (loan.remainingBalance || 0), 0);
-
-    // Find next payment
-    const activeLoan = loans.find(loan => loan.status === 'recovery' && loan.nextPaymentDate);
-    const nextPaymentDate = activeLoan?.nextPaymentDate?.toISOString();
-    const nextPaymentAmount = activeLoan?.monthlyPayment;
-
-    // Get recent loans (last 5)
-    const recentLoans = loans.slice(0, 5).map(loan => ({
-      _id: loan._id.toString(),
-      loanType: loan.loanType,
-      amount: loan.amount,
-      status: loan.status,
-      applicationDate: loan.applicationDate.toISOString(),
-      institutionName: (loan.institutionId as any)?.name || 'Unknown Institution'
-    }));
-
-    // Generate recent messages based on loan status
-    const recentMessages = loans.slice(0, 3).map(loan => {
-      let content = '';
-      let unread = false;
-
-      switch (loan.status) {
-        case 'pending_review':
-          content = 'Your loan application has been received and is under review.';
-          unread = true;
-          break;
-        case 'under_review':
-          content = 'Your application is being reviewed by our credit team.';
-          unread = true;
-          break;
-        case 'assessment':
-          content = 'Your loan application is being assessed for approval.';
-          unread = true;
-          break;
-        case 'approved':
-          content = 'Congratulations! Your loan application has been approved.';
-          unread = true;
-          break;
-        case 'disbursement':
-          content = 'Your loan is ready for disbursement.';
-          unread = true;
-          break;
-        case 'recovery':
-          content = 'Your loan is active. Next payment due soon.';
-          unread = false;
-          break;
-        case 'defaulted':
-          content = 'Your loan account requires immediate attention.';
-          unread = true;
-          break;
-        case 'rejected':
-          content = 'Your loan application was not approved.';
-          unread = true;
-          break;
-        default:
-          content = 'We have an update regarding your loan application.';
-          unread = false;
-      }
-
-      return {
-        _id: loan._id.toString(),
-        senderName: (loan.institutionId as any)?.name || 'Unknown Institution',
-        content,
-        timestamp: loan.updatedAt.toISOString(),
-        unread
-      };
+    // Calculate statistics
+    const totalStoreOrders = await StoreOrder.countDocuments({ customerId: userId });
+    const totalPharmacyOrders = await PharmacyOrder.countDocuments({ 
+      $or: [
+        { customerId: new mongoose.Types.ObjectId(userId) },
+        { customerId: userId },
+        { customerEmail: user.email }
+      ]
     });
+    const totalBusBookings = await BusBooking.countDocuments({ 
+      $or: [
+        { customerId: userId },
+        { customerEmail: user.email }
+      ]
+    });
+    const totalHotelBookings = await HotelBooking.countDocuments({ 
+      $or: [
+        { customerId: userId },
+        { customerEmail: user.email }
+      ]
+    });
+
+    // Calculate total spending
+    const storeSpending = storeOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+    const pharmacySpending = pharmacyOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+    const busSpending = busBookings.reduce((sum, booking) => sum + (booking.fareAmount || 0), 0);
+    const hotelSpending = hotelBookings.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0);
+
+    // Recent activity
+    const recentActivity = [
+      ...storeOrders.map(order => ({
+        id: order._id,
+        type: 'store_order',
+        title: `Store Order #${order.orderNumber}`,
+        description: `${order.items?.length || 0} items`,
+        amount: order.totalAmount,
+        status: order.status,
+        date: order.createdAt,
+        vendor: order.vendorName || 'Store'
+      })),
+      ...pharmacyOrders.map(order => ({
+        id: order._id,
+        type: 'pharmacy_order',
+        title: `Pharmacy Order #${order.orderNumber}`,
+        description: `${order.items?.length || 0} medicines`,
+        amount: order.totalAmount,
+        status: order.status,
+        date: order.createdAt,
+        vendor: order.vendorName || 'Pharmacy'
+      })),
+      ...busBookings.map(booking => ({
+        id: booking._id,
+        type: 'bus_booking',
+        title: `Bus Booking #${booking.bookingNumber}`,
+        description: `${booking.routeName} - ${booking.tripName}`,
+        amount: booking.fareAmount,
+        status: booking.paymentStatus,
+        date: booking.createdAt,
+        vendor: booking.busName || 'Bus Service'
+      })),
+      ...hotelBookings.map(booking => ({
+        id: booking._id,
+        type: 'hotel_booking',
+        title: `Hotel Booking #${booking.bookingNumber}`,
+        description: `${booking.hotelName} - ${booking.roomType}`,
+        amount: booking.totalAmount,
+        status: booking.status,
+        date: booking.createdAt,
+        vendor: booking.hotelName || 'Hotel'
+      }))
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10);
 
     const dashboardData = {
       overview: {
-        customerName,
-        totalLoans,
-        activeLoans,
-        totalBorrowed,
-        outstandingBalance,
-        nextPaymentDate,
-        nextPaymentAmount
+        customerName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
+        totalOrders: totalStoreOrders + totalPharmacyOrders,
+        totalBookings: totalBusBookings + totalHotelBookings,
+        totalSpending: storeSpending + pharmacySpending + busSpending + hotelSpending,
+        memberSince: user.createdAt
       },
-      recentLoans,
-      recentMessages
+      statistics: {
+        storeOrders: {
+          total: totalStoreOrders,
+          spending: storeSpending,
+          recent: storeOrders.length
+        },
+        pharmacyOrders: {
+          total: totalPharmacyOrders,
+          spending: pharmacySpending,
+          recent: pharmacyOrders.length
+        },
+        busBookings: {
+          total: totalBusBookings,
+          spending: busSpending,
+          recent: busBookings.length
+        },
+        hotelBookings: {
+          total: totalHotelBookings,
+          spending: hotelSpending,
+          recent: hotelBookings.length
+        }
+      },
+      recentActivity,
+      quickActions: [
+        {
+          title: 'Browse Stores',
+          description: 'Shop from local stores',
+          href: '/store',
+          icon: 'store'
+        },
+        {
+          title: 'Find Pharmacy',
+          description: 'Order medicines online',
+          href: '/pharmacy',
+          icon: 'pharmacy'
+        },
+        {
+          title: 'Book Bus',
+          description: 'Find bus routes',
+          href: '/bus',
+          icon: 'bus'
+        },
+        {
+          title: 'Find Hotels',
+          description: 'Book accommodation',
+          href: '/hotel',
+          icon: 'hotel'
+        }
+      ]
     };
 
-    console.log('Dashboard data prepared:', {
-      customerName,
-      totalLoans,
-      activeLoans,
-      totalBorrowed,
-      outstandingBalance
-    });
-
     return NextResponse.json(dashboardData);
+
   } catch (error) {
     console.error('Error fetching customer dashboard data:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch customer dashboard data' },
+      { error: 'Failed to fetch dashboard data' },
       { status: 500 }
     );
   }

@@ -86,65 +86,131 @@ export async function GET(request: NextRequest) {
       busCompanies: businesses.filter(b => b.businessType === 'bus').length
     };
 
-    // Generate mock growth data (in real implementation, this would be calculated from actual data)
-    const userGrowth = [
-      { month: 'Jan', users: 120, businesses: 15 },
-      { month: 'Feb', users: 145, businesses: 18 },
-      { month: 'Mar', users: 167, businesses: 22 },
-      { month: 'Apr', users: 189, businesses: 25 },
-      { month: 'May', users: 210, businesses: 28 },
-      { month: 'Jun', users: 235, businesses: 32 }
-    ];
+    // Calculate user growth data from actual data
+    const userGrowth = [];
+    const revenueData = [];
+    
+    // Generate monthly data for the last 6 months
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+      const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      
+      const monthUsers = users.filter(user => 
+        user.createdAt >= monthStart && user.createdAt <= monthEnd
+      ).length;
+      
+      const monthBusinesses = businesses.filter(business => 
+        business.createdAt >= monthStart && business.createdAt <= monthEnd
+      ).length;
+      
+      const monthOrders = storeOrders.filter(order => 
+        order.createdAt >= monthStart && order.createdAt <= monthEnd
+      );
+      
+      const monthBookings = [
+        ...hotelBookings.filter(booking => 
+          booking.createdAt >= monthStart && booking.createdAt <= monthEnd
+        ),
+        ...busBookings.filter(booking => 
+          booking.createdAt >= monthStart && booking.createdAt <= monthEnd
+        )
+      ];
+      
+      const monthRevenue = 
+        monthOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0) +
+        monthBookings.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0);
+      
+      userGrowth.push({
+        month: date.toLocaleDateString('en-US', { month: 'short' }),
+        users: monthUsers,
+        businesses: monthBusinesses
+      });
+      
+      revenueData.push({
+        month: date.toLocaleDateString('en-US', { month: 'short' }),
+        revenue: monthRevenue,
+        orders: monthOrders.length + monthBookings.length
+      });
+    }
 
-    const revenueData = [
-      { month: 'Jan', revenue: 15000, orders: 45 },
-      { month: 'Feb', revenue: 18500, orders: 52 },
-      { month: 'Mar', revenue: 22000, orders: 61 },
-      { month: 'Apr', revenue: 25800, orders: 68 },
-      { month: 'May', revenue: 29500, orders: 75 },
-      { month: 'Jun', revenue: 32000, orders: 82 }
-    ];
-
-    // Generate top products (mock data)
-    const topProducts = [
-      { name: 'Electronics Bundle', sales: 45, revenue: 12500 },
-      { name: 'Health Supplements', sales: 38, revenue: 8900 },
-      { name: 'Fashion Items', sales: 32, revenue: 7600 },
-      { name: 'Home & Garden', sales: 28, revenue: 6200 },
-      { name: 'Sports Equipment', sales: 25, revenue: 5800 }
-    ];
-
-    // Generate recent activity (mock data)
-    const recentActivity = [
-      {
-        type: 'order',
-        description: 'New order placed for Electronics Bundle',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-        amount: 299.99
-      },
-      {
-        type: 'booking',
-        description: 'Hotel booking confirmed for Grand Hotel',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-        amount: 150.00
-      },
-      {
-        type: 'user',
-        description: 'New user registered: John Doe',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString()
-      },
-      {
-        type: 'business',
-        description: 'New business registered: TechStore Pro',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString()
-      },
-      {
-        type: 'order',
-        description: 'Order completed for Health Supplements',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
-        amount: 89.99
+    // Calculate top products from actual data
+    const productSales = new Map();
+    
+    // Count store product sales
+    storeOrders.forEach(order => {
+      if (order.items && Array.isArray(order.items)) {
+        order.items.forEach((item: any) => {
+          const productName = item.productName || 'Unknown Product';
+          if (!productSales.has(productName)) {
+            productSales.set(productName, { sales: 0, revenue: 0 });
+          }
+          const current = productSales.get(productName);
+          current.sales += item.quantity || 1;
+          current.revenue += (item.price || 0) * (item.quantity || 1);
+        });
       }
-    ];
+    });
+    
+    const topProducts = Array.from(productSales.entries())
+      .map(([name, data]) => ({
+        name,
+        sales: data.sales,
+        revenue: data.revenue
+      }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    // Generate recent activity from actual data
+    const recentActivity = [];
+    
+    // Add recent orders
+    const recentOrders = storeOrders
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 3);
+    
+    recentOrders.forEach(order => {
+      recentActivity.push({
+        type: 'order',
+        description: `New order placed - Total: ZMW ${order.totalAmount || 0}`,
+        timestamp: order.createdAt,
+        amount: order.totalAmount || 0
+      });
+    });
+    
+    // Add recent bookings
+    const recentBookings = [
+      ...hotelBookings,
+      ...busBookings
+    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+     .slice(0, 2);
+    
+    recentBookings.forEach(booking => {
+      recentActivity.push({
+        type: 'booking',
+        description: `New booking confirmed - Amount: ZMW ${booking.totalAmount || 0}`,
+        timestamp: booking.createdAt,
+        amount: booking.totalAmount || 0
+      });
+    });
+    
+    // Add recent users
+    const recentUsers = users
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 2);
+    
+    recentUsers.forEach(user => {
+      recentActivity.push({
+        type: 'user',
+        description: `New ${user.role} registered`,
+        timestamp: user.createdAt
+      });
+    });
+    
+    // Sort by timestamp and take most recent
+    recentActivity.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    const finalRecentActivity = recentActivity.slice(0, 5);
 
     const statistics = {
       overview,
@@ -152,7 +218,7 @@ export async function GET(request: NextRequest) {
       revenueData,
       businessStats,
       topProducts,
-      recentActivity
+      recentActivity: finalRecentActivity
     };
 
     return NextResponse.json({ 

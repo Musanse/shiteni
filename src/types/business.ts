@@ -260,7 +260,7 @@ export const businessRolePermissions: Record<BusinessStaffRole, string[]> = {
     '/dashboard/vendor/pharmacy/insurance'
   ],
   // Pharmacy cashier permissions (limited access for sales/checkout)
-  cashier: [
+  pharmacy_cashier: [
     '/dashboard/vendor/pharmacy',
     '/dashboard/vendor/pharmacy/orders',
     '/dashboard/vendor/pharmacy/patients',

@@ -1,5 +1,5 @@
 import connectDB from '../src/lib/mongodb';
-import { Message } from '../src/models/Message';
+import Message from '../src/models/Message';
 import { User } from '../src/models/User';
 import dotenv from 'dotenv';
 

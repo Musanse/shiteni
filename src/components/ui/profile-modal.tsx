@@ -31,13 +31,23 @@ export function ProfileModal({ isOpen, onClose, userName, userEmail, userRole, o
 
   const getRoleColor = () => {
     switch (userRole) {
-      case 'admin':
+      case 'super_admin':
         return 'text-red-600';
-      case 'institution':
-      case 'loan_officer':
-      case 'credit_analyst':
-      case 'customer_service':
+      case 'admin':
       case 'manager':
+      case 'receptionist':
+      case 'housekeeping':
+      case 'cashier':
+      case 'inventory_manager':
+      case 'sales_associate':
+      case 'pharmacist':
+      case 'technician':
+      case 'pharmacy_cashier':
+      case 'driver':
+      case 'conductor':
+      case 'ticket_seller':
+      case 'dispatcher':
+      case 'maintenance':
         return 'text-blue-600';
       case 'customer':
         return 'text-green-600';

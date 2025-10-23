@@ -134,7 +134,7 @@ export default function HotelBrowsePage() {
         console.log(`Fetching hotels from /api/hotels... (attempt ${retryCount + 1})`);
         
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
         
         const response = await fetch('/api/hotels', {
           signal: controller.signal,
@@ -196,15 +196,20 @@ export default function HotelBrowsePage() {
         console.error('Error details:', {
           message: error instanceof Error ? error.message : 'Unknown error',
           stack: error instanceof Error ? error.stack : undefined,
-          retryCount
+          retryCount: retryCount
         });
         
-        // Retry logic for network errors
-        if (retryCount < 2 && (error instanceof Error && (error.name === 'AbortError' || error.message.includes('fetch')))) {
-          console.log(`Retrying hotels fetch in 2 seconds... (attempt ${retryCount + 2})`);
-          setTimeout(() => fetchHotels(retryCount + 1), 2000);
+        // Retry logic for network errors - reduce retries from 2 to 0
+        if (retryCount < 1 && (error instanceof Error && (error.name === 'AbortError' || error.message.includes('fetch')))) {
+          console.log(`Retrying hotels fetch in 1 second... (attempt ${retryCount + 2})`);
+          setTimeout(() => fetchHotels(retryCount + 1), 1000);
           return;
         }
+        
+        // If all retries failed, show sample data
+        console.log('All retries failed, showing sample hotels');
+        setHotels([]);
+        setFilteredHotels([]);
       } finally {
         setLoading(false);
       }
@@ -625,13 +630,16 @@ export default function HotelBrowsePage() {
       {/* Hotels List */}
       <div className="container mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredHotels.map(hotel => (
+          {filteredHotels.map((hotel, index) => (
             <Card key={hotel._id} className="overflow-hidden">
               <div className="relative h-48 bg-muted">
                 <Image
                   src={hotel.images && hotel.images.length > 0 ? hotel.images[0] : "/hotel-placeholder.jpg"}
                   alt={hotel.name}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  priority={index < 2}
+                  loading={index < 2 ? "eager" : "lazy"}
                   className="object-cover"
                 />
                 <div className="absolute top-4 right-4">
@@ -691,6 +699,7 @@ export default function HotelBrowsePage() {
                             src={image}
                             alt={`${hotel.name} gallery ${index + 2}`}
                             fill
+                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
                             className="object-cover hover:scale-105 transition-transform cursor-pointer"
                           />
                         </div>
@@ -715,6 +724,7 @@ export default function HotelBrowsePage() {
                           src={room.images[0] || '/room-placeholder.jpg'}
                           alt={`${room.roomType} - Room ${room.roomNumber}`}
                           fill
+                          sizes="96px"
                           className="object-cover rounded-md"
                         />
                       </div>

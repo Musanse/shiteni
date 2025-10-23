@@ -55,13 +55,23 @@ export function UserDropdown({ userName, userRole, userEmail }: UserDropdownProp
 
   const getRoleIcon = () => {
     switch (userRole) {
+      case 'super_admin':
       case 'admin':
         return <Shield className="h-4 w-4 text-red-500" />;
-      case 'institution':
-      case 'loan_officer':
-      case 'credit_analyst':
-      case 'customer_service':
       case 'manager':
+      case 'receptionist':
+      case 'housekeeping':
+      case 'cashier':
+      case 'inventory_manager':
+      case 'sales_associate':
+      case 'pharmacist':
+      case 'technician':
+      case 'pharmacy_cashier':
+      case 'driver':
+      case 'conductor':
+      case 'ticket_seller':
+      case 'dispatcher':
+      case 'maintenance':
         return <Building2 className="h-4 w-4 text-blue-500" />;
       case 'customer':
         return <CreditCard className="h-4 w-4 text-green-500" />;
@@ -76,13 +86,23 @@ export function UserDropdown({ userName, userRole, userEmail }: UserDropdownProp
 
   const getRoleColor = () => {
     switch (userRole) {
+      case 'super_admin':
       case 'admin':
         return 'text-red-600';
-      case 'institution':
-      case 'loan_officer':
-      case 'credit_analyst':
-      case 'customer_service':
       case 'manager':
+      case 'receptionist':
+      case 'housekeeping':
+      case 'cashier':
+      case 'inventory_manager':
+      case 'sales_associate':
+      case 'pharmacist':
+      case 'technician':
+      case 'pharmacy_cashier':
+      case 'driver':
+      case 'conductor':
+      case 'ticket_seller':
+      case 'dispatcher':
+      case 'maintenance':
         return 'text-blue-600';
       case 'customer':
         return 'text-green-600';

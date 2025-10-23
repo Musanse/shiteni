@@ -5,28 +5,28 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  HomeIcon as Home, 
-  CreditCardIcon as CreditCard, 
-  DocumentTextIcon as FileText, 
-  ChatBubbleLeftRightIcon as MessageSquare,
-  ArrowPathIcon as RefreshCw,
-  CircleStackIcon as Database,
-  ExclamationCircleIcon as AlertCircleIcon,
-  CheckCircleIcon as CheckCircle,
-  ClockIcon as Clock,
-  ExclamationTriangleIcon as AlertTriangle,
-  CurrencyDollarIcon as DollarSign,
-  CalendarIcon as Calendar,
-  ChartBarIcon as TrendingUp,
-  ChartBarIcon as Activity,
-  EyeIcon as Eye,
-  ArrowDownTrayIcon as Download,
-  ShoppingCartIcon as ShoppingCart,
-  BuildingOffice2Icon as Building2,
-  TruckIcon as Bus,
-  ShoppingBagIcon as ShoppingBag,
-  PillIcon as Pill
-} from '@heroicons/react/24/outline';
+  Home, 
+  CreditCard, 
+  FileText, 
+  MessageSquare,
+  RefreshCw,
+  Database,
+  AlertCircle as AlertCircleIcon,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+  DollarSign,
+  Calendar,
+  TrendingUp,
+  Activity,
+  Eye,
+  Download,
+  ShoppingCart,
+  Building2,
+  Bus,
+  ShoppingBag,
+  Pill
+} from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 interface DashboardData {

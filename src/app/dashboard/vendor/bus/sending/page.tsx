@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +11,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { 
   Bus, 
   Search,
-  Filter,
   Plus,
   MapPin,
   Clock,
@@ -24,10 +23,8 @@ import {
   CheckCircle,
   AlertCircle,
   Play,
-  Pause,
   Square,
-  Calendar,
-  Route
+  Calendar
 } from 'lucide-react';
 
 interface Dispatch {
@@ -44,6 +41,7 @@ interface Dispatch {
   conductorId?: string;
   conductorName?: string;
   departureDate: string;
+  departureTime: string;
   dispatchStop: string;
   receiverContact: string;
   parcelDescription: string;
@@ -85,6 +83,7 @@ interface Bus {
   _id: string;
   busName: string;
   busNumber: string;
+  busNumberPlate: string;
   capacity: number;
 }
 
@@ -98,6 +97,13 @@ const formatDate = (dateString: string) => {
 
 const formatTime = (timeString: string) => {
   return timeString;
+};
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-ZM', {
+    style: 'currency',
+    currency: 'ZMW'
+  }).format(amount);
 };
 
 const getStatusIcon = (status: string) => {
@@ -177,8 +183,7 @@ export default function BusSendingPage() {
   const [busFilter, setBusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
-  const [selectedDispatch, setSelectedDispatch] = useState<Dispatch | null>(null);
+  // Removed unused state variables
 
   // Form state for creating dispatch
   const [formData, setFormData] = useState({
@@ -193,6 +198,7 @@ export default function BusSendingPage() {
     conductorId: '',
     conductorName: '',
     departureDate: '',
+    departureTime: '',
     dispatchStop: '',
     receiverContact: '',
     parcelDescription: '',
@@ -202,11 +208,7 @@ export default function BusSendingPage() {
     notes: ''
   });
 
-  useEffect(() => {
-    fetchData();
-  }, [statusFilter, busFilter, dateFilter]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -245,7 +247,11 @@ export default function BusSendingPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, busFilter, dateFilter]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const filteredDispatches = dispatches.filter(dispatch => {
     const matchesSearch = 
@@ -326,7 +332,7 @@ export default function BusSendingPage() {
           tripName: '',
           routeName: '',
           busId: '',
-          busNumber: '',
+          busName: '',
           busNumber: '',
           driverId: '',
           driverName: '',

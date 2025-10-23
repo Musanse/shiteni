@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Import Message model
-    const Message = (await import('@/models/Message')).Message;
+    const Message = (await import('@/models/Message')).default;
     
     // Fetch real messages from the database
     const realMessages = await Message.find({
@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Import Message model
-    const Message = (await import('@/models/Message')).Message;
+    const Message = (await import('@/models/Message')).default;
     
     // Get institution user email to use as recipientId
     // const institution = await Institution.findById(loan.institutionId);

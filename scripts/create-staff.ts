@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import connectDB from '../src/lib/mongodb';
 import { User } from '../src/models/User';
-import { Institution } from '../src/models/Institution';
 
 async function createStaff() {
   try {
@@ -29,22 +28,11 @@ async function createStaff() {
       console.log(`  Email: ${email}`);
       console.log(`  Password: ${password}`);
       console.log(`  Role: ${existingStaff.role}`);
-      console.log(`  Institution ID: ${existingStaff.institutionId}`);
+      console.log(`  Service Type: ${existingStaff.serviceType}`);
       
       process.exit(0);
       return;
     }
-
-    // Find an institution to assign the staff to
-    const institution = await Institution.findOne();
-    
-    if (!institution) {
-      console.error('No institution found. Please create an institution first.');
-      process.exit(1);
-      return;
-    }
-
-    console.log(`Found institution: ${institution.name} (${institution._id})`);
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -55,9 +43,9 @@ async function createStaff() {
       password: hashedPassword,
       firstName,
       lastName,
-      role: 'staff',
+      role: 'admin', // Changed from 'staff' to 'admin' for vendor management
       kycStatus: 'verified',
-      institutionId: institution._id,
+      serviceType: 'bus', // Default service type
       createdAt: new Date(),
       updatedAt: new Date()
     });
@@ -67,8 +55,7 @@ async function createStaff() {
     console.log(`  Email: ${email}`);
     console.log(`  Password: ${password}`);
     console.log(`  Role: ${staff.role}`);
-    console.log(`  Institution: ${institution.name}`);
-    console.log(`  Institution ID: ${staff.institutionId}`);
+    console.log(`  Service Type: ${staff.serviceType}`);
     console.log('\nYou can now log in at /auth/signin');
 
     process.exit(0);

@@ -11,8 +11,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    console.log('[Pharmacy Subscription Status] Session user ID:', session.user.id);
+    console.log('[Pharmacy Subscription Status] Session user:', session.user);
+
     // Check subscription status
     const subscriptionCheck = await checkVendorSubscription(session.user.id, 'pharmacy');
+
+    console.log('[Pharmacy Subscription Status] Subscription check result:', subscriptionCheck);
 
     return NextResponse.json({
       hasActiveSubscription: subscriptionCheck.hasActiveSubscription,

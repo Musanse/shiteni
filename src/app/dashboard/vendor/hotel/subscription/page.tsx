@@ -67,11 +67,26 @@ interface Subscription {
   updatedAt: string;
 }
 
+interface BillingTransaction {
+  id: string;
+  date: string;
+  description: string;
+  amount: number;
+  currency: string;
+  status: 'paid' | 'pending' | 'failed' | 'refunded';
+  invoice: string;
+  paymentMethod: string;
+  transactionId: string;
+  type: string;
+}
+
 export default function HotelSubscriptionPage() {
   const { data: session } = useSession();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [billingHistory, setBillingHistory] = useState<BillingTransaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [billingLoading, setBillingLoading] = useState(false);
   const [isUpgradeDialogOpen, setIsUpgradeDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
 
@@ -79,6 +94,7 @@ export default function HotelSubscriptionPage() {
   useEffect(() => {
     if (session?.user) {
       fetchSubscriptionData();
+      fetchBillingHistory();
     } else {
       setLoading(false);
     }
@@ -120,6 +136,27 @@ export default function HotelSubscriptionPage() {
     }
   };
 
+  const fetchBillingHistory = async () => {
+    try {
+      setBillingLoading(true);
+      
+      const response = await fetch('/api/hotel/subscription/billing-history');
+      
+      if (response.ok) {
+        const data = await response.json();
+        setBillingHistory(data.billingHistory || []);
+      } else {
+        console.warn('Failed to fetch billing history:', response.status);
+        setBillingHistory([]);
+      }
+    } catch (error) {
+      console.error('Error fetching billing history:', error);
+      setBillingHistory([]);
+    } finally {
+      setBillingLoading(false);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const colors = {
       active: 'bg-green-100 text-green-800',
@@ -141,6 +178,44 @@ export default function HotelSubscriptionPage() {
         <span className="ml-1">{status.toUpperCase()}</span>
       </Badge>
     );
+  };
+
+  const getBillingStatusBadge = (status: string) => {
+    const colors = {
+      paid: 'bg-green-100 text-green-800',
+      pending: 'bg-yellow-100 text-yellow-800',
+      failed: 'bg-red-100 text-red-800',
+      refunded: 'bg-gray-100 text-gray-800'
+    };
+
+    const icons = {
+      paid: <CheckCircle className="h-3 w-3" />,
+      pending: <AlertCircle className="h-3 w-3" />,
+      failed: <XCircle className="h-3 w-3" />,
+      refunded: <XCircle className="h-3 w-3" />
+    };
+
+    return (
+      <Badge className={colors[status as keyof typeof colors]}>
+        {icons[status as keyof typeof icons]}
+        <span className="ml-1">{status.toUpperCase()}</span>
+      </Badge>
+    );
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-ZM', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatCurrency = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('en-ZM', {
+      style: 'currency',
+      currency: currency || 'ZMW'
+    }).format(amount);
   };
 
   const handleUpgrade = (plan: SubscriptionPlan) => {
@@ -363,52 +438,45 @@ export default function HotelSubscriptionPage() {
           <CardDescription>Your recent billing transactions</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {[
-              {
-                id: '1',
-                date: '2024-01-01',
-                description: 'Premium Plan - Monthly',
-                amount: 99,
-                status: 'paid',
-                invoice: 'INV-001'
-              },
-              {
-                id: '2',
-                date: '2023-12-01',
-                description: 'Premium Plan - Monthly',
-                amount: 99,
-                status: 'paid',
-                invoice: 'INV-002'
-              },
-              {
-                id: '3',
-                date: '2023-11-01',
-                description: 'Premium Plan - Monthly',
-                amount: 99,
-                status: 'paid',
-                invoice: 'INV-003'
-              }
-            ].map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center gap-4">
-                  <div>
-                    <p className="font-medium">{transaction.description}</p>
-                    <p className="text-sm text-muted-foreground">{transaction.date}</p>
+          {billingLoading ? (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="h-16 bg-gray-200 rounded-lg"></div>
+                </div>
+              ))}
+            </div>
+          ) : billingHistory.length > 0 ? (
+            <div className="space-y-4">
+              {billingHistory.map((transaction) => (
+                <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <p className="font-medium">{transaction.description}</p>
+                      <p className="text-sm text-muted-foreground">{formatDate(transaction.date)}</p>
+                    </div>
+                    <Badge variant="secondary">{transaction.invoice}</Badge>
                   </div>
-                  <Badge variant="secondary">{transaction.invoice}</Badge>
+                  <div className="flex items-center gap-4">
+                    <span className="font-semibold">{formatCurrency(transaction.amount, transaction.currency)}</span>
+                    {getBillingStatusBadge(transaction.status)}
+                    <Button variant="outline" size="sm">
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <span className="font-semibold">${transaction.amount}</span>
-                  <Badge className="bg-green-100 text-green-800">{transaction.status}</Badge>
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download
-                  </Button>
-                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="text-muted-foreground mb-4">
+                <CreditCard className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>No billing history found</p>
+                <p className="text-sm">Your subscription transactions will appear here</p>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

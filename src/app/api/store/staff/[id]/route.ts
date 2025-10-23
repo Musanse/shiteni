@@ -5,8 +5,9 @@ import connectDB from '@/lib/mongodb';
 import { User } from '@/models/User';
 import bcrypt from 'bcryptjs';
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -39,14 +40,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     await connectDB();
-    await User.findByIdAndDelete(params.id);
+    await User.findByIdAndDelete(id);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting staff:', error);

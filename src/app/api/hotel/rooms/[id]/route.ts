@@ -6,9 +6,10 @@ import connectDB from '@/lib/mongodb';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
@@ -41,7 +42,7 @@ export async function PUT(
     await connectDB();
 
     const room = await Room.findOne({ 
-      _id: params.id, 
+      _id: id, 
       vendorId: user.id 
     });
     
@@ -57,7 +58,7 @@ export async function PUT(
       const existingRoom = await Room.findOne({ 
         number, 
         vendorId: user.id,
-        _id: { $ne: params.id }
+        _id: { $ne: id }
       });
       
       if (existingRoom) {
@@ -99,9 +100,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
@@ -118,7 +120,7 @@ export async function DELETE(
     await connectDB();
 
     const room = await Room.findOneAndDelete({ 
-      _id: params.id, 
+      _id: id, 
       vendorId: user.id 
     });
     

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import { Subscription } from '@/models/Subscription';
@@ -32,18 +32,19 @@ export async function GET(request: NextRequest) {
       { $match: matchStage },
       {
         $lookup: {
-          from: 'institutions',
-          localField: 'institutionId',
+          from: 'users',
+          localField: 'userId',
           foreignField: '_id',
-          as: 'institutionInfo'
+          as: 'userInfo'
         }
       },
-      { $unwind: '$institutionInfo' },
+      { $unwind: '$userInfo' },
       {
         $addFields: {
-          institutionName: '$institutionInfo.name',
-          institutionEmail: '$institutionInfo.contactEmail',
-          institutionStatus: '$institutionInfo.status',
+          userName: { $concat: ['$userInfo.firstName', ' ', '$userInfo.lastName'] },
+          userEmail: '$userInfo.email',
+          businessName: '$userInfo.businessName',
+          serviceType: '$userInfo.serviceType',
           daysUntilExpiry: {
             $divide: [
               { $subtract: ['$endDate', new Date()] },
@@ -55,10 +56,11 @@ export async function GET(request: NextRequest) {
       {
         $project: {
           _id: 1,
-          institutionId: 1,
-          institutionName: 1,
-          institutionEmail: 1,
-          institutionStatus: 1,
+          userId: 1,
+          userName: 1,
+          userEmail: 1,
+          businessName: 1,
+          serviceType: 1,
           planType: 1,
           status: 1,
           startDate: 1,

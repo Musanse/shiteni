@@ -4,8 +4,9 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import mongoose from 'mongoose';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const { default: ComplianceRecord } = await import('@/models/ComplianceRecord');
 
     const record = await ComplianceRecord.findOne({
-      _id: params.id,
+      _id: id,
       pharmacyId: session.user.id
     });
 
@@ -43,8 +44,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -80,7 +82,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     const record = await ComplianceRecord.findOneAndUpdate(
       {
-        _id: params.id,
+        _id: id,
         pharmacyId: session.user.id
       },
       updateData,
@@ -105,8 +107,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -126,7 +129,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const { default: ComplianceRecord } = await import('@/models/ComplianceRecord');
 
     const record = await ComplianceRecord.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       pharmacyId: session.user.id
     });
 

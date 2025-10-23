@@ -5,27 +5,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  ServerIcon as Server, 
-  CircleStackIcon as Database, 
-  UsersIcon as Users, 
-  BuildingOffice2Icon as Building2, 
-  CreditCardIcon as CreditCard, 
-  ChartBarIcon as Activity,
-  ExclamationTriangleIcon as AlertTriangle,
-  CheckCircleIcon as CheckCircle,
-  ClockIcon as Clock,
-  CircleStackIcon as HardDrive,
-  CpuChipIcon as Cpu,
-  CircleStackIcon as MemoryStick,
-  ArrowPathIcon as RefreshCw,
-  ChartBarIcon as TrendingUp,
-  ChartBarIcon as TrendingDown,
-  ExclamationCircleIcon as AlertCircle,
-  InformationCircleIcon as Info,
-  BoltIcon as Zap,
-  ShieldCheckIcon as Shield,
-  ChartBarIcon as BarChart3
-} from '@heroicons/react/24/outline';
+  Server, 
+  Database, 
+  Users, 
+  Building2, 
+  CreditCard, 
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  HardDrive,
+  Cpu,
+  MemoryStick,
+  RefreshCw,
+  TrendingUp,
+  TrendingDown,
+  AlertCircle,
+  Info,
+  Zap,
+  Shield,
+  BarChart3
+} from 'lucide-react';
 
 interface SystemHealthData {
   database: {

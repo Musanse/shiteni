@@ -687,6 +687,7 @@ export default function BusSettingsPage() {
                     src={imagePreview || formData.branding?.companyImage || ''}
                     alt="Company image preview"
                     fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover"
                   />
                   <Button

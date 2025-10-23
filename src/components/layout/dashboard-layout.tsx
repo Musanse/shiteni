@@ -7,9 +7,11 @@ import { NotificationDropdown } from '@/components/ui/notification-dropdown';
 import { UserDropdown } from '@/components/ui/user-dropdown';
 import { Search } from 'lucide-react';
 
+import { UserRole } from '@/types/roles';
+
 interface DashboardLayoutProps {
   children: React.ReactNode;
-  userRole: 'customer' | 'institution' | 'staff' | 'admin';
+  userRole: UserRole;
   userName: string;
   userEmail?: string;
 }

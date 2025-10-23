@@ -4,11 +4,11 @@ import Booking from '@/models/Booking';
 import Room from '@/models/Room';
 import { User } from '@/models/User';
 import { BusBooking } from '@/models/Bus';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import mongoose from 'mongoose';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     await connectDB();
 

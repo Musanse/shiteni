@@ -4,8 +4,9 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Prescription from '@/models/Prescription';
 
-export async function POST(request: NextRequest, { params }: { params: { prescriptionId: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ prescriptionId: string }> }) {
   try {
+    const { prescriptionId } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -21,8 +22,6 @@ export async function POST(request: NextRequest, { params }: { params: { prescri
     }
 
     await connectDB();
-
-    const { prescriptionId } = params;
 
     // Find the prescription
     const prescription = await Prescription.findOne({

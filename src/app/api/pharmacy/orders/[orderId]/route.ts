@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import PharmacyOrder from '@/models/PharmacyOrder';
 
-export async function PUT(request: NextRequest, { params }: { params: { orderId: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ orderId: string }> }) {
   try {
+    const { orderId } = await params;
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
@@ -81,8 +82,9 @@ export async function PUT(request: NextRequest, { params }: { params: { orderId:
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: { orderId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ orderId: string }> }) {
   try {
+    const { orderId } = await params;
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {

@@ -27,7 +27,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from './button';
-import { UserRole, rolePagePermissions, InstitutionStaffRole } from '@/types/roles';
+import { UserRole } from '@/types/roles';
 
 interface SidebarProps {
   userRole: UserRole;
@@ -42,22 +42,15 @@ const customerNavItems = [
   { name: 'Settings', href: '/dashboard/customer/settings', icon: Settings },
 ];
 
-const institutionNavItems = [
-  { name: 'Dashboard', href: '/dashboard/institution', icon: Home },
-  { name: 'Applications', href: '/dashboard/institution/applications', icon: FileText },
-  { name: 'Assessment', href: '/dashboard/institution/assessment', icon: Eye },
-  { name: 'Products', href: '/dashboard/institution/products', icon: Package },
-  { name: 'Staff', href: '/dashboard/institution/staffs', icon: Users },
-  { name: 'Approvals', href: '/dashboard/institution/approvals', icon: CheckCircle },
-  { name: 'Disbursement', href: '/dashboard/institution/disbursement', icon: CreditCard },
-  { name: 'Recovery', href: '/dashboard/institution/recovery', icon: RotateCcw },
-  { name: 'Defaulty', href: '/dashboard/institution/defaulty', icon: AlertTriangle },
-  { name: 'Customers', href: '/dashboard/institution/customers', icon: UserCheck },
-  { name: 'Due Diligence', href: '/dashboard/institution/dudeligence', icon: Shield },
-  { name: 'Analytics', href: '/dashboard/institution/analytics', icon: BarChart3 },
-  { name: 'Settings', href: '/dashboard/institution/settings', icon: Settings },
-  { name: 'Inbox', href: '/dashboard/institution/inbox', icon: MessageSquare },
-  { name: 'Subscription', href: '/dashboard/institution/subscription', icon: DollarSign },
+const vendorNavItems = [
+  { name: 'Dashboard', href: '/dashboard/vendor', icon: Home },
+  { name: 'Bookings', href: '/dashboard/vendor/bookings', icon: FileText },
+  { name: 'Customers', href: '/dashboard/vendor/customers', icon: UserCheck },
+  { name: 'Staff', href: '/dashboard/vendor/staffs', icon: Users },
+  { name: 'Analytics', href: '/dashboard/vendor/analytics', icon: BarChart3 },
+  { name: 'Settings', href: '/dashboard/vendor/settings', icon: Settings },
+  { name: 'Inbox', href: '/dashboard/vendor/inbox', icon: MessageSquare },
+  { name: 'Subscription', href: '/dashboard/vendor/subscription', icon: DollarSign },
 ];
 
 const adminNavItems = [
@@ -106,15 +99,25 @@ export function Sidebar({ userRole, className }: SidebarProps) {
     switch (userRole) {
       case 'customer':
         return customerNavItems;
-      case 'institution':
-        return institutionNavItems;
       case 'admin':
+      case 'super_admin':
         return adminNavItems;
-      case 'loan_officer':
-      case 'credit_analyst':
-      case 'customer_service':
       case 'manager':
-        return staffNavItems[userRole] || [];
+        return vendorNavItems;
+      case 'receptionist':
+      case 'housekeeping':
+      case 'cashier':
+      case 'inventory_manager':
+      case 'sales_associate':
+      case 'pharmacist':
+      case 'technician':
+      case 'pharmacy_cashier':
+      case 'driver':
+      case 'conductor':
+      case 'ticket_seller':
+      case 'dispatcher':
+      case 'maintenance':
+        return vendorNavItems; // Staff members see vendor navigation
       default:
         return [];
     }

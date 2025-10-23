@@ -11,6 +11,7 @@ export async function PATCH(
   { params }: { params: Promise<{ messageId: string }> }
 ) {
   try {
+    const { messageId } = await params;
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
@@ -18,7 +19,6 @@ export async function PATCH(
     }
 
     const userId = session.user.id;
-    const { messageId } = await params;
     const { status } = await request.json();
 
     await connectDB();

@@ -7,12 +7,13 @@ import { requireVendorApproval } from '@/lib/vendor-auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await connectDB();
     
-    const product = await StoreProduct.findById(params.id);
+    const product = await StoreProduct.findById(id);
     
     if (!product) {
       return NextResponse.json({ 
@@ -35,9 +36,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -87,7 +89,7 @@ export async function PUT(
     // Check if SKU already exists for a different product
     const existingProduct = await StoreProduct.findOne({ 
       sku, 
-      _id: { $ne: params.id } 
+      _id: { $ne: id } 
     });
     if (existingProduct) {
       return NextResponse.json({ 
@@ -96,7 +98,7 @@ export async function PUT(
     }
 
     const updatedProduct = await StoreProduct.findByIdAndUpdate(
-      params.id,
+      id,
       {
         name,
         description,
@@ -138,9 +140,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -161,7 +164,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
-    const deletedProduct = await StoreProduct.findByIdAndDelete(params.id);
+    const deletedProduct = await StoreProduct.findByIdAndDelete(id);
 
     if (!deletedProduct) {
       return NextResponse.json({ 

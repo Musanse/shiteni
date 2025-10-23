@@ -10,6 +10,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
@@ -43,7 +44,6 @@ export async function PUT(
 
     await connectDB();
 
-    const { id } = await params;
     const booking = await Booking.findOne({ 
       _id: id, 
       vendorId: user.id 
@@ -139,6 +139,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
@@ -154,7 +155,6 @@ export async function DELETE(
 
     await connectDB();
 
-    const { id } = await params;
     const booking = await Booking.findOneAndDelete({ 
       _id: id, 
       vendorId: user.id 

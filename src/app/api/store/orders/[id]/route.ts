@@ -4,8 +4,9 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import { StoreOrder, StoreCustomer } from '@/models/Store';
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -13,7 +14,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     await connectDB();
 
-    const id = params.id;
+    const orderId = id;
     const body = await request.json();
 
     const allowedFields: Record<string, any> = {};
@@ -88,8 +89,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -97,7 +99,7 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
 
     await connectDB();
 
-    const order = await StoreOrder.findById(params.id);
+    const order = await StoreOrder.findById(id);
     if (!order) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
 
     return NextResponse.json({ success: true, order });

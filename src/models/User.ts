@@ -45,13 +45,42 @@ export interface IUser extends Document {
   // Vendor-specific fields
   serviceType?: 'hotel' | 'store' | 'pharmacy' | 'bus';
   businessId?: string;
-  institutionId?: string;
+  businessType?: string;
+  businessDescription?: string;
+  businessPhone?: string;
+  businessAddress?: string;
+  businessImages?: string[];
+  website?: string;
+  city?: string;
+  country?: string;
   createdBy?: string;
   activatedAt?: Date;
   activatedBy?: string;
   deactivatedAt?: Date;
   deactivatedBy?: string;
   lastLogin?: Date;
+  // Additional missing properties
+  totalCustomers?: number;
+  totalAssets?: number;
+  complianceScore?: number;
+  lastAudit?: Date;
+  preferences?: {
+    theme?: string;
+    language?: string;
+    notifications?: boolean;
+    emailNotifications?: boolean;
+    smsNotifications?: boolean;
+    twoFactorEnabled?: boolean;
+    loginNotifications?: boolean;
+  };
+  position?: string;
+  emergencyContact?: {
+    name?: string;
+    phone?: string;
+    relationship?: string;
+  };
+  skills?: string[];
+  notes?: string;
   // Store settings fields
   storeName?: string;
   storeDescription?: string;
@@ -210,10 +239,39 @@ const UserSchema = new Schema<IUser>({
   salary: { type: Number },
   shift: { type: String },
   performance: { type: String },
+  // Additional missing properties
+  totalCustomers: { type: Number, default: 0 },
+  totalAssets: { type: Number, default: 0 },
+  complianceScore: { type: Number, default: 0 },
+  lastAudit: { type: Date },
+  preferences: {
+    theme: { type: String, default: 'light' },
+    language: { type: String, default: 'en' },
+    notifications: { type: Boolean, default: true },
+    emailNotifications: { type: Boolean, default: true },
+    smsNotifications: { type: Boolean, default: false },
+    twoFactorEnabled: { type: Boolean, default: false },
+    loginNotifications: { type: Boolean, default: true }
+  },
+  position: { type: String },
+  emergencyContact: {
+    name: { type: String },
+    phone: { type: String },
+    relationship: { type: String }
+  },
+  skills: [{ type: String }],
+  notes: { type: String },
   // Vendor-specific fields
   serviceType: { type: String, enum: ['hotel', 'store', 'pharmacy', 'bus'] },
   businessId: { type: String },
-  institutionId: { type: Schema.Types.ObjectId, ref: 'User' },
+  businessType: { type: String },
+  businessDescription: { type: String },
+  businessPhone: { type: String },
+  businessAddress: { type: String },
+  businessImages: [{ type: String }],
+  website: { type: String },
+  city: { type: String },
+  country: { type: String },
   createdBy: { type: String },
   activatedAt: { type: Date },
   activatedBy: { type: String },

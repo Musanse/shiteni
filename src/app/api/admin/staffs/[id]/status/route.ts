@@ -9,6 +9,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session || !['admin', 'super_admin'].includes((session.user as any).role)) {
@@ -18,7 +19,7 @@ export async function PATCH(
     await connectDB();
 
     const { status } = await request.json();
-    const { id: staffId } = await params;
+    const staffId = id;
 
     if (!['active', 'inactive', 'suspended'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });

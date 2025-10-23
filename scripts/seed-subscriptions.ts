@@ -1,6 +1,6 @@
 import connectDB from '../src/lib/mongodb';
 import { Subscription } from '../src/models/Subscription';
-import { Institution } from '../src/models/Institution';
+
 import mongoose from 'mongoose';
 
 async function seedSubscriptions() {

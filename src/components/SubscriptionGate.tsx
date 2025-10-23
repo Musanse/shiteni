@@ -67,6 +67,8 @@ export default function SubscriptionGate({ serviceType, children }: Subscription
     try {
       setLoading(true);
       
+      console.log(`[SubscriptionGate] Checking subscription for ${serviceType}`);
+      
       // Check both subscription status and vendor approval status
       const [subscriptionResponse, vendorResponse] = await Promise.all([
         fetch(`/api/${serviceType}/subscription/status`),
@@ -75,6 +77,10 @@ export default function SubscriptionGate({ serviceType, children }: Subscription
       
       const subscriptionData = await subscriptionResponse.json();
       const vendorData = await vendorResponse.json();
+      
+      console.log('[SubscriptionGate] Subscription data:', subscriptionData);
+      console.log('[SubscriptionGate] Vendor data:', vendorData);
+      console.log('[SubscriptionGate] Has active subscription:', subscriptionData.hasActiveSubscription);
       
       setSubscriptionStatus({
         hasActiveSubscription: subscriptionData.hasActiveSubscription,

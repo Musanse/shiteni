@@ -170,6 +170,8 @@ export async function checkVendorSubscription(userId: string, serviceType: strin
   try {
     await connectDB();
 
+    console.log(`[Subscription Middleware] Checking subscription for userId: ${userId}, serviceType: ${serviceType}`);
+
     let SubscriptionModel;
     switch (serviceType) {
       case 'hotel':
@@ -188,11 +190,20 @@ export async function checkVendorSubscription(userId: string, serviceType: strin
         return { hasActiveSubscription: false, subscription: null, error: 'Invalid service type' };
     }
 
+    console.log(`[Subscription Middleware] Using model: ${SubscriptionModel.modelName}`);
+
+    // First, let's see what subscriptions exist for this user
+    const allSubscriptions = await SubscriptionModel.find({ userId: userId });
+    console.log(`[Subscription Middleware] All subscriptions for user:`, allSubscriptions);
+
     const subscription = await SubscriptionModel.findOne({
       userId: userId,
       status: 'active',
       endDate: { $gt: new Date() } // Not expired
     });
+
+    console.log(`[Subscription Middleware] Active subscription found:`, subscription);
+    console.log(`[Subscription Middleware] Current date:`, new Date());
 
     return {
       hasActiveSubscription: !!subscription,

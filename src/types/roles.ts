@@ -17,7 +17,9 @@ export type UserRole =
   // Bus roles
   | 'driver'
   | 'conductor'
-  | 'dispatcher';
+  | 'ticket_seller'
+  | 'dispatcher'
+  | 'maintenance';
 
 // Role labels for display
 export const roleLabels: Record<UserRole, string> = {
@@ -38,5 +40,7 @@ export const roleLabels: Record<UserRole, string> = {
   // Bus roles
   driver: 'Driver',
   conductor: 'Conductor',
+  ticket_seller: 'Ticket Seller',
   dispatcher: 'Dispatcher',
+  maintenance: 'Maintenance',
 };

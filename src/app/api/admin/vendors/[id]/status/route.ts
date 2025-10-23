@@ -9,6 +9,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session || !['admin', 'super_admin'].includes((session.user as any).role)) {
@@ -17,7 +18,6 @@ export async function PATCH(
 
     await connectDB();
 
-    const { id } = await params;
     const { status } = await request.json();
 
     if (!status || !['pending', 'approved', 'suspended', 'rejected'].includes(status)) {

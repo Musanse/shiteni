@@ -3,10 +3,10 @@ import connectDB from '@/lib/mongodb';
 import Message from '@/models/Message';
 import * as UserModule from '@/models/User';
 const { User } = UserModule;
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     await connectDB();
 

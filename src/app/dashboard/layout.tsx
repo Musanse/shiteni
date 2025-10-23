@@ -208,32 +208,35 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-card border-r transform transition-transform duration-300 ease-in-out lg:translate-x-0 overflow-y-auto ${
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-r border-slate-200 dark:border-slate-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0 overflow-y-auto ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50">
             <div className="flex items-center space-x-2">
-              <Image 
-                src="/uploads/image/shiteni%20logo%20(1).png" 
-                alt="Shiteni" 
-                width={60}
-                height={16}
-                className="h-4 w-auto"
-                priority
-              />
-              <h1 className="text-lg font-semibold text-foreground">Shiteni</h1>
+              <div className="relative h-4 w-15">
+                <Image 
+                  src="/uploads/image/shiteni%20logo%20(1).png" 
+                  alt="Shiteni" 
+                  fill
+                  className="object-contain"
+                  sizes="60px"
+                  priority
+                  loading="eager"
+                />
+              </div>
+              <h1 className="text-lg font-semibold text-slate-800 dark:text-slate-100">Shiteni</h1>
             </div>
             <Button
               variant="ghost"
@@ -465,21 +468,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </nav>
 
           {/* User info */}
-          <div className="p-4 border-t">
+          <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                <span className="text-sm font-medium text-primary-foreground">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
+                <span className="text-sm font-medium text-white">
                   {session.user?.firstName?.charAt(0)}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
+                <p className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">
                   {session.user?.firstName} {session.user?.lastName}
                 </p>
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                   {session.user?.email}
                 </p>
-                <Badge variant="secondary" className="text-xs mt-1">
+                <Badge variant="secondary" className="text-xs mt-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                   {getRoleDisplayName(userRole)}
                 </Badge>
               </div>
@@ -491,19 +494,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main content */}
       <div className="lg:ml-64">
         {/* Top bar */}
-        <header className="bg-card border-b px-4 py-3">
+        <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
                 size="sm"
-                className="lg:hidden"
+                className="lg:hidden hover:bg-slate-100 dark:hover:bg-slate-700"
                 onClick={() => setSidebarOpen(true)}
               >
                 <Menu className="h-4 w-4" />
               </Button>
               <div className="hidden lg:block">
-                <h2 className="text-lg font-semibold text-foreground">
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
                   {isAdmin && pathname.startsWith('/dashboard/admin') 
                     ? 'Admin Dashboard' 
                     : currentBusiness 
@@ -515,15 +518,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
 
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="hover:bg-slate-100 dark:hover:bg-slate-700">
                 <Search className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="hover:bg-slate-100 dark:hover:bg-slate-700">
                 <Bell className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
+                className="hover:bg-slate-100 dark:hover:bg-slate-700"
                 onClick={() => {
                   signOut({ callbackUrl: '/' });
                 }}
@@ -535,8 +539,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Page content */}
-        <main className="p-6">
-      {children}
+        <main className="p-6 bg-gradient-to-br from-slate-50/50 to-slate-100/50 dark:from-slate-900/50 dark:to-slate-800/50 min-h-screen">
+          {children}
         </main>
       </div>
     </div>
