@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const userId = session.user.id;
     
     // Get user details
-    const user = await User.findById(userId);
+    const user = await (User as any).findById(userId);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -30,13 +30,13 @@ export async function GET(request: NextRequest) {
     // Fetch recent orders from different services
     const [storeOrders, pharmacyOrders, busBookings, hotelBookings] = await Promise.all([
       // Store orders
-      StoreOrder.find({ customerId: userId })
+      (StoreOrder as any).find({ customerId: userId })
         .sort({ createdAt: -1 })
         .limit(5)
         .lean(),
       
       // Pharmacy orders
-      PharmacyOrder.find({ 
+      (PharmacyOrder as any).find({ 
         $or: [
           { customerId: new mongoose.Types.ObjectId(userId) },
           { customerId: userId },
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
         .lean(),
       
       // Bus bookings
-      BusBooking.find({ 
+      (BusBooking as any).find({ 
         $or: [
           { customerId: userId },
           { customerEmail: user.email }
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
         .lean(),
       
       // Hotel bookings
-      HotelBooking.find({ 
+      (HotelBooking as any).find({ 
         $or: [
           { customerId: userId },
           { customerEmail: user.email }
