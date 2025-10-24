@@ -20,13 +20,13 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     // Verify user is customer
-    const user = await User.findById(userId);
+    const user = await (User as any).findById(userId);
     if (!user || user.role !== 'customer') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Get original message
-    const originalMessage = await Message.findById(originalMessageId);
+    const originalMessage = await (Message as any).findById(originalMessageId);
     if (!originalMessage) {
       return NextResponse.json({ error: 'Original message not found' }, { status: 404 });
     }
@@ -46,10 +46,10 @@ export async function POST(request: NextRequest) {
       relatedServiceType: originalMessage.relatedServiceType
     });
 
-    await replyMessage.save();
+    await (replyMessage as any).save();
 
     // Update original message status to replied
-    await Message.findByIdAndUpdate(originalMessageId, { status: 'replied' });
+    await (Message as any).findByIdAndUpdate(originalMessageId, { status: 'replied' });
 
     return NextResponse.json({
       success: true,
