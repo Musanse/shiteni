@@ -28,17 +28,17 @@ export async function GET(request: NextRequest) {
     const pharmacyId = session.user.id;
 
     // Get medicine statistics
-    const totalMedicines = await Medicine.countDocuments({ pharmacyId });
-    const activeMedicines = await Medicine.countDocuments({ 
+    const totalMedicines = await (Medicine as any).countDocuments({ pharmacyId });
+    const activeMedicines = await (Medicine as any).countDocuments({ 
       pharmacyId, 
       status: 'active',
       stock: { $gt: 10 }
     });
-    const lowStockMedicines = await Medicine.countDocuments({ 
+    const lowStockMedicines = await (Medicine as any).countDocuments({ 
       pharmacyId, 
       stock: { $lte: 10, $gt: 0 }
     });
-    const expiredMedicines = await Medicine.countDocuments({ 
+    const expiredMedicines = await (Medicine as any).countDocuments({ 
       pharmacyId, 
       expiryDate: { $lt: new Date() }
     });
@@ -49,35 +49,35 @@ export async function GET(request: NextRequest) {
     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
     // Get prescription/order statistics
-    const todayOrders = await PharmacyOrder.countDocuments({ 
+    const todayOrders = await (PharmacyOrder as any).countDocuments({ 
       pharmacyId, 
       createdAt: { $gte: startOfDay, $lt: endOfDay }
     });
-    const pendingOrders = await PharmacyOrder.countDocuments({ 
+    const pendingOrders = await (PharmacyOrder as any).countDocuments({ 
       pharmacyId, 
       status: 'pending'
     });
-    const confirmedOrders = await PharmacyOrder.countDocuments({ 
+    const confirmedOrders = await (PharmacyOrder as any).countDocuments({ 
       pharmacyId, 
       status: 'confirmed'
     });
 
     // Get patient statistics
-    const totalPatients = await User.countDocuments({ 
+    const totalPatients = await (User as any).countDocuments({ 
       serviceType: 'pharmacy',
       role: 'customer'
     });
 
     // Get patients from this week
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const weekPatients = await User.countDocuments({ 
+    const weekPatients = await (User as any).countDocuments({ 
       serviceType: 'pharmacy',
       role: 'customer',
       createdAt: { $gte: weekAgo }
     });
 
     // Calculate today's revenue
-    const todayRevenueOrders = await PharmacyOrder.find({
+    const todayRevenueOrders = await (PharmacyOrder as any).find({
       pharmacyId,
       status: 'confirmed',
       createdAt: { $gte: startOfDay, $lt: endOfDay }
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
     const startOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
     const endOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() + 1);
 
-    const yesterdayRevenueOrders = await PharmacyOrder.find({
+    const yesterdayRevenueOrders = await (PharmacyOrder as any).find({
       pharmacyId,
       status: 'confirmed',
       createdAt: { $gte: startOfYesterday, $lt: endOfYesterday }
@@ -101,14 +101,14 @@ export async function GET(request: NextRequest) {
     const revenueGrowth = yesterdayRevenue > 0 ? ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100 : 0;
 
     // Get recent prescriptions/orders
-    const recentOrders = await PharmacyOrder.find({ pharmacyId })
+    const recentOrders = await (PharmacyOrder as any).find({ pharmacyId })
       .sort({ createdAt: -1 })
       .limit(5)
       .populate('customerId', 'firstName lastName')
       .lean();
 
     // Get recent medicines
-    const recentMedicines = await Medicine.find({ pharmacyId })
+    const recentMedicines = await (Medicine as any).find({ pharmacyId })
       .sort({ createdAt: -1 })
       .limit(5)
       .lean();
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
         activeMedicines,
         lowStockMedicines,
         expiredMedicines,
-        await Medicine.countDocuments({ pharmacyId, stock: 0 })
+        await (Medicine as any).countDocuments({ pharmacyId, stock: 0 })
       ],
       colors: ['#10b981', '#f59e0b', '#ef4444', '#6b7280']
     };
@@ -130,10 +130,10 @@ export async function GET(request: NextRequest) {
     const prescriptionStatusData = {
       labels: ['Pending', 'Confirmed', 'Cancelled', 'Completed'],
       data: [
-        await PharmacyOrder.countDocuments({ pharmacyId, status: 'pending' }),
-        await PharmacyOrder.countDocuments({ pharmacyId, status: 'confirmed' }),
-        await PharmacyOrder.countDocuments({ pharmacyId, status: 'cancelled' }),
-        await PharmacyOrder.countDocuments({ pharmacyId, status: 'completed' })
+        await (PharmacyOrder as any).countDocuments({ pharmacyId, status: 'pending' }),
+        await (PharmacyOrder as any).countDocuments({ pharmacyId, status: 'confirmed' }),
+        await (PharmacyOrder as any).countDocuments({ pharmacyId, status: 'cancelled' }),
+        await (PharmacyOrder as any).countDocuments({ pharmacyId, status: 'completed' })
       ],
       colors: ['#f59e0b', '#3b82f6', '#ef4444', '#10b981']
     };
@@ -151,7 +151,7 @@ export async function GET(request: NextRequest) {
       const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
       const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
       
-      const dayOrders = await PharmacyOrder.find({
+      const dayOrders = await (PharmacyOrder as any).find({
         pharmacyId,
         status: 'confirmed',
         createdAt: { $gte: startOfDay, $lt: endOfDay }
@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 4. Medicine Categories Distribution (Pie Chart)
-    const medicineCategories = await Medicine.aggregate([
+    const medicineCategories = await (Medicine as any).aggregate([
       { $match: { pharmacyId } },
       { $group: { _id: '$category', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
@@ -190,7 +190,7 @@ export async function GET(request: NextRequest) {
       const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
       const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 1);
       
-      const monthOrders = await PharmacyOrder.countDocuments({
+      const monthOrders = await (PharmacyOrder as any).countDocuments({
         pharmacyId,
         createdAt: { $gte: startOfMonth, $lt: endOfMonth }
       });
@@ -200,7 +200,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 6. Top Selling Medicines (Bar Chart)
-    const topSellingMedicines = await Medicine.aggregate([
+    const topSellingMedicines = await (Medicine as any).aggregate([
       { $match: { pharmacyId } },
       { $lookup: {
           from: 'pharmacyorders',
