@@ -15,22 +15,22 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Find the pharmacy vendor or staff member
-    let vendor = await User.findOne({ 
+    let vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'pharmacy'
     });
 
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
-      const staff = await User.findOne({ 
+      const staff = await (User as any).findOne({ 
         email: session.user.email,
         role: { $in: ['pharmacist', 'technician', 'cashier', 'manager', 'admin'] },
         serviceType: 'pharmacy'
       });
       
-      if (staff && staff.institutionId) {
-        // Find the actual pharmacy vendor using institutionId
-        vendor = await User.findById(staff.institutionId);
+      if (staff && staff.businessId) {
+        // Find the actual pharmacy vendor using businessId
+        vendor = await (User as any).findById(staff.businessId);
         console.log(`Staff member ${staff.email} accessing inbox customers for pharmacy vendor: ${vendor?.email}`);
       }
     }
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
       }
     ];
 
-    const customers = await PharmacyOrder.aggregate(pipeline);
+    const customers = await (PharmacyOrder as any).aggregate(pipeline);
 
     return NextResponse.json({ 
       success: true, 
