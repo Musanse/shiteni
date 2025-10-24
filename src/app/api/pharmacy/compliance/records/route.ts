@@ -60,12 +60,12 @@ export async function GET(request: NextRequest) {
       query.priority = priority;
     }
 
-    const records = await ComplianceRecord.find(query)
+    const records = await (ComplianceRecord as any).find(query)
       .sort({ dueDate: 1, priority: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await ComplianceRecord.countDocuments(query);
+    const total = await (ComplianceRecord as any).countDocuments(query);
 
     return NextResponse.json({ 
       success: true, 
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now().toString().slice(-6);
     const recordId = `CR${year}${month}${day}${timestamp}`;
 
-    const record = await ComplianceRecord.create({
+    const record = await (ComplianceRecord as any).create({
       recordId,
       type,
       title,
