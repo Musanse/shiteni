@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     const busCompanyId = session.user.id;
-    const buses = await Bus.find({ busCompanyId }).sort({ createdAt: -1 }).lean();
+    const buses = await (Bus as any).find({ busCompanyId }).sort({ createdAt: -1 }).lean();
 
     return NextResponse.json({
       success: true,
