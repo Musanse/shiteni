@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     // Check if user is bus vendor/staff
     await connectDB();
     
-    const currentUser = await User.findById(session.user.id);
+    const currentUser = await (User as any).findById(session.user.id);
     if (!currentUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the plan exists and is active
-    const plan = await SubscriptionPlan.findOne({
+    const plan = await (SubscriptionPlan as any).findOne({
       _id: planId,
       vendorType: 'bus',
       isActive: true
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for existing active subscription
-    const existingSubscription = await BusSubscription.findOne({
+    const existingSubscription = await (BusSubscription as any).findOne({
       userId: session.user.id,
       status: { $in: ['active', 'pending'] }
     });
