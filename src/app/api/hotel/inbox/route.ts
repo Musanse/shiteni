@@ -16,22 +16,22 @@ export async function GET(request: NextRequest) {
     }
 
     // Find the hotel vendor or staff member
-    let vendor = await User.findOne({ 
+    let vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'hotel'
     });
 
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
-      const staff = await User.findOne({ 
+      const staff = await (User as any).findOne({ 
         email: session.user.email,
         role: { $in: ['receptionist', 'housekeeping', 'manager', 'admin'] },
         serviceType: 'hotel'
       });
       
-      if (staff && staff.institutionId) {
-        // Find the actual hotel vendor using institutionId
-        vendor = await User.findById(staff.institutionId);
+      if (staff && staff.businessId) {
+        // Find the actual hotel vendor using businessId
+        vendor = await (User as any).findById(staff.businessId);
         console.log(`Staff member ${staff.email} accessing inbox for hotel vendor: ${vendor?.email}`);
       }
     }
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     console.log(`Searching for messages for hotel vendor: ${vendor.email} (ID: ${vendor._id})`);
 
     // Fetch all conversations for the hotel vendor
-    const conversations = await Message.aggregate([
+    const conversations = await (Message as any).aggregate([
       {
         $match: {
           $or: [
