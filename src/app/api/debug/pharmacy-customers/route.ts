@@ -22,9 +22,9 @@ export async function GET(request: NextRequest) {
         role: (session.user as any).role,
         serviceType: (session.user as any).serviceType
       },
-      totalOrders: await PharmacyOrder.countDocuments(),
-      ordersForUser: await PharmacyOrder.countDocuments({ pharmacyId: session.user.id }),
-      allOrders: await PharmacyOrder.find().limit(3).select('orderNumber customerName pharmacyId').lean()
+      totalOrders: await (PharmacyOrder as any).countDocuments(),
+      ordersForUser: await (PharmacyOrder as any).countDocuments({ pharmacyId: session.user.id }),
+      allOrders: await (PharmacyOrder as any).find().limit(3).select('orderNumber customerName pharmacyId').lean()
     };
 
     return NextResponse.json({
