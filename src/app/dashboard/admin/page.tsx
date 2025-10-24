@@ -186,6 +186,8 @@ const mockSystemHealth = {
   totalTransactions: 15420,
   databaseStatus: 'healthy',
   apiStatus: 'operational',
+  lastBackup: '2024-01-15T10:30:00Z',
+  version: '1.0.0',
 };
 
 export default function AdminDashboard() {
