@@ -14,9 +14,7 @@ import {
   CreditCard, 
   Plus,
   Edit,
-  Trash2,
   Search,
-  Filter,
   Eye,
   Calendar,
   DollarSign,
@@ -58,6 +56,7 @@ interface Subscription {
   startDate: string;
   endDate: string;
   amount: number;
+  currency?: string;
   billingCycle: string;
   user: {
     firstName: string;
@@ -119,7 +118,7 @@ export default function SubscriptionPage() {
       
       if (plansData.plans) {
         // Transform plans to match frontend interface
-        const transformedPlans = plansData.plans.map((plan: any) => ({
+        const transformedPlans = plansData.plans.map((plan: Record<string, unknown>) => ({
           ...plan,
           maxProducts: plan.maxLoans || plan.maxProducts || 0, // Map maxLoans to maxProducts
           status: plan.isActive ? 'active' : 'inactive' // Map isActive to status
@@ -157,7 +156,7 @@ export default function SubscriptionPage() {
       if (data.success) {
         setPlans(plans.map(plan => 
           plan._id === planId 
-            ? { ...plan, status: newStatus as any }
+            ? { ...plan, status: newStatus as 'active' | 'inactive' | 'archived' }
             : plan
         ));
       } else {
@@ -222,7 +221,7 @@ export default function SubscriptionPage() {
           maxProducts: data.plan.maxLoans, // API uses maxLoans field
           maxStorage: data.plan.maxStorage,
           maxStaffAccounts: data.plan.maxStaffAccounts,
-          status: data.plan.isActive ? 'active' : 'inactive',
+          status: (data.plan.isActive ? 'active' : 'inactive') as 'active' | 'inactive' | 'archived',
           isPopular: data.plan.isPopular,
           sortOrder: data.plan.sortOrder,
           createdAt: data.plan.createdAt,
@@ -257,7 +256,7 @@ export default function SubscriptionPage() {
     }
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | number | string[] | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -341,7 +340,7 @@ export default function SubscriptionPage() {
                 features: data.plan.features,
                 maxProducts: data.plan.maxLoans || data.plan.maxProducts,
                 maxStaffAccounts: data.plan.maxStaffAccounts,
-                status: data.plan.isActive ? 'active' : 'inactive',
+                status: (data.plan.isActive ? 'active' : 'inactive') as 'active' | 'inactive' | 'archived',
                 isPopular: data.plan.isPopular,
                 updatedAt: data.plan.updatedAt
               }
@@ -400,7 +399,7 @@ export default function SubscriptionPage() {
     setShowEditSubscriptionForm(true);
   };
 
-  const handleUpdateSubscription = async (action: string, updateData?: any) => {
+  const handleUpdateSubscription = async (action: string, updateData?: Record<string, unknown>) => {
     if (!editingSubscription) return;
     
     try {

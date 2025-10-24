@@ -20,9 +20,28 @@ interface SessionUser {
 interface StaffQuery {
   serviceType: string;
   role: { $in: string[] } | string;
-  businessId: mongoose.Types.ObjectId;
+  businessId: string;
   $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
   status?: string;
+}
+
+// Mongoose document types
+interface UserDocument extends mongoose.Document {
+  _id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  businessId?: string;
+  serviceType?: string;
+  role?: string;
+}
+
+interface PharmacyStaffDocument extends mongoose.Document {
+  _id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  pharmacyId: string;
 }
 
 export async function GET(request: NextRequest) {
@@ -36,14 +55,14 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Find the pharmacy vendor or staff member
-    let vendor = await (User as any).findOne({ 
+    let vendor = await (User as mongoose.Model<UserDocument>).findOne({ 
       email: (session.user as SessionUser).email,
       serviceType: 'pharmacy'
     });
 
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
-      const staff = await (User as any).findOne({ 
+      const staff = await (User as mongoose.Model<UserDocument>).findOne({ 
         email: (session.user as SessionUser).email,
         role: { $in: ['pharmacist', 'technician', 'cashier', 'manager', 'admin'] },
         serviceType: 'pharmacy'
@@ -51,7 +70,7 @@ export async function GET(request: NextRequest) {
       
       if (staff && staff.businessId) {
         // Find the actual pharmacy vendor using businessId
-        vendor = await (User as any).findById(staff.businessId);
+        vendor = await (User as mongoose.Model<UserDocument>).findById(staff.businessId);
         console.log(`Staff member ${staff.email} accessing staff list for pharmacy vendor: ${vendor?.email}`);
       }
     }
@@ -73,7 +92,7 @@ export async function GET(request: NextRequest) {
     const query: StaffQuery = {
       serviceType: 'pharmacy',
       role: { $in: ['pharmacist', 'technician', 'cashier', 'manager', 'admin'] },
-      businessId: vendor._id
+      businessId: vendor._id as string
     };
 
     if (search) {
@@ -93,13 +112,13 @@ export async function GET(request: NextRequest) {
       query.status = status;
     }
 
-    const staff = await (User as any).find(query)
+    const staff = await (User as mongoose.Model<UserDocument>).find(query)
       .select('-password')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await (User as any).countDocuments(query);
+    const total = await (User as mongoose.Model<UserDocument>).countDocuments(query);
 
     return NextResponse.json({ 
       success: true, 
@@ -173,7 +192,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if email already exists
-    const existingStaff = await (PharmacyStaff as any).findOne({ email });
+    const existingStaff = await (PharmacyStaff as mongoose.Model<PharmacyStaffDocument>).findOne({ email });
     if (existingStaff) {
       return NextResponse.json({ 
         error: 'Email already exists' 
@@ -203,7 +222,7 @@ export async function POST(request: NextRequest) {
         break;
     }
 
-    const staff = await (PharmacyStaff as any).create({
+    const staff = await (PharmacyStaff as mongoose.Model<PharmacyStaffDocument>).create({
       firstName,
       lastName,
       email,
@@ -222,7 +241,7 @@ export async function POST(request: NextRequest) {
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Create user account for the staff member
-    await (User as any).create({
+    await (User as mongoose.Model<UserDocument>).create({
       firstName,
       lastName,
       email,
