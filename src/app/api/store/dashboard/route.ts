@@ -17,22 +17,22 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Find the store vendor or staff member
-    let vendor = await User.findOne({ 
+    let vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'store'
     });
 
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
-      const staff = await User.findOne({ 
+      const staff = await (User as any).findOne({ 
         email: session.user.email,
         role: { $in: ['cashier', 'inventory_manager', 'sales_associate', 'admin'] },
         serviceType: 'store'
       });
       
-      if (staff && staff.institutionId) {
-        // Find the actual store vendor using institutionId
-        vendor = await User.findById(staff.institutionId);
+      if (staff && staff.businessId) {
+        // Find the actual store vendor using businessId
+        vendor = await (User as any).findById(staff.businessId);
         console.log(`Staff member ${staff.email} accessing dashboard for store vendor: ${vendor?.email}`);
       }
     }
@@ -104,14 +104,14 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Fetch recent orders
-    const recentOrders = await StoreOrder.find()
+    const recentOrders = await (StoreOrder as any).find()
       .sort({ createdAt: -1 })
       .limit(5)
       .populate('customerId', 'firstName lastName email')
       .lean();
 
     // Fetch recent products
-    const recentProducts = await StoreProduct.find()
+    const recentProducts = await (StoreProduct as any).find()
       .sort({ createdAt: -1 })
       .limit(5)
       .lean();
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
       : 0;
 
     // Chart data - Revenue over last 7 days
-    const revenueChartData = await StoreOrder.aggregate([
+    const revenueChartData = await (StoreOrder as any).aggregate([
       {
         $match: {
           createdAt: { $gte: subDays(new Date(), 7) },
@@ -146,7 +146,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Chart data - Orders by status
-    const ordersByStatus = await StoreOrder.aggregate([
+    const ordersByStatus = await (StoreOrder as any).aggregate([
       {
         $group: {
           _id: '$status',
@@ -156,7 +156,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Chart data - Top selling products (last 30 days)
-    const topProducts = await StoreOrder.aggregate([
+    const topProducts = await (StoreOrder as any).aggregate([
       {
         $match: {
           createdAt: { $gte: subDays(new Date(), 30) },
@@ -192,7 +192,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Chart data - Customer acquisition over time
-    const customerAcquisition = await StoreCustomer.aggregate([
+    const customerAcquisition = await (StoreCustomer as any).aggregate([
       {
         $group: {
           _id: {

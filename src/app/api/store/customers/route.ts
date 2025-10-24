@@ -28,9 +28,9 @@ export async function GET(request: NextRequest) {
         serviceType: 'store'
       });
       
-      if (staff && staff.institutionId) {
-        // Find the actual store vendor using institutionId
-        vendor = await User.findById(staff.institutionId);
+      if (staff && staff.businessId) {
+        // Find the actual store vendor using businessId
+        vendor = await User.findById(staff.businessId);
         console.log(`Staff member ${staff.email} accessing customers for store vendor: ${vendor?.email}`);
       }
     }
