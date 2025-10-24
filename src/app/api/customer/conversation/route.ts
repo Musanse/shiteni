@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get customer details
-    let customer = await User.findById(session.user.id);
+    let customer = await (User as any).findById(session.user.id);
     if (!customer) {
       // If customer doesn't exist, create a customer record
       customer = new User({
@@ -34,12 +34,12 @@ export async function GET(request: NextRequest) {
         createdAt: new Date(),
         updatedAt: new Date()
       });
-      await customer.save();
+      await (customer as any).save();
       console.log(`👤 Created new customer: ${customer.email} (${customer.name})`);
     }
 
     // Get vendor details
-    const vendor = await User.findById(vendorId);
+    const vendor = await (User as any).findById(vendorId);
     if (!vendor) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
     }
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     console.log(`Fetching conversation between ${customer.email} and ${vendor.email}`);
 
     // Fetch all messages in this conversation
-    const messages = await Message.find({
+    const messages = await (Message as any).find({
       $or: [
         { senderId: customer._id.toString(), recipientId: vendorId },
         { senderId: vendorId, recipientId: customer._id.toString() }
@@ -133,13 +133,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Get sender (customer) details
-    const sender = await User.findById(session.user.id);
+    const sender = await (User as any).findById(session.user.id);
     if (!sender) {
       return NextResponse.json({ error: 'Sender not found' }, { status: 404 });
     }
 
     // Get vendor details
-    const vendor = await User.findById(vendorId);
+    const vendor = await (User as any).findById(vendorId);
     if (!vendor) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
     }
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
       fileType: fileType || undefined
     });
 
-    await message.save();
+    await (message as any).save();
 
     console.log(`📨 Message sent from ${sender.email} to ${vendor.email}`);
 
