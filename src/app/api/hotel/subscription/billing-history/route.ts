@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Fetch billing history for this hotel vendor
-    const billingHistory = await BillingHistory.find({ 
+    const billingHistory = await (BillingHistory as any).find({ 
       userId: session.user.id,
       serviceType: 'hotel'
     })
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       .lean();
 
     // Get total count for pagination
-    const totalCount = await BillingHistory.countDocuments({ 
+    const totalCount = await (BillingHistory as any).countDocuments({ 
       userId: session.user.id,
       serviceType: 'hotel'
     });
