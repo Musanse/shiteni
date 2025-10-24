@@ -181,7 +181,7 @@ export async function POST(request: NextRequest) {
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Create new staff member
-    console.log('Creating staff with institutionId:', hotelVendor._id);
+    console.log('Creating staff with businessId:', hotelVendor._id);
     console.log('Hotel vendor _id type:', typeof hotelVendor._id);
     
     const newStaff = new User({
@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
       department,
       salary: salary || 0,
       shift: shift || 'flexible',
-      institutionId: hotelVendor._id,
+      businessId: hotelVendor._id,
       serviceType: 'hotel',
       status: 'active',
       performance: 'good',

@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const query: any = { 
       serviceType: 'store',
       role: { $in: STORE_STAFF_ROLES },
-      institutionId: session.user.id
+      businessId: session.user.id
     };
     if (role && STORE_STAFF_ROLES.includes(role)) query.role = role;
     if (status) query.status = status;
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const users = await User.find(query).sort({ createdAt: -1 }).lean();
+    const users = await (User as any).find(query).sort({ createdAt: -1 }).lean();
     const staff = users.map(u => ({
       _id: u._id.toString(),
       firstName: u.firstName,
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     if (!STORE_STAFF_ROLES.includes(role)) {
       return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
     }
-    const existing = await User.findOne({ email });
+    const existing = await (User as any).findOne({ email });
     if (existing) return NextResponse.json({ error: 'Email already in use' }, { status: 400 });
 
     const hashed = await bcrypt.hash(password, 10);
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    const user = await User.create({
+    const user = await (User as any).create({
       email,
       password: hashed,
       firstName,
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       permissions: permissions || [],
       status: 'active',
       serviceType: 'store',
-      institutionId: session.user.id,
+      businessId: session.user.id,
       createdBy: session.user.id,
       emailVerified: false, // Staff must verify email
       emailVerificationToken: verificationToken,

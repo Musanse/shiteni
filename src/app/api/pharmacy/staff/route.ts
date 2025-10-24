@@ -20,22 +20,22 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Find the pharmacy vendor or staff member
-    let vendor = await User.findOne({ 
+    let vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'pharmacy'
     });
 
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
-      const staff = await User.findOne({ 
+      const staff = await (User as any).findOne({ 
         email: session.user.email,
         role: { $in: ['pharmacist', 'technician', 'cashier', 'manager', 'admin'] },
         serviceType: 'pharmacy'
       });
       
-      if (staff && staff.institutionId) {
-        // Find the actual pharmacy vendor using institutionId
-        vendor = await User.findById(staff.institutionId);
+      if (staff && staff.businessId) {
+        // Find the actual pharmacy vendor using businessId
+        vendor = await (User as any).findById(staff.businessId);
         console.log(`Staff member ${staff.email} accessing staff list for pharmacy vendor: ${vendor?.email}`);
       }
     }
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     const query: any = {
       serviceType: 'pharmacy',
       role: { $in: ['pharmacist', 'technician', 'cashier', 'manager', 'admin'] },
-      institutionId: vendor._id
+      businessId: vendor._id
     };
 
     if (search) {
@@ -77,13 +77,13 @@ export async function GET(request: NextRequest) {
       query.status = status;
     }
 
-    const staff = await User.find(query)
+    const staff = await (User as any).find(query)
       .select('-password')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await User.countDocuments(query);
+    const total = await (User as any).countDocuments(query);
 
     return NextResponse.json({ 
       success: true, 
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if email already exists
-    const existingStaff = await PharmacyStaff.findOne({ email });
+    const existingStaff = await (PharmacyStaff as any).findOne({ email });
     if (existingStaff) {
       return NextResponse.json({ 
         error: 'Email already exists' 
@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
         break;
     }
 
-    const staff = await PharmacyStaff.create({
+    const staff = await (PharmacyStaff as any).create({
       firstName,
       lastName,
       email,
@@ -206,14 +206,14 @@ export async function POST(request: NextRequest) {
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Create user account for the staff member
-    const user = await User.create({
+    const user = await (User as any).create({
       firstName,
       lastName,
       email,
       password: hashedPassword,
       role,
       serviceType: 'pharmacy',
-      institutionId: session.user.id,
+      businessId: session.user.id,
       isActive: true,
       permissions,
       emailVerified: false, // Staff must verify email

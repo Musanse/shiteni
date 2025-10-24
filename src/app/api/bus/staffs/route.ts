@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     const query: any = {
       serviceType: 'bus',
       role: { $in: BUS_STAFF_ROLES },
-      institutionId: session.user.id
+      businessId: session.user.id
     };
 
     console.log('Fetching bus staff with query:', query);
@@ -226,7 +226,7 @@ export async function POST(request: NextRequest) {
       role,
       department,
       licenseNumber,
-      institutionId: session.user.id
+      businessId: session.user.id
     });
 
     const user = await User.create({
@@ -237,7 +237,7 @@ export async function POST(request: NextRequest) {
       phone,
       role,
       serviceType: 'bus',
-      institutionId: session.user.id,
+      businessId: session.user.id,
       department: department || '',
       licenseNumber: licenseNumber || '',
       isActive: true,
