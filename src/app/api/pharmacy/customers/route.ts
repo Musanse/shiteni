@@ -16,22 +16,22 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Find the pharmacy vendor or staff member
-    let vendor = await User.findOne({ 
+    let vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'pharmacy'
     });
 
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
-      const staff = await User.findOne({ 
+      const staff = await (User as any).findOne({ 
         email: session.user.email,
         role: { $in: ['pharmacist', 'technician', 'cashier', 'manager', 'admin'] },
         serviceType: 'pharmacy'
       });
       
-      if (staff && staff.institutionId) {
-        // Find the actual pharmacy vendor using institutionId
-        vendor = await User.findById(staff.institutionId);
+      if (staff && staff.businessId) {
+        // Find the actual pharmacy vendor using businessId
+        vendor = await (User as any).findById(staff.businessId);
         console.log(`Staff member ${staff.email} accessing customers for pharmacy vendor: ${vendor?.email}`);
       }
     }
@@ -50,14 +50,14 @@ export async function GET(request: NextRequest) {
     });
 
     // Debug: Check total orders
-    const totalOrders = await PharmacyOrder.countDocuments();
-    const ordersForUser = await PharmacyOrder.countDocuments({ pharmacyId: vendor._id });
+    const totalOrders = await (PharmacyOrder as any).countDocuments();
+    const ordersForUser = await (PharmacyOrder as any).countDocuments({ pharmacyId: vendor._id });
     console.log('🔍 Debug - Orders:', { totalOrders, ordersForUser });
 
     // If no orders for this user, try to find any pharmacy orders
     if (ordersForUser === 0) {
       console.log('⚠️ No orders found for current user, checking all pharmacy orders...');
-      const allPharmacyOrders = await PharmacyOrder.find().limit(5).select('pharmacyId customerName orderNumber status').lean();
+      const allPharmacyOrders = await (PharmacyOrder as any).find().limit(5).select('pharmacyId customerName orderNumber status').lean();
       console.log('📋 Sample orders:', allPharmacyOrders);
     }
 
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
 
     // Get total count for pagination
     const countPipeline = [...pipeline, { $count: 'total' }];
-    const countResult = await PharmacyOrder.aggregate(countPipeline);
+    const countResult = await (PharmacyOrder as any).aggregate(countPipeline);
     const total = countResult.length > 0 ? countResult[0].total : 0;
 
     // Add pagination
@@ -156,7 +156,7 @@ export async function GET(request: NextRequest) {
       { $limit: limit }
     );
 
-    const customers = await PharmacyOrder.aggregate(pipeline);
+    const customers = await (PharmacyOrder as any).aggregate(pipeline);
     console.log('🔍 Debug - Aggregated customers:', customers.length);
     console.log('🔍 Debug - Pipeline match condition:', matchCondition);
     console.log('🔍 Debug - Customers found:', customers.map(c => ({ name: c.customerName, orders: c.totalOrders, statuses: c.orderStatuses })));
