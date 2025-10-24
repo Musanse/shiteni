@@ -96,7 +96,12 @@ export async function GET(request: NextRequest) {
           paymentMethods: 1,
           // Create conversation ID for chat
           conversationId: {
-            $concat: ['pharmacy_', { $toString: '$_id.customerId' || 'guest' }, '_', { $toString: '$customerEmail' || '$customerPhone' }]
+            $concat: [
+              'pharmacy_', 
+              { $toString: { $ifNull: ['$_id.customerId', 'guest'] } }, 
+              '_', 
+              { $toString: { $ifNull: ['$customerEmail', '$customerPhone'] } }
+            ]
           },
           // Determine if customer is active (has recent orders)
           isActive: {
