@@ -62,13 +62,13 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Get current bus subscription
-    const subscription = await BusSubscription.findOne({
+    const subscription = await (BusSubscription as any).findOne({
       userId: session.user.id,
       status: { $in: ['active', 'pending'] }
     }).populate('planId').lean();
 
     // Get subscription history
-    const subscriptionHistory = await BusSubscription.find({
+    const subscriptionHistory = await (BusSubscription as any).find({
       userId: session.user.id
     })
     .populate('planId')
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
     .lean();
 
     // Fetch available subscription plans for bus vendors from admin-configured plans
-    const availablePlans = await SubscriptionPlan.find({
+    const availablePlans = await (SubscriptionPlan as any).find({
       vendorType: 'bus',
       isActive: true
     })
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch the selected plan from database
-    const selectedPlan = await SubscriptionPlan.findOne({
+    const selectedPlan = await (SubscriptionPlan as any).findOne({
       _id: planId,
       vendorType: 'bus',
       isActive: true
