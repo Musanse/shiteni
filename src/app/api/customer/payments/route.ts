@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Fetch user
-    const user = await User.findById(userId);
+    const user = await (User as any).findById(userId);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     // 1. Fetch Store Orders (Purchases)
     try {
-      const storeOrders = await StoreOrder.find({ customerId: userId })
+      const storeOrders = await (StoreOrder as any).find({ customerId: userId })
         .sort({ createdAt: -1 })
         .lean();
 
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     // 2. Fetch Pharmacy Orders (Purchases)
     try {
-      const pharmacyOrders = await PharmacyOrder.find({
+      const pharmacyOrders = await (PharmacyOrder as any).find({
         $or: [
           { customerId: new mongoose.Types.ObjectId(userId) },
           { customerId: userId },
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
 
     // 3. Fetch Hotel Bookings
     try {
-      const hotelBookings = await Booking.find({ 
+      const hotelBookings = await (Booking as any).find({ 
         $or: [
           { guestEmail: user.email },
           { guestName: user.name }
@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
 
     // 4. Fetch Bus Bookings
     try {
-      const busBookings = await BusBooking.find({ 
+      const busBookings = await (BusBooking as any).find({ 
         $or: [
           { passengerEmail: user.email },
           { passengerName: user.name }
@@ -161,7 +161,7 @@ export async function GET(request: NextRequest) {
 
     // 5. Fetch Billing History (subscriptions, etc.)
     try {
-      const billingHistory = await BillingHistory.find({ userId })
+      const billingHistory = await (BillingHistory as any).find({ userId })
       .sort({ createdAt: -1 })
       .lean();
 
