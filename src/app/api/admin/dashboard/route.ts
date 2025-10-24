@@ -44,14 +44,14 @@ export async function GET(request: NextRequest) {
       busRoutes,
       busBookings
     ] = await Promise.all([
-      User.find({}).select('firstName lastName email role kycStatus createdAt').lean(),
-      StoreProduct.find({}).select('name price stock category').lean(),
-      StoreOrder.find({}).select('totalAmount status').lean(),
-      PharmacyMedicine.find({}).select('name sellingPrice stock').lean(),
-      HotelRoom.find({}).select('roomNumber pricePerNight status').lean(),
-      HotelBooking.find({}).select('totalAmount status').lean(),
-      BusRoute.find({}).select('routeName fare status').lean(),
-      BusBooking.find({}).select('totalAmount status').lean()
+      (User as any).find({}).select('firstName lastName email role kycStatus createdAt').lean(),
+      (StoreProduct as any).find({}).select('name price stock category').lean(),
+      (StoreOrder as any).find({}).select('totalAmount status').lean(),
+      (PharmacyMedicine as any).find({}).select('name sellingPrice stock').lean(),
+      (HotelRoom as any).find({}).select('roomNumber pricePerNight status').lean(),
+      (HotelBooking as any).find({}).select('totalAmount status').lean(),
+      (BusRoute as any).find({}).select('routeName fare status').lean(),
+      (BusBooking as any).find({}).select('totalAmount status').lean()
     ]);
 
     // Calculate business statistics
