@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find the room
-    const room = await Room.findById(roomId);
+    const room = await (Room as any).findById(roomId);
     if (!room) {
       return NextResponse.json(
         { error: 'Room not found' },
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       vendorId: room.vendorId.toString() // Link to hotel vendor
     });
 
-    await booking.save();
+    await (booking as any).save();
 
     console.log('Booking created successfully:', {
       bookingId: booking._id,
