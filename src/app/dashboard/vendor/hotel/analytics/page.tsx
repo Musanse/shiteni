@@ -414,7 +414,6 @@ export default function HotelAnalyticsPage() {
             data: [0],
             backgroundColor: 'rgba(156, 163, 175, 0.1)',
             borderColor: 'rgba(156, 163, 175, 1)',
-            borderWidth: 2,
             fill: true,
             tension: 0.4
           }]
@@ -426,7 +425,6 @@ export default function HotelAnalyticsPage() {
             data: [0],
             backgroundColor: 'rgba(156, 163, 175, 0.1)',
             borderColor: 'rgba(156, 163, 175, 1)',
-            borderWidth: 2,
             fill: true,
             tension: 0.4
           }]
