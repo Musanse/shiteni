@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const payments = await Payment.find(query)
+    const payments = await (Payment as any).find(query)
       .sort({ processedAt: -1 })
       .lean();
 
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
       netAmount
     });
 
-    await payment.save();
+    await (payment as any).save();
 
     return NextResponse.json({ 
       message: 'Payment created successfully',
