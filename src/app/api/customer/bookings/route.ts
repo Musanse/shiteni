@@ -18,12 +18,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch hotel bookings for the logged-in customer
-    const hotelBookings = await Booking.find({
+    const hotelBookings = await (Booking as any).find({
       customerEmail: session.user.email
     }).sort({ createdAt: -1 });
 
     // Fetch bus bookings for the logged-in customer
-    const busBookings = await BusBooking.find({
+    const busBookings = await (BusBooking as any).find({
       passengerEmail: session.user.email
     }).sort({ createdAt: -1 });
 
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       hotelBookings.map(async (booking) => {
         try {
           // Find the room to get vendorId
-          const room = await Room.findById(booking.roomId);
+          const room = await (Room as any).findById(booking.roomId);
           if (!room) {
             console.log(`Room not found for booking ${booking._id}`);
             return {
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
           }
 
           // Find the hotel vendor
-          const hotelVendor = await User.findById(room.vendorId);
+          const hotelVendor = await (User as any).findById(room.vendorId);
           const hotelName = hotelVendor?.hotelName || hotelVendor?.businessName || 'Unknown Hotel';
 
           return {
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
           // Find the trip
           const BusTripSchema = new mongoose.Schema({}, { strict: false });
           const BusTrip = mongoose.models.BusTrip || mongoose.model('BusTrip', BusTripSchema);
-          const trip = await BusTrip.findById(tripId);
+          const trip = await (BusTrip as any).findById(tripId);
           
           if (trip) {
             // Get bus information
