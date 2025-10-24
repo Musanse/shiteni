@@ -53,13 +53,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Find the trip
-    const trip = await BusTrip.findById(tripId);
+    const trip = await (BusTrip as any).findById(tripId);
     if (!trip) {
       return NextResponse.json({ error: 'Trip not found' }, { status: 404 });
     }
 
     // Get route and bus details
-    const route = await BusRoute.findById(trip.routeId);
+    const route = await (BusRoute as any).findById(trip.routeId);
     const db = mongoose.connection.db;
     if (!db) {
       return NextResponse.json({ 
