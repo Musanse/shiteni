@@ -53,14 +53,14 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Fetch patients with pagination
-    const patients = await Patient.find(query)
+    const patients = await (Patient as any).find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
 
     // Get total count for pagination
-    const totalPatients = await Patient.countDocuments(query);
+    const totalPatients = await (Patient as any).countDocuments(query);
     const totalPages = Math.ceil(totalPatients / limit);
 
     return NextResponse.json({
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if patient already exists
-    const existingPatient = await Patient.findOne({
+    const existingPatient = await (Patient as any).findOne({
       $or: [
         { patientId },
         { email }
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
       pharmacyId: session.user.id
     });
 
-    await patient.save();
+    await (patient as any).save();
 
     return NextResponse.json({
       success: true,

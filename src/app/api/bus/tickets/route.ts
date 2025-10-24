@@ -89,13 +89,13 @@ export async function GET(request: NextRequest) {
       filter.departureDate = { $gte: startDate, $lt: endDate };
     }
 
-    const tickets = await BusTicket.find(filter)
+    const tickets = await (BusTicket as any).find(filter)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .lean();
 
-    const total = await BusTicket.countDocuments(filter);
+    const total = await (BusTicket as any).countDocuments(filter);
 
     return NextResponse.json({
       success: true,
@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
     const busCompanyId = session.user.id;
     const ticketNumber = generateTicketNumber();
 
-    const ticket = await BusTicket.create({
+    const ticket = await (BusTicket as any).create({
       ticketNumber,
       tripId: new mongoose.Types.ObjectId(tripId),
       tripName,

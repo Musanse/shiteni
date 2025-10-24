@@ -47,14 +47,14 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Fetch prescriptions with pagination
-    const prescriptions = await Prescription.find(query)
+    const prescriptions = await (Prescription as any).find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
 
     // Get total count for pagination
-    const totalPrescriptions = await Prescription.countDocuments(query);
+    const totalPrescriptions = await (Prescription as any).countDocuments(query);
     const totalPages = Math.ceil(totalPrescriptions / limit);
 
     return NextResponse.json({
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if prescription already exists
-    const existingPrescription = await Prescription.findOne({
+    const existingPrescription = await (Prescription as any).findOne({
       prescriptionNumber
     });
 
@@ -162,7 +162,7 @@ export async function POST(request: NextRequest) {
       pharmacyId: session.user.id
     });
 
-    await prescription.save();
+    await (prescription as any).save();
 
     return NextResponse.json({
       success: true,

@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
     );
 
     if (unreadMessages.length > 0) {
-      await Message.updateMany(
+      await (Message as any).updateMany(
         { 
           _id: { $in: unreadMessages.map(msg => msg._id) },
           senderId: { $ne: session.user?.email }

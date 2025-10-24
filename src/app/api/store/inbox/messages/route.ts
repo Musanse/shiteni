@@ -75,8 +75,8 @@ export async function POST(request: NextRequest) {
     const otherUser = await (User as any).findById(otherPartyId).lean();
 
     const recipientId = otherPartyId;
-    const recipientEmail = otherUser?.email || (last.senderId === vendor._id.toString() ? last.recipientEmail : last.senderEmail);
-    const recipientName = otherUser?.name || otherUser?.businessName || (last.senderId === vendor._id.toString() ? last.recipientName : last.senderName);
+    const recipientEmail = otherUser?.email || '';
+    const recipientName = otherUser?.name || otherUser?.businessName || '';
     const recipientRole = otherUser?.role || 'customer';
 
     const msg = await (Message as any).create({

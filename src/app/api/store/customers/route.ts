@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
           };
         });
         if (ops.length > 0) {
-          await StoreCustomer.bulkWrite(ops, { ordered: false });
+          await (StoreCustomer as any).bulkWrite(ops, { ordered: false });
         }
       }
     } catch (prefillErr) {
@@ -288,7 +288,7 @@ export async function GET(request: NextRequest) {
           }));
 
           if (ops.length > 0) {
-            await StoreCustomer.bulkWrite(ops, { ordered: false });
+            await (StoreCustomer as any).bulkWrite(ops, { ordered: false });
           }
         } catch (persistErr) {
           console.warn('Backfill persist to storecustomers failed:', persistErr);

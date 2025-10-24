@@ -66,7 +66,9 @@ export async function POST(request: NextRequest) {
       email: email || 'test@example.com',
       clientRedirectUrl,
       externalId: `TEST-${Date.now()}`,
-      narration: 'Test payment'
+      narration: 'Test payment',
+      currency: 'ZMW',
+      accountNumber: '1234567890'
     };
 
     const result = await lipilaPaymentService.processCardPayment(paymentData);

@@ -9,6 +9,22 @@ import { User } from '@/models/User';
 import { sendEmail, emailTemplates } from '@/lib/email';
 import crypto from 'crypto';
 
+// Type definitions
+interface SessionUser {
+  id: string;
+  email: string;
+  role: string;
+  serviceType?: string;
+}
+
+interface StaffQuery {
+  serviceType: string;
+  role: { $in: string[] } | string;
+  businessId: mongoose.Types.ObjectId;
+  $or?: Array<{ [key: string]: { $regex: string; $options: string } }>;
+  status?: string;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -21,14 +37,14 @@ export async function GET(request: NextRequest) {
 
     // Find the pharmacy vendor or staff member
     let vendor = await (User as any).findOne({ 
-      email: session.user.email,
+      email: (session.user as SessionUser).email,
       serviceType: 'pharmacy'
     });
 
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
       const staff = await (User as any).findOne({ 
-        email: session.user.email,
+        email: (session.user as SessionUser).email,
         role: { $in: ['pharmacist', 'technician', 'cashier', 'manager', 'admin'] },
         serviceType: 'pharmacy'
       });
@@ -54,7 +70,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build query for pharmacy staff
-    const query: any = {
+    const query: StaffQuery = {
       serviceType: 'pharmacy',
       role: { $in: ['pharmacist', 'technician', 'cashier', 'manager', 'admin'] },
       businessId: vendor._id
@@ -114,8 +130,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user is a pharmacy manager or admin
-    const userRole = (session?.user as any)?.role;
-    const userServiceType = (session?.user as any)?.serviceType;
+    const userRole = (session?.user as SessionUser)?.role;
+    const userServiceType = (session?.user as SessionUser)?.serviceType;
     
     if (!userServiceType || userServiceType !== 'pharmacy' || !['manager', 'admin'].includes(userRole)) {
       return NextResponse.json({ error: 'Access denied. Manager or admin only.' }, { status: 403 });
@@ -136,7 +152,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Check if user ID is a valid ObjectId
-    if (!session?.user?.id || !mongoose.Types.ObjectId.isValid(session.user.id)) {
+    if (!session?.user?.id || !mongoose.Types.ObjectId.isValid((session.user as SessionUser).id)) {
       return NextResponse.json({ 
         error: 'Invalid user session' 
       }, { status: 400 });
@@ -198,7 +214,7 @@ export async function POST(request: NextRequest) {
       status: 'active',
       permissions,
       hireDate: new Date(),
-      pharmacyId: new mongoose.Types.ObjectId(session.user.id)
+      pharmacyId: new mongoose.Types.ObjectId((session.user as SessionUser).id)
     });
 
     // Generate verification token for email verification
@@ -206,14 +222,14 @@ export async function POST(request: NextRequest) {
     const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Create user account for the staff member
-    const user = await (User as any).create({
+    await (User as any).create({
       firstName,
       lastName,
       email,
       password: hashedPassword,
       role,
       serviceType: 'pharmacy',
-      businessId: session.user.id,
+      businessId: (session.user as SessionUser).id,
       isActive: true,
       permissions,
       emailVerified: false, // Staff must verify email
@@ -223,15 +239,12 @@ export async function POST(request: NextRequest) {
 
     // Send verification email to the new staff member
     try {
-      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-      const verificationLink = `${baseUrl}/auth/verify-email?token=${verificationToken}`;
-      
-      const emailTemplate = emailTemplates.staffWelcome(firstName, verificationLink, role);
-      const emailSent = await sendEmail({
-        to: email,
-        subject: emailTemplate.subject,
-        html: emailTemplate.html,
-      });
+      const emailTemplate = emailTemplates.staffAccountCreated(
+        firstName,
+        'Pharmacy Business', // businessName
+        { email: email, password: password }
+      );
+      const emailSent = await sendEmail(email, emailTemplate);
 
       if (!emailSent) {
         console.error('Failed to send verification email to:', email);

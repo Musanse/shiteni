@@ -306,7 +306,7 @@ export default function BusBrowsePage() {
   const calculateSegmentFare = (
     boardingStop: string, 
     alightingStop: string, 
-    stops: Array<{stopName: string, order: number}>,
+    stops: Array<{stopId: string; stopName: string; order: number}>,
     fareSegments: Array<{from: string, to: string, amount: number}>
   ): number => {
     // Find order indices
@@ -611,17 +611,17 @@ export default function BusBrowsePage() {
     // Find route that contains both stops
     const route = vendor.routes.find(r => {
       const hasFromStop = r.stops.some(s => 
-        s.name === fromStop || s.stopName === fromStop
+        s.name === fromStop
       );
       const hasToStop = r.stops.some(s => 
-        s.name === toStop || s.stopName === toStop
+        s.name === toStop
       );
       return hasFromStop && hasToStop;
     });
 
     if (route) {
       console.log('Route found:', route.routeName);
-      console.log('Route stops:', route.stops.map(s => s.name || s.stopName));
+      console.log('Route stops:', route.stops.map(s => s.name));
       console.log('Fare segments count:', route.fareSegments?.length || 0);
       console.log('Fare segments:', route.fareSegments);
       
@@ -641,8 +641,8 @@ export default function BusBrowsePage() {
         
         // Get stop order in the route
         const stops = route.stops || [];
-        const fromIndex = stops.findIndex(s => (s.name || s.stopName) === fromStop);
-        const toIndex = stops.findIndex(s => (s.name || s.stopName) === toStop);
+        const fromIndex = stops.findIndex(s => s.name === fromStop);
+        const toIndex = stops.findIndex(s => s.name === toStop);
         
         console.log('Stop indices:', { fromIndex, toIndex, fromStop, toStop });
         
@@ -659,8 +659,8 @@ export default function BusBrowsePage() {
         
         // Find segments that are part of this journey
         const relevantSegments = route.fareSegments.filter(segment => {
-          const segmentFromIndex = stops.findIndex(s => (s.name || s.stopName) === segment.from);
-          const segmentToIndex = stops.findIndex(s => (s.name || s.stopName) === segment.to);
+          const segmentFromIndex = stops.findIndex(s => s.name === segment.from);        
+          const segmentToIndex = stops.findIndex(s => s.name === segment.to);
           
           // Check if this segment is within our journey
           return segmentFromIndex >= startIndex && segmentToIndex <= endIndex;
@@ -1056,7 +1056,7 @@ export default function BusBrowsePage() {
                 </div>
                 <p className="text-sm text-muted-foreground">Departure: {selectedSchedule.departureTime}</p>
                 <p className="text-sm text-muted-foreground">Date: {new Date(selectedSchedule.date).toLocaleDateString()}</p>
-                <p className="text-sm text-muted-foreground">Fare: ZMW {selectedSchedule.fare}</p>
+                <p className="text-sm text-muted-foreground">Fare: ZMW {bookingData.fare || 'TBD'}</p>
               </div>
               
               <div>

@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     const busCompanyId = session.user.id;
-    const fares = await BusFare.find({ busCompanyId }).sort({ createdAt: -1 }).lean();
+    const fares = await (BusFare as any).find({ busCompanyId }).sort({ createdAt: -1 }).lean();
 
     return NextResponse.json({
       success: true,
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const busCompanyId = session.user.id;
-    const fare = await BusFare.create({
+    const fare = await (BusFare as any).create({
       routeName,
       origin,
       destination,

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     // 1. The conversationId matches
     // 2. The recipient is the current user (messages sent TO them)
     // 3. The messages are currently unread
-    const result = await Message.updateMany(
+    const result = await (Message as any).updateMany(
       {
         conversationId: conversationId,
         recipientEmail: session.user.email,

@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     
     if (existingOrders > 0) {
       // Update existing orders to be eligible for insurance claims
-      const updateResult = await PharmacyOrder.updateMany(
+      const updateResult = await (PharmacyOrder as any).updateMany(
         { 
           pharmacyId: session.user.id,
           status: { $in: ['pending', 'confirmed', 'processing'] },

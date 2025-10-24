@@ -6,11 +6,12 @@ export async function GET(request: NextRequest) {
     console.log('Testing email service...');
     
     // Test email sending
-    const testEmailSent = await sendEmail({
-      to: 'test@example.com',
+    const testEmailTemplate = {
       subject: 'Test Email - Mankuca',
       html: '<h1>Test Email</h1><p>This is a test email from Mankuca.</p>',
-    });
+      text: 'Test Email - This is a test email from Mankuca.'
+    };
+    const testEmailSent = await sendEmail('test@example.com', testEmailTemplate);
 
     return NextResponse.json({
       message: 'Email service test completed',

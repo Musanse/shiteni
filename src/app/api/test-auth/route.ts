@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
           host: 'mail.privateemail.com',
           port: 587,
           user: 'support@shiteni.com',
-          passSet: !!'a03kHedS-LFT'
+          passSet: true
         }
       }, { status: 500 });
     }

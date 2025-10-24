@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     .lean();
 
     // Mark messages as read
-    await Message.updateMany(
+    await (Message as any).updateMany(
       {
         senderId: vendorId,
         recipientId: customer._id.toString(),
