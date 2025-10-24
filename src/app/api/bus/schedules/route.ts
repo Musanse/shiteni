@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
       success: true,
       schedules: schedules,
       routes: trips.map(trip => {
-        const route = routeMap.get(trip.routeId.toString());
+        const route = routeMap.get(trip.routeId.toString()) as any;
         if (!route) return null;
         
         // Derive origin/destination from stops
