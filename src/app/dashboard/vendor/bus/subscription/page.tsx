@@ -499,7 +499,7 @@ export default function BusSubscriptionPage() {
       {/* Available Plans */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {availablePlans.map((plan) => (
-          <Card key={plan.planType} className={`${getPlanColor(plan.planType)} ${subscription?.plan?.planType === plan.planType ? 'ring-2 ring-primary' : ''}`}>
+          <Card key={plan.planType} className={`${getPlanColor(plan.planType)} ${subscription?.planId?.planType === plan.planType ? 'ring-2 ring-primary' : ''}`}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 {getPlanIcon(plan.planType)}
