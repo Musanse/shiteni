@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Get all bus vendors (users with serviceType 'bus')
-    const busVendors = await User.find({ 
+    const busVendors = await (User as any).find({ 
       serviceType: 'bus',
       role: { $in: ['manager', 'admin', 'super_admin'] }
     }).lean();
@@ -72,13 +72,13 @@ export async function GET(request: NextRequest) {
     const busFleets = await db.collection('buses').find({}).toArray();
 
     // Get all bus trips for scheduled trips
-    const busTrips = await BusTrip.find({ status: 'active' }).lean();
+    const busTrips = await (BusTrip as any).find({ status: 'active' }).lean();
 
     // Get all bus routes for stop information
-    const busRoutes = await BusRoute.find({ status: 'active' }).lean();
+    const busRoutes = await (BusRoute as any).find({ status: 'active' }).lean();
 
     // Get all bus fares
-    const busFares = await BusFare.find({ status: 'active' }).lean();
+    const busFares = await (BusFare as any).find({ status: 'active' }).lean();
 
     // Group buses by company/vendor
     const vendorMap = new Map();
