@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
         // Set up message monitoring
         const checkForNewMessages = async () => {
           try {
-            const latestMessages = await Message.find({
+            const latestMessages = await (Message as any).find({
               $or: [
                 { senderId: session.user.email, recipientId: hotelId },
                 { senderId: hotelId, recipientId: session.user.email }
