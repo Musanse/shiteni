@@ -152,7 +152,7 @@ export default function BusStaffsPage() {
       lastName: staffMember.lastName,
       email: staffMember.email,
       phone: staffMember.phone,
-      role: staffMember.role,
+      role: staffMember.role as 'driver' | 'conductor' | 'ticket_seller' | 'dispatcher' | 'maintenance' | 'admin',
       department: staffMember.department,
       licenseNumber: staffMember.licenseNumber,
       password: ''
