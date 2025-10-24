@@ -414,8 +414,6 @@ export default function HotelAnalyticsPage() {
             data: [0],
             backgroundColor: 'rgba(156, 163, 175, 0.1)',
             borderColor: 'rgba(156, 163, 175, 1)',
-            fill: true,
-            tension: 0.4
           }]
         },
         occupancyChartData: {
@@ -425,8 +423,6 @@ export default function HotelAnalyticsPage() {
             data: [0],
             backgroundColor: 'rgba(156, 163, 175, 0.1)',
             borderColor: 'rgba(156, 163, 175, 1)',
-            fill: true,
-            tension: 0.4
           }]
         }
       });
