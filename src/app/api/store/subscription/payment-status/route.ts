@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Find pending subscription with this transaction ID
-    const pendingSubscription = await StoreSubscription.findOne({
+    const pendingSubscription = await (StoreSubscription as any).findOne({
       userId: session.user.id,
       transactionId: transactionId,
       status: 'pending'
@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Update pending subscription to active
-        await StoreSubscription.findByIdAndUpdate(pendingSubscription._id, {
+        await (StoreSubscription as any).findByIdAndUpdate(pendingSubscription._id, {
           status: 'active',
           paymentStatus: 'paid',
           lipilaExternalId: paymentStatus.externalId,
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
         });
       } else if (paymentStatus.status === 'Failed') {
         // Mark subscription as failed
-        await StoreSubscription.findByIdAndUpdate(pendingSubscription._id, {
+        await (StoreSubscription as any).findByIdAndUpdate(pendingSubscription._id, {
           status: 'cancelled',
           paymentStatus: 'failed',
           updatedAt: new Date()

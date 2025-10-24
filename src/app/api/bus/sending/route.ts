@@ -101,13 +101,13 @@ export async function GET(request: NextRequest) {
       filter.departureDate = { $gte: startDate, $lt: endDate };
     }
 
-    const dispatches = await BusDispatch.find(filter)
+    const dispatches = await (BusDispatch as any).find(filter)
       .sort({ departureDate: 1, departureTime: 1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .lean();
 
-    const total = await BusDispatch.countDocuments(filter);
+    const total = await (BusDispatch as any).countDocuments(filter);
 
     return NextResponse.json({
       success: true,
@@ -395,7 +395,7 @@ export async function PUT(request: NextRequest) {
       updateData.notes = notes;
     }
 
-    const dispatch = await BusDispatch.findByIdAndUpdate(
+    const dispatch = await (BusDispatch as any).findByIdAndUpdate(
       dispatchId,
       updateData,
       { new: true }

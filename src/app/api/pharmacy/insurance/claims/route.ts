@@ -52,12 +52,12 @@ export async function GET(request: NextRequest) {
       query.status = status;
     }
 
-    const claims = await InsuranceClaim.find(query)
+    const claims = await (InsuranceClaim as any).find(query)
       .sort({ submissionDate: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await InsuranceClaim.countDocuments(query);
+    const total = await (InsuranceClaim as any).countDocuments(query);
 
     return NextResponse.json({ 
       success: true, 
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now().toString().slice(-6);
     const claimNumber = `IC${year}${month}${day}${timestamp}`;
 
-    const claim = await InsuranceClaim.create({
+    const claim = await (InsuranceClaim as any).create({
       claimNumber,
       patientId,
       patientName,

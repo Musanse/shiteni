@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Find the subscription by transaction ID
-    const subscription = await BusSubscription.findOne({
+    const subscription = await (BusSubscription as any).findOne({
       $or: [
         { transactionId: transactionId },
         { lipilaTransactionId: transactionId }

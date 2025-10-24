@@ -230,7 +230,7 @@ export async function GET(request: NextRequest) {
       ...(paymentMethod && paymentMethod !== 'all' ? { paymentMethod: paymentMethod } : {})
     };
 
-    const tickets = await BusTicket.find(ticketFilter)
+    const tickets = await (BusTicket as any).find(ticketFilter)
       .sort({ createdAt: -1 })
       .lean();
 
@@ -243,7 +243,7 @@ export async function GET(request: NextRequest) {
       ...(paymentMethod && paymentMethod !== 'all' ? { paymentMethod: 'cash' } : {}) // Dispatch payments are typically cash
     };
 
-    const dispatches = await BusDispatch.find(dispatchFilter)
+    const dispatches = await (BusDispatch as any).find(dispatchFilter)
       .sort({ createdAt: -1 })
       .lean();
 

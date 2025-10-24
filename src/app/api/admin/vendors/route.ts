@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
             revenue = storeOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
             break;
           case 'pharmacy':
-            const pharmacyProducts = await PharmacyMedicine.countDocuments({ userId: vendor._id });
+            const pharmacyProducts = await (PharmacyMedicine as any).countDocuments({ userId: vendor._id });
             totalProducts = pharmacyProducts;
             break;
           case 'hotel':

@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     // Find the billing record associated with this transaction
-    const billingRecord = await BillingHistory.findOne({ 
+    const billingRecord = await (BillingHistory as any).findOne({ 
       lipilaTransactionId: transactionId 
     });
 
