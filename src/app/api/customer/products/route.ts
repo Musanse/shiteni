@@ -18,13 +18,13 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Fetch user to verify customer role
-    const user = await User.findById(userId);
+    const user = await (User as any).findById(userId);
     if (!user || user.role !== 'customer') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Fetch all available products from all vendors
-    const products = await StoreProduct.find({ 
+    const products = await (StoreProduct as any).find({ 
       status: 'active'
     })
       .sort({ createdAt: -1 })
