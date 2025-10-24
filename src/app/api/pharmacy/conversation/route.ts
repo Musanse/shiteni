@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Find the pharmacy vendor
-    const vendor = await User.findOne({ 
+    const vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'pharmacy'
     });
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Pharmacy vendor not found' }, { status: 404 });
     }
 
-    const customer = await User.findById(customerId).select('name email').lean();
+    const customer = await (User as any).findById(customerId).select('name email').lean();
     if (!customer) {
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
     }
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     console.log(`Fetching conversation between ${vendor.email} and ${customer.email}`);
 
     // Fetch messages for this conversation
-    const messages = await Message.find({
+    const messages = await (Message as any).find({
       $or: [
         { senderId: vendor._id.toString(), recipientId: customerId },
         { senderId: customerId, recipientId: vendor._id.toString() }
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     console.log(`Found ${messages.length} messages in conversation`);
 
     // Mark messages from the customer as read
-    await Message.updateMany(
+    await (Message as any).updateMany(
       { senderId: customerId, recipientId: vendor._id.toString(), isRead: false },
       { $set: { isRead: true } }
     );
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find the pharmacy vendor
-    const vendor = await User.findOne({ 
+    const vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'pharmacy'
     });
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Pharmacy vendor not found' }, { status: 404 });
     }
 
-    const customer = await User.findById(customerId).lean();
+    const customer = await (User as any).findById(customerId).lean();
     if (!customer) {
       return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
     }
@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
       fileType: fileType || undefined
     });
 
-    await message.save();
+    await (message as any).save();
 
     console.log(`📨 Message sent from ${vendor.email} to ${customer.email}`);
 
