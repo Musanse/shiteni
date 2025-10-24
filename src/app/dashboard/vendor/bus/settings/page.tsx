@@ -235,7 +235,7 @@ export default function BusSettingsPage() {
     setFormData(prev => ({
       ...prev,
       [parent]: {
-        ...prev[parent as keyof BusCompanySettings],
+        ...(prev[parent as keyof BusCompanySettings] as Record<string, unknown>),
         [field]: value
       }
     }));
