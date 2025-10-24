@@ -20,13 +20,13 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Ensure user exists (do not block non-"customer" roles from viewing their own orders)
-    const user = await User.findById(userId);
+    const user = await (User as any).findById(userId);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Fetch store orders
-    const storeOrders = await StoreOrder.find({ 
+    const storeOrders = await (StoreOrder as any).find({ 
       customerId: userId 
     })
       .sort({ createdAt: -1 })
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     console.log(`Found ${storeOrders.length} store orders for customer ${userId}`);
 
     // Fetch pharmacy orders - handle ObjectId conversion and null values
-    const pharmacyOrders = await PharmacyOrder.find({ 
+    const pharmacyOrders = await (PharmacyOrder as any).find({ 
       $or: [
         { customerId: new mongoose.Types.ObjectId(userId) },
         { customerId: userId }, // Also try string match for backward compatibility
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     // Ensure user exists; don't block non-'customer' roles from placing an order
-    let user = await User.findById(session.user.id);
+    let user = await (User as any).findById(session.user.id);
     if (!user) {
       user = new User({
         _id: session.user.id,
@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
         name: session.user.name || session.user.email?.split('@')[0],
         role: 'customer'
       });
-      await user.save();
+      await (user as any).save();
     }
 
     const body = await request.json();
@@ -231,7 +231,7 @@ export async function POST(request: NextRequest) {
     });
 
     try {
-      await order.save();
+      await (order as any).save();
     } catch (err: any) {
       console.error('Order validation error:', err);
       return NextResponse.json({ error: err?.message || 'Validation failed' }, { status: 400 });
