@@ -55,8 +55,8 @@ export async function GET(request: NextRequest) {
       }
     ];
 
-    const results = await StoreOrder.aggregate(pipeline);
-    const count = await StoreOrder.countDocuments(match);
+    const results = await (StoreOrder as any).aggregate(pipeline);
+    const count = await (StoreOrder as any).countDocuments(match);
 
     return NextResponse.json({
       success: true,

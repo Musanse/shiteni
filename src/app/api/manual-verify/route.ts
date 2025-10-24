@@ -21,14 +21,14 @@ export async function GET(request: NextRequest) {
     if (token) {
       // Verify by token
       console.log('Looking for user with token:', token);
-      user = await User.findOne({
+      user = await (User as any).findOne({
         emailVerificationToken: token,
         emailVerificationExpires: { $gt: new Date() }
       });
     } else if (email) {
       // Find user by email
       console.log('Looking for user with email:', email);
-      user = await User.findOne({ email });
+      user = await (User as any).findOne({ email });
     }
 
     console.log('Found user:', user ? 'Yes' : 'No');

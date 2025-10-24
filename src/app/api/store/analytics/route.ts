@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Calculate revenue metrics
-    const revenueResult = await StoreOrder.aggregate([
+    const revenueResult = await (StoreOrder as any).aggregate([
       {
         $match: {
           createdAt: { $gte: startDate, $lte: endDate },
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
     const orderCount = revenueResult[0]?.orderCount || 0;
 
     // Generate daily revenue data
-    const dailyRevenueData = await StoreOrder.aggregate([
+    const dailyRevenueData = await (StoreOrder as any).aggregate([
       {
         $match: {
           createdAt: { $gte: startDate, $lte: endDate },
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Get top products by sales
-    const topProductsResult = await StoreOrder.aggregate([
+    const topProductsResult = await (StoreOrder as any).aggregate([
       {
         $match: {
           createdAt: { $gte: startDate, $lte: endDate },
@@ -174,7 +174,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Get customer segments
-    const customerSegmentsResult = await StoreCustomer.aggregate([
+    const customerSegmentsResult = await (StoreCustomer as any).aggregate([
       {
         $group: {
           _id: {

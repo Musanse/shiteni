@@ -43,12 +43,12 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    const orders = await StoreOrder.find(query)
+    const orders = await (StoreOrder as any).find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const total = await StoreOrder.countDocuments(query);
+    const total = await (StoreOrder as any).countDocuments(query);
 
     return NextResponse.json({ 
       success: true, 
@@ -111,11 +111,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate order number
-    const orderCount = await StoreOrder.countDocuments();
+    const orderCount = await (StoreOrder as any).countDocuments();
     const orderNumber = `ORD-${String(orderCount + 1).padStart(3, '0')}`;
 
     // Create or update customer record
-    let customer = await StoreCustomer.findById(customerId);
+    let customer = await (StoreCustomer as any).findById(customerId);
     let finalCustomerId = customerId;
     
     if (!customer) {
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
     await order.save();
 
     // Update customer statistics
-    await StoreCustomer.findByIdAndUpdate(finalCustomerId, {
+    await (StoreCustomer as any).findByIdAndUpdate(finalCustomerId, {
       $inc: { 
         totalOrders: 1, 
         totalSpent: total,

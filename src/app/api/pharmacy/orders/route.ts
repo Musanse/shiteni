@@ -55,13 +55,13 @@ export async function GET(request: NextRequest) {
       filter.paymentStatus = paymentStatus;
     }
 
-    const orders = await PharmacyOrder.find(filter)
+    const orders = await (PharmacyOrder as any).find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
 
-    const total = await PharmacyOrder.countDocuments(filter);
+    const total = await (PharmacyOrder as any).countDocuments(filter);
 
     return NextResponse.json({
       success: true,
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
       const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
       
-      const todayOrdersCount = await PharmacyOrder.countDocuments({
+      const todayOrdersCount = await (PharmacyOrder as any).countDocuments({
         pharmacyId: session.user.id,
         createdAt: { $gte: startOfDay, $lt: endOfDay }
       });

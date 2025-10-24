@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     await connectDB();
 
-    const user = await User.findById(session.user.id).select('-password');
+    const user = await (User as any).findById(session.user.id).select('-password');
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -176,7 +176,7 @@ export async function PUT(request: NextRequest) {
 
     console.log('Updating user with data:', updateData);
     
-    const updatedUser = await User.findByIdAndUpdate(
+    const updatedUser = await (User as any).findByIdAndUpdate(
       session.user.id,
       updateData,
       { new: true, runValidators: true }

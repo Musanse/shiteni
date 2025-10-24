@@ -55,14 +55,14 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Fetch medicines with pagination
-    const medicines = await Medicine.find(query)
+    const medicines = await (Medicine as any).find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
 
     // Get total count for pagination
-    const totalMedicines = await Medicine.countDocuments(query);
+    const totalMedicines = await (Medicine as any).countDocuments(query);
     const totalPages = Math.ceil(totalMedicines / limit);
 
     return NextResponse.json({
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if medicine already exists
-    const existingMedicine = await Medicine.findOne({
+    const existingMedicine = await (Medicine as any).findOne({
       name: { $regex: new RegExp(`^${name}$`, 'i') },
       batchNumber
     });

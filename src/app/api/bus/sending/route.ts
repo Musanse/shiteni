@@ -224,7 +224,7 @@ export async function POST(request: NextRequest) {
       
       try {
         const Bus = mongoose.model('Bus');
-        const busData = await Bus.findById(busId);
+        const busData = await (Bus as any).findById(busId);
         console.log('Fetched bus data:', busData);
         
         if (busData) {

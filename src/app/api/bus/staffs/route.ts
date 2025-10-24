@@ -63,10 +63,10 @@ export async function GET(request: NextRequest) {
       query.status = status;
     }
 
-    const total = await User.countDocuments(query);
+    const total = await (User as any).countDocuments(query);
     console.log('Total staff found:', total);
     
-    const users = await User.find(query)
+    const users = await (User as any).find(query)
       .select('-password')
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if email already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await (User as any).findOne({ email });
     if (existingUser) {
       return NextResponse.json(
         { error: 'Email already exists' },
@@ -229,7 +229,7 @@ export async function POST(request: NextRequest) {
       businessId: session.user.id
     });
 
-    const user = await User.create({
+    const user = await (User as any).create({
       firstName,
       lastName,
       email,

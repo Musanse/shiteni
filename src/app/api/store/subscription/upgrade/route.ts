@@ -83,13 +83,13 @@ export async function POST(request: NextRequest) {
     const detectedNetwork = detectNetwork(mobileMoneyContact.phoneNumber);
 
     // Get user details
-    const user = await User.findById(session.user.id);
+    const user = await (User as any).findById(session.user.id);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Get subscription plan details
-    const plan = await SubscriptionPlan.findById(planId);
+    const plan = await (SubscriptionPlan as any).findById(planId);
     if (!plan) {
       return NextResponse.json({ error: 'Subscription plan not found' }, { status: 404 });
     }

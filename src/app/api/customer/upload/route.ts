@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       const avatarUrl = `/uploads/${filename}`;
       
       // Try to find and update user, or create if doesn't exist
-      let updatedUser = await User.findByIdAndUpdate(
+      let updatedUser = await (User as any).findByIdAndUpdate(
         userObjectId,
         { 
           profilePicture: avatarUrl,

@@ -16,7 +16,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Get the hotel vendor
-    const hotelVendor = await User.findOne({ 
+    const hotelVendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'hotel'
     });
@@ -48,9 +48,9 @@ export async function PUT(request: NextRequest) {
     }
 
     // Find the staff member
-    const staffMember = await User.findOne({
+    const staffMember = await (User as any).findOne({
       _id: staffId,
-      institutionId: hotelVendor._id
+      businessId: hotelVendor._id
     });
 
     if (!staffMember) {
@@ -77,7 +77,7 @@ export async function PUT(request: NextRequest) {
       updateData.password = await bcrypt.hash(password, 12);
     }
 
-    const updatedStaff = await User.findByIdAndUpdate(
+    const updatedStaff = await (User as any).findByIdAndUpdate(
       staffId,
       updateData,
       { new: true }
@@ -128,7 +128,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Get the hotel vendor
-    const hotelVendor = await User.findOne({ 
+    const hotelVendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'hotel'
     });
@@ -148,9 +148,9 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Find the staff member
-    const staffMember = await User.findOne({
+    const staffMember = await (User as any).findOne({
       _id: staffId,
-      institutionId: hotelVendor._id
+      businessId: hotelVendor._id
     });
 
     if (!staffMember) {
@@ -161,7 +161,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Soft delete - update status to terminated
-    await User.findByIdAndUpdate(staffId, {
+    await (User as any).findByIdAndUpdate(staffId, {
       status: 'terminated',
       deletedAt: new Date()
     });

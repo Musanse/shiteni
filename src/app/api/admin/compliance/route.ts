@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch institutions with compliance data
-    const institutions = await User.find({ role: { $in: ['manager', 'admin'] } })
+    const institutions = await (User as any).find({ role: { $in: ['manager', 'admin'] } })
       .select('-password')
       .sort({ createdAt: -1 })
       .lean();
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
         recommendations,
         nextDue: nextDue.toISOString().split('T')[0],
         documents: Math.floor(Math.random() * 20) + 10,
-        institutionId: institution._id.toString(),
+        businessId: institution._id.toString(),
         institutionType: institution.serviceType || 'general',
         registrationDate: institution.createdAt,
         totalCustomers: institution.totalCustomers || Math.floor(Math.random() * 1000) + 100,
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     // Fetch compliance data
-    const institutions = await User.find({ role: { $in: ['manager', 'admin'] } })
+    const institutions = await (User as any).find({ role: { $in: ['manager', 'admin'] } })
       .select('-password')
       .sort({ createdAt: -1 })
       .lean();

@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user by email
-    const user = await User.findOne({ email });
+    const user = await (User as any).findOne({ email });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const verificationExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     // Update user with verification token
-    await User.findByIdAndUpdate(user._id, {
+    await (User as any).findByIdAndUpdate(user._id, {
       emailVerificationToken: verificationToken,
       emailVerificationExpires: verificationExpiry,
       emailVerified: false
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Find user by email and token
-    const user = await User.findOne({
+    const user = await (User as any).findOne({
       email: email,
       emailVerificationToken: token,
       emailVerificationExpires: { $gt: new Date() }
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Update user as verified
-    await User.findByIdAndUpdate(user._id, {
+    await (User as any).findByIdAndUpdate(user._id, {
       emailVerified: true,
       emailVerificationToken: null,
       emailVerificationExpires: null

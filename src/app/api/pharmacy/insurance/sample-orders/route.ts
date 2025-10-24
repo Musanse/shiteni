@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const { default: PharmacyOrder } = await import('@/models/PharmacyOrder');
 
     // Check if orders already exist
-    const existingOrders = await PharmacyOrder.countDocuments({ pharmacyId: session.user.id });
+    const existingOrders = await (PharmacyOrder as any).countDocuments({ pharmacyId: session.user.id });
     
     if (existingOrders > 0) {
       // Update existing orders to be eligible for insurance claims
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
 
     const createdOrders = [];
     for (const orderData of sampleOrders) {
-      const order = await PharmacyOrder.create(orderData);
+      const order = await (PharmacyOrder as any).create(orderData);
       createdOrders.push({
         orderNumber: order.orderNumber,
         customerName: order.customerName,

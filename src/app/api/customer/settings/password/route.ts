@@ -19,7 +19,7 @@ export async function PUT(request: NextRequest) {
     await connectDB();
 
     // Verify user is customer
-    const user = await User.findById(userId);
+    const user = await (User as any).findById(userId);
     if (!user || user.role !== 'customer') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
@@ -34,7 +34,7 @@ export async function PUT(request: NextRequest) {
     const hashedNewPassword = await bcrypt.hash(newPassword, 12);
 
     // Update password
-    await User.findByIdAndUpdate(userId, {
+    await (User as any).findByIdAndUpdate(userId, {
       password: hashedNewPassword,
       updatedAt: new Date()
     });

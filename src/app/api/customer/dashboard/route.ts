@@ -71,21 +71,21 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Calculate statistics
-    const totalStoreOrders = await StoreOrder.countDocuments({ customerId: userId });
-    const totalPharmacyOrders = await PharmacyOrder.countDocuments({ 
+    const totalStoreOrders = await (StoreOrder as any).countDocuments({ customerId: userId });
+    const totalPharmacyOrders = await (PharmacyOrder as any).countDocuments({ 
       $or: [
         { customerId: new mongoose.Types.ObjectId(userId) },
         { customerId: userId },
         { customerEmail: user.email }
       ]
     });
-    const totalBusBookings = await BusBooking.countDocuments({ 
+    const totalBusBookings = await (BusBooking as any).countDocuments({ 
       $or: [
         { customerId: userId },
         { customerEmail: user.email }
       ]
     });
-    const totalHotelBookings = await HotelBooking.countDocuments({ 
+    const totalHotelBookings = await (HotelBooking as any).countDocuments({ 
       $or: [
         { customerId: userId },
         { customerEmail: user.email }

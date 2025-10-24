@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     // If action is 'conversations', return conversation list
     if (action === 'conversations') {
       // Get unique conversations with latest message info
-      const conversations = await Message.aggregate([
+      const conversations = await (Message as any).aggregate([
         {
           $match: {
             isDeleted: false,
@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch messages for the conversation
-    const messages = await Message.find({
+    const messages = await (Message as any).find({
       conversationId,
       isDeleted: false
     })
@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
       .lean();
 
     // Get total count for pagination
-    const totalMessages = await Message.countDocuments({
+    const totalMessages = await (Message as any).countDocuments({
       conversationId,
       isDeleted: false
     });
@@ -257,12 +257,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Get sender information
-    const sender = await User.findOne({ email: session.user?.email });
+    const sender = await (User as any).findOne({ email: session.user?.email });
     if (!sender) {
       return NextResponse.json({ error: 'Sender not found' }, { status: 404 });
     }
 
-    const newMessage = await Message.create({
+    const newMessage = await (Message as any).create({
       senderId: session.user?.email || '',
       senderName: `${sender.firstName} ${sender.lastName}`,
       senderRole: sender.role,

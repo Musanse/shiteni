@@ -37,13 +37,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate order number
-    const orderCount = await StoreOrder.countDocuments();
+    const orderCount = await (StoreOrder as any).countDocuments();
     const orderNumber = `ORD-${String(orderCount + 1).padStart(3, '0')}`;
 
     // Create or update customer record
     const customerEmail = shippingAddress.name.toLowerCase().replace(/\s+/g, '.') + '@customer.com';
     
-    let customer = await StoreCustomer.findOne({ 
+    let customer = await (StoreCustomer as any).findOne({ 
       $or: [
         { email: customerEmail },
         { phone: shippingAddress.phone }
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     await order.save();
 
     // Update customer statistics
-    await StoreCustomer.findByIdAndUpdate(finalCustomerId, {
+    await (StoreCustomer as any).findByIdAndUpdate(finalCustomerId, {
       $inc: { 
         totalOrders: 1, 
         totalSpent: total,

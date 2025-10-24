@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Fetch all active subscription plans for store vendors
-    const plans = await SubscriptionPlan.find({ 
+    const plans = await (SubscriptionPlan as any).find({ 
       isActive: true,
       vendorType: 'store'
     })

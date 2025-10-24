@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       query.$or = [{ senderId: participantId }, { recipientId: participantId }];
     }
 
-    const messages = await Message.find(query).sort({ createdAt: -1 }).limit(limit);
+    const messages = await (Message as any).find(query).sort({ createdAt: -1 }).limit(limit);
     return NextResponse.json({ success: true, messages });
   } catch (error) {
     console.error('Error fetching messages:', error);
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Identify the vendor (current session user) scoped to store
-    const vendor = await User.findOne({ email: session?.user?.email, serviceType: 'store' });
+    const vendor = await (User as any).findOne({ email: session?.user?.email, serviceType: 'store' });
     if (!vendor) {
       return NextResponse.json({ error: 'Store vendor not found' }, { status: 404 });
     }
@@ -72,14 +72,14 @@ export async function POST(request: NextRequest) {
     // participant is the other party
     const otherPartyId = participantId;
     // Prefer user lookup, fall back to last message fields
-    const otherUser = await User.findById(otherPartyId).lean();
+    const otherUser = await (User as any).findById(otherPartyId).lean();
 
     const recipientId = otherPartyId;
     const recipientEmail = otherUser?.email || (last.senderId === vendor._id.toString() ? last.recipientEmail : last.senderEmail);
     const recipientName = otherUser?.name || otherUser?.businessName || (last.senderId === vendor._id.toString() ? last.recipientName : last.senderName);
     const recipientRole = otherUser?.role || 'customer';
 
-    const msg = await Message.create({
+    const msg = await (Message as any).create({
       senderId: vendor._id.toString(),
       senderEmail: vendor.email,
       senderName: vendor.businessName || vendor.name || vendor.email.split('@')[0],

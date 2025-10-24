@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the requester is a manager/admin
-    const requester = await User.findById(session.user.id);
+    const requester = await (User as any).findById(session.user.id);
     if (!requester || !['manager', 'admin', 'super_admin'].includes(requester.role)) {
       return NextResponse.json({ error: 'Access denied. Manager privileges required.' }, { status: 403 });
     }

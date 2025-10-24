@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Find current subscription for this store vendor
-    const subscription = await Subscription.findOne({ 
+    const subscription = await (Subscription as any).findOne({ 
       userId: session.user.id,
       status: { $in: ['active', 'pending'] }
     }).lean();
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get the subscription plan details
-    const plan = await SubscriptionPlan.findById(subscription.planId).lean();
+    const plan = await (SubscriptionPlan as any).findById(subscription.planId).lean();
 
     // Transform subscription data for store context
     const storeSubscription = {

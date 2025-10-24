@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get customer details
-    let customer = await User.findById(session.user.id);
+    let customer = await (User as any).findById(session.user.id);
     if (!customer) {
       // If customer doesn't exist, create a customer record
       customer = new User({
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     console.log(`Searching for messages for customer: ${customer.email} (ID: ${customer._id})`);
 
     // Fetch all conversations for the customer
-    const conversations = await Message.aggregate([
+    const conversations = await (Message as any).aggregate([
       {
         $match: {
           $or: [

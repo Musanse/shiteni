@@ -62,10 +62,10 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Get total count for pagination
-    const totalCount = await Medicine.countDocuments(query);
+    const totalCount = await (Medicine as any).countDocuments(query);
 
     // Fetch medicines
-    const medicines = await Medicine.find(query)
+    const medicines = await (Medicine as any).find(query)
       .sort(sortOptions)
       .skip(skip)
       .limit(limit)
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
 
     // Get vendor information for each medicine
     const vendorIds = [...new Set(medicinesWithActiveSubscriptions.map(m => m.vendorId))];
-    const vendors = await User.find({ _id: { $in: vendorIds } }).select('_id email businessName serviceType').lean();
+    const vendors = await (User as any).find({ _id: { $in: vendorIds } }).select('_id email businessName serviceType').lean();
     const vendorMap = new Map(vendors.map(v => [v._id.toString(), v]));
 
     // Transform medicines to match product interface

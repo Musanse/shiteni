@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Chart data - User registration trends (last 30 days)
-    const userRegistrationTrend = await User.aggregate([
+    const userRegistrationTrend = await (User as any).aggregate([
       {
         $match: {
           createdAt: { $gte: subDays(new Date(), 30) }
@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Chart data - Business types distribution
-    const businessTypesDistribution = await User.aggregate([
+    const businessTypesDistribution = await (User as any).aggregate([
       {
         $match: {
           role: { $in: ['manager', 'admin', 'super_admin'] }
@@ -262,7 +262,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Chart data - Platform growth metrics
-    const platformGrowth = await User.aggregate([
+    const platformGrowth = await (User as any).aggregate([
       {
         $group: {
           _id: {

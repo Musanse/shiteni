@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Fetch all users
-    const users = await User.find({}).select(
+    const users = await (User as any).find({}).select(
       'firstName lastName email phone role status kycStatus address city country createdAt lastLogin businessName businessType'
     ).lean();
 

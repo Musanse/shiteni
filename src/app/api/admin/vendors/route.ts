@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Fetch vendors (users with manager role - these are actual vendors)
-    const vendors = await User.find({
+    const vendors = await (User as any).find({
       role: 'manager'
     }).select('firstName lastName email phone address status kycStatus createdAt role').lean();
 
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         // Calculate stats based on business type
         switch (vendor.businessType) {
           case 'store':
-            const storeProducts = await StoreProduct.countDocuments({ userId: vendor._id });
+            const storeProducts = await (StoreProduct as any).countDocuments({ userId: vendor._id });
             const storeOrders = await (StoreOrder as any).find({ userId: vendor._id });
             totalProducts = storeProducts;
             totalOrders = storeOrders.length;
@@ -44,14 +44,14 @@ export async function GET(request: NextRequest) {
             totalProducts = pharmacyProducts;
             break;
           case 'hotel':
-            const hotelRooms = await HotelRoom.countDocuments({ userId: vendor._id });
+            const hotelRooms = await (HotelRoom as any).countDocuments({ userId: vendor._id });
             const hotelBookings = await (HotelBooking as any).find({ userId: vendor._id });
             totalProducts = hotelRooms;
             totalOrders = hotelBookings.length;
             revenue = hotelBookings.reduce((sum, booking) => sum + (booking.totalAmount || 0), 0);
             break;
           case 'bus':
-            const busRoutes = await BusRoute.countDocuments({ userId: vendor._id });
+            const busRoutes = await (BusRoute as any).countDocuments({ userId: vendor._id });
             const busBookings = await (BusBooking as any).find({ userId: vendor._id });
             totalProducts = busRoutes;
             totalOrders = busBookings.length;

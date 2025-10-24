@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Find the pharmacy vendor
-    const vendor = await User.findOne({ 
+    const vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'pharmacy'
     });
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     console.log(`Searching for messages for pharmacy vendor: ${vendor.email} (ID: ${vendor._id})`);
 
     // Fetch all conversations for the pharmacy vendor
-    const conversations = await Message.aggregate([
+    const conversations = await (Message as any).aggregate([
       {
         $match: {
           $or: [

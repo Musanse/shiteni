@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       sortQuery = { featured: -1, createdAt: -1 };
     }
 
-    const products = await StoreProduct.find(query)
+    const products = await (StoreProduct as any).find(query)
       .sort(sortQuery)
       .skip(skip)
       .limit(limit)
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
       if (product.vendorId) {
         try {
           const { User } = await import('@/models/User');
-          const vendor = await User.findById(product.vendorId).select('email businessName serviceType').lean();
+          const vendor = await (User as any).findById(product.vendorId).select('email businessName serviceType').lean();
           return {
             ...product,
             vendorId: vendor || { _id: product.vendorId, email: 'Unknown', businessName: 'Unknown Vendor', serviceType: 'store' }
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
       }
     }));
 
-    const total = await StoreProduct.countDocuments(query);
+    const total = await (StoreProduct as any).countDocuments(query);
 
     return NextResponse.json({ 
       success: true, 
@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if SKU already exists
-    const existingProduct = await StoreProduct.findOne({ sku });
+    const existingProduct = await (StoreProduct as any).findOne({ sku });
     if (existingProduct) {
       return NextResponse.json({ 
         error: 'SKU already exists' 
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
 
     // Get the vendor ID from the session user
     const { User } = await import('@/models/User');
-    const vendor = await User.findById(session.user.id);
+    const vendor = await (User as any).findById(session.user.id);
     
     if (!vendor) {
       return NextResponse.json({ 

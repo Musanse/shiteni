@@ -25,17 +25,17 @@ export async function GET(request: NextRequest) {
     };
 
     // Get collection statistics
-    const userCount = await User.countDocuments();
+    const userCount = await (User as any).countDocuments();
 
     // Get recent activity (last 24 hours)
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     
-    const recentUsers = await User.countDocuments({
+    const recentUsers = await (User as any).countDocuments({
       createdAt: { $gte: oneDayAgo }
     });
 
     // Get user role distribution
-    const userRoleStats = await User.aggregate([
+    const userRoleStats = await (User as any).aggregate([
       {
         $group: {
           _id: '$role',

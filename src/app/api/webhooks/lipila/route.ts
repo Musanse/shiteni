@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // If payment is successful, activate the subscription
     if (status === 'Successful') {
-      const subscription = await Subscription.findById(billingRecord.subscriptionId);
+      const subscription = await (Subscription as any).findById(billingRecord.subscriptionId);
       if (subscription) {
         subscription.status = 'active';
         subscription.lastPaymentDate = new Date();
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       }
     } else if (status === 'Failed' || status === 'Cancelled') {
       // If payment failed or was cancelled, ensure subscription remains inactive
-      const subscription = await Subscription.findById(billingRecord.subscriptionId);
+      const subscription = await (Subscription as any).findById(billingRecord.subscriptionId);
       if (subscription && subscription.status === 'active') {
         subscription.status = 'pending';
         await subscription.save();

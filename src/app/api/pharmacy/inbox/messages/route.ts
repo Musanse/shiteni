@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     const query: any = {};
     if (conversationId) query.conversationId = conversationId;
 
-    const messages = await Message.find(query).sort({ createdAt: -1 }).limit(limit);
+    const messages = await (Message as any).find(query).sort({ createdAt: -1 }).limit(limit);
     return NextResponse.json({ success: true, messages });
   } catch (error) {
     console.error('Error fetching messages:', error);
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing conversationId or content' }, { status: 400 });
     }
 
-    const msg = await Message.create({
+    const msg = await (Message as any).create({
       senderId: session?.user?.id || 'guest',
       senderName: senderName || session?.user?.name || 'Guest',
       senderRole: session?.user?.role || 'guest',

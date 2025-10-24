@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Checking for existing user with email:', email);
-    const existingUser = await User.findOne({ email });
+    const existingUser = await (User as any).findOne({ email });
     if (existingUser) {
       console.log('User already exists');
       return NextResponse.json(

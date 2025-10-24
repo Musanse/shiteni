@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Find the admin user
-    const admin = await User.findOne({ 
+    const admin = await (User as any).findOne({ 
       email: session.user.email,
       role: { $in: ['admin', 'super_admin'] }
     });
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     console.log(`Searching for messages for admin: ${admin.email} (ID: ${admin._id})`);
 
     // Fetch all conversations for the admin - simplified approach
-    const conversations = await Message.aggregate([
+    const conversations = await (Message as any).aggregate([
       {
         $match: {
           $or: [

@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user by email
-    const user = await User.findOne({ email });
+    const user = await (User as any).findOne({ email });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
     // Update user password
-    await User.findByIdAndUpdate(user._id, {
+    await (User as any).findByIdAndUpdate(user._id, {
       password: hashedPassword,
       passwordResetToken: null,
       passwordResetExpires: null

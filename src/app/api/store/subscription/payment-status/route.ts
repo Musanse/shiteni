@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user details
-    const user = await User.findById(session.user.id);
+    const user = await (User as any).findById(session.user.id);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
       // If payment is successful, activate subscription
       if (paymentStatus.status === 'Successful') {
         // Get plan details
-        const plan = await SubscriptionPlan.findById(pendingSubscription.planId);
+        const plan = await (SubscriptionPlan as any).findById(pendingSubscription.planId);
         if (!plan) {
           return NextResponse.json({ error: 'Subscription plan not found' }, { status: 404 });
         }

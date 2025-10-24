@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     const userObjectId = new mongoose.Types.ObjectId(userId);
     
     // Get user profile
-    const user = await User.findById(userObjectId).select('firstName lastName email profilePicture role');
+    const user = await (User as any).findById(userObjectId).select('firstName lastName email profilePicture role');
     
     if (!user) {
       console.log('User not found, returning mock data');

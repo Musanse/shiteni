@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const {
-      institutionId,
+      businessId,
       planType,
       billingCycle,
       amount,
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Get institution info
-    const institution = await (User as any).findById(institutionId);
+    const institution = await (User as any).findById(businessId);
     if (!institution) {
       return NextResponse.json({ error: 'Institution not found' }, { status: 404 });
     }
@@ -183,7 +183,7 @@ export async function POST(request: NextRequest) {
     }
 
     const subscription = new Subscription({
-      institutionId,
+      businessId,
       institutionName: institution.businessName || `${institution.firstName} ${institution.lastName}`,
       planType,
       status: 'active',

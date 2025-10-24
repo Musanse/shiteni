@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get sender details
-    let sender = await User.findById(session.user.id);
+    let sender = await (User as any).findById(session.user.id);
     if (!sender) {
       // If sender doesn't exist, create a customer record
       sender = new User({
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       console.log(`🏢 Vendor ${sender.email} sending message to customer ${vendorId}`);
       
       // Get the customer (vendorId is actually customer email in this case)
-      customer = await User.findOne({ email: vendorId });
+      customer = await (User as any).findOne({ email: vendorId });
       if (!customer) {
         return NextResponse.json({ 
           error: 'Customer not found. Please contact support.' 
@@ -69,10 +69,10 @@ export async function POST(request: NextRequest) {
       console.log(`👤 Customer ${sender.email} sending message to vendor ${vendorId}`);
       
       // Get the specific vendor
-      vendor = await User.findById(vendorId);
+      vendor = await (User as any).findById(vendorId);
       if (!vendor) {
         // Try to find vendor by email if ID doesn't work
-        vendor = await User.findOne({ email: vendorId });
+        vendor = await (User as any).findOne({ email: vendorId });
         if (!vendor) {
           return NextResponse.json({ 
             error: 'Vendor not found. Please contact support.' 

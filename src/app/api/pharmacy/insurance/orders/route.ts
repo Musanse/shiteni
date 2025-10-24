@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const orders = await PharmacyOrder.find(query)
+    const orders = await (PharmacyOrder as any).find(query)
       .sort({ orderDate: -1 })
       .limit(limit)
       .select('orderNumber customerName customerEmail customerPhone totalAmount orderDate status items');

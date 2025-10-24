@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Generate simple order number
-    const orderCount = await StoreOrder.countDocuments();
+    const orderCount = await (StoreOrder as any).countDocuments();
     const orderNumber = `ORD-${String(orderCount + 1).padStart(3, '0')}`;
 
     const order = new StoreOrder({

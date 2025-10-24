@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the plan exists and is active
-    const plan = await SubscriptionPlan.findOne({
+    const plan = await (SubscriptionPlan as any).findOne({
       _id: planId,
       vendorType: 'pharmacy',
       isActive: true
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already has an active subscription
-    const existingSubscription = await Subscription.findOne({
+    const existingSubscription = await (Subscription as any).findOne({
       userId: session.user.id,
       status: { $in: ['active', 'pending'] }
     });

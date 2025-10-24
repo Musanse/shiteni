@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     // Check if user is bus vendor/staff
     await connectDB();
     
-    const currentUser = await User.findById(session.user.id);
+    const currentUser = await (User as any).findById(session.user.id);
     if (!currentUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }

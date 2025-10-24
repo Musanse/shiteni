@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Fetch staff members (users with staff roles)
-    const staffs = await User.find({
+    const staffs = await (User as any).find({
       role: { $in: ['receptionist', 'housekeeping', 'cashier', 'inventory_manager', 'sales_associate', 'pharmacist', 'technician', 'driver', 'conductor', 'dispatcher'] }
     }).select('firstName lastName email phone role businessType status createdAt lastLogin').lean();
 
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await (User as any).findOne({ email });
     if (existingUser) {
       return NextResponse.json({ error: 'User with this email already exists' }, { status: 400 });
     }

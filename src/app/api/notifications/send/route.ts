@@ -82,7 +82,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify the requester is an admin
-    const requester = await User.findById(session.user.id);
+    const requester = await (User as any).findById(session.user.id);
     if (!requester || !['admin', 'super_admin'].includes(requester.role)) {
       return NextResponse.json({ error: 'Access denied. Admin privileges required.' }, { status: 403 });
     }

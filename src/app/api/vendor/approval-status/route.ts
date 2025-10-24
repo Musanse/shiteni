@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Get the current user
-    const user = await User.findById(session.user.id).select('status role serviceType').lean();
+    const user = await (User as any).findById(session.user.id).select('status role serviceType').lean();
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });

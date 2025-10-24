@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Get total count for pagination
-    const totalCount = await BusRoute.countDocuments(query);
+    const totalCount = await (BusRoute as any).countDocuments(query);
     const totalPages = Math.ceil(totalCount / limit);
 
     // Fetch bus routes

@@ -24,14 +24,14 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Get pharmacy owner details
-    const pharmacyOwner = await User.findById(session.user.id).lean();
+    const pharmacyOwner = await (User as any).findById(session.user.id).lean();
     
     if (!pharmacyOwner) {
       return NextResponse.json({ error: 'Pharmacy owner not found' }, { status: 404 });
     }
 
     // Get pharmacy staff members
-    const staffMembers = await User.find({
+    const staffMembers = await (User as any).find({
       businessId: session.user.id,
       serviceType: 'pharmacy',
       role: { $in: ['pharmacist', 'technician', 'cashier', 'manager', 'admin'] }
@@ -119,7 +119,7 @@ export async function PUT(request: NextRequest) {
     await connectDB();
 
     // Update pharmacy owner details
-    const updatedPharmacy = await User.findByIdAndUpdate(
+    const updatedPharmacy = await (User as any).findByIdAndUpdate(
       session.user.id,
       {
         businessName,

@@ -15,14 +15,14 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Find the store vendor or staff member
-    let vendor = await User.findOne({ 
+    let vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'store'
     });
 
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
-      const staff = await User.findOne({ 
+      const staff = await (User as any).findOne({ 
         email: session.user.email,
         role: { $in: ['cashier', 'inventory_manager', 'sales_associate', 'admin'] },
         serviceType: 'store'
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       
       if (staff && staff.businessId) {
         // Find the actual store vendor using businessId
-        vendor = await User.findById(staff.businessId);
+        vendor = await (User as any).findById(staff.businessId);
         console.log(`Staff member ${staff.email} accessing customers for store vendor: ${vendor?.email}`);
       }
     }
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
     // Proactive backfill: derive customers from orders and upsert into storecustomers
     try {
-      const derivedAll = await StoreOrder.aggregate([
+      const derivedAll = await (StoreOrder as any).aggregate([
         {
           $group: {
             _id: {
@@ -143,12 +143,12 @@ export async function GET(request: NextRequest) {
       sortQuery = { loyaltyPoints: -1 };
     }
 
-    let customers = await StoreCustomer.find(query)
+    let customers = await (StoreCustomer as any).find(query)
       .sort(sortQuery)
       .skip(skip)
       .limit(limit);
 
-    let total = await StoreCustomer.countDocuments(query);
+    let total = await (StoreCustomer as any).countDocuments(query);
 
     // Fallback: derive customers from StoreOrder collection when customer collection is empty
     if (total === 0) {
@@ -229,7 +229,7 @@ export async function GET(request: NextRequest) {
 
       let derived: any[] = [];
       try {
-        derived = await StoreOrder.aggregate(pipeline);
+        derived = await (StoreOrder as any).aggregate(pipeline);
       } catch (aggError) {
         console.error('Fallback aggregation error:', aggError);
         derived = [];
@@ -252,7 +252,7 @@ export async function GET(request: NextRequest) {
             },
           },
         });
-        const counted = await StoreOrder.aggregate(countPipeline);
+        const counted = await (StoreOrder as any).aggregate(countPipeline);
         total = counted.length;
       } catch (countErr) {
         console.error('Fallback count aggregation error:', countErr);

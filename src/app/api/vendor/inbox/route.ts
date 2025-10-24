@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Find the vendor (any service type)
-    const vendor = await User.findOne({ 
+    const vendor = await (User as any).findOne({ 
       email: session.user.email,
       role: 'manager' // Vendors have manager role
     });
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     console.log(`Searching for messages for vendor: ${vendor.email} (${vendor.serviceType}) (ID: ${vendor._id})`);
 
     // Fetch all conversations for the vendor
-    const conversations = await Message.aggregate([
+    const conversations = await (Message as any).aggregate([
       {
         $match: {
           $or: [

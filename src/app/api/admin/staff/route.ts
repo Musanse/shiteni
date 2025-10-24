@@ -36,7 +36,7 @@ export async function GET() {
     }
     
     // Fetch all staff members (users with role 'staff' or other admin roles)
-    const staff = await User.find({
+    const staff = await (User as any).find({
       role: { $in: ['staff', 'admin', 'compliance_officer', 'support_lead', 'system_admin', 'analyst'] }
     })
       .select('-password') // Exclude password from response
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await (User as any).findOne({ email });
     if (existingUser) {
       return NextResponse.json(
         { error: 'User with this email already exists' },
@@ -233,7 +233,7 @@ export async function PATCH(request: NextRequest) {
         break;
       
       case 'delete':
-        await User.findByIdAndDelete(staffId);
+        await (User as any).findByIdAndDelete(staffId);
         return NextResponse.json({ message: 'Staff member deleted successfully' });
       
       default:
@@ -243,7 +243,7 @@ export async function PATCH(request: NextRequest) {
         );
     }
 
-    const staff = await User.findByIdAndUpdate(
+    const staff = await (User as any).findByIdAndUpdate(
       staffId,
       updateData,
       { new: true }

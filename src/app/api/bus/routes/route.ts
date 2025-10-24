@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     const busCompanyId = session.user.id;
-    const routes = await BusRoute.find({ busCompanyId }).sort({ createdAt: -1 }).lean();
+    const routes = await (BusRoute as any).find({ busCompanyId }).sort({ createdAt: -1 }).lean();
 
     return NextResponse.json({
       success: true,
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const busCompanyId = session.user.id;
-    const route = await BusRoute.create({
+    const route = await (BusRoute as any).create({
       routeName,
       stops: stops.map((stop: any, index: number) => ({
         stopId: new mongoose.Types.ObjectId(stop.stopId),

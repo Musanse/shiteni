@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user by email
-    const user = await User.findOne({ email });
+    const user = await (User as any).findOne({ email });
     if (!user) {
       // Don't reveal if user exists or not for security
       return NextResponse.json({
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const resetExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
     // Update user with reset token
-    await User.findByIdAndUpdate(user._id, {
+    await (User as any).findByIdAndUpdate(user._id, {
       passwordResetToken: resetToken,
       passwordResetExpires: resetExpiry
     });
@@ -92,7 +92,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Find user by email and token
-    const user = await User.findOne({
+    const user = await (User as any).findOne({
       email: email,
       passwordResetToken: token,
       passwordResetExpires: { $gt: new Date() }
@@ -106,7 +106,7 @@ export async function PUT(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
     // Update user password and clear reset token
-    await User.findByIdAndUpdate(user._id, {
+    await (User as any).findByIdAndUpdate(user._id, {
       password: hashedPassword,
       passwordResetToken: null,
       passwordResetExpires: null
@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Find user by email and token
-    const user = await User.findOne({
+    const user = await (User as any).findOne({
       email: email,
       passwordResetToken: token,
       passwordResetExpires: { $gt: new Date() }

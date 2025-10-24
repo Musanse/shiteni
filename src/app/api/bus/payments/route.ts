@@ -217,7 +217,7 @@ export async function GET(request: NextRequest) {
       ...(paymentMethod && paymentMethod !== 'all' ? { paymentMethod: paymentMethod } : {})
     };
 
-    const bookings = await BusBooking.find(bookingFilter)
+    const bookings = await (BusBooking as any).find(bookingFilter)
       .sort({ createdAt: -1 })
       .lean();
 
