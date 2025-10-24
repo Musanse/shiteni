@@ -103,14 +103,14 @@ export async function GET(request: NextRequest) {
       let subscriptionStatus = subscription.status;
       let paymentStatus = subscription.paymentStatus;
 
-      if (paymentStatusResponse.status === 'Successful' || paymentStatusResponse.status === 'success') {
+      if (paymentStatusResponse.status === 'Successful') {
         subscriptionStatus = 'active';
         paymentStatus = 'paid';
-      } else if (paymentStatusResponse.status === 'Failed' || paymentStatusResponse.status === 'failed' || 
-                 paymentStatusResponse.status === 'Cancelled' || paymentStatusResponse.status === 'cancelled') {
+      } else if (paymentStatusResponse.status === 'Failed' || 
+                 paymentStatusResponse.status === 'Cancelled') {
         subscriptionStatus = 'inactive';
         paymentStatus = 'failed';
-      } else if (paymentStatusResponse.status === 'Pending' || paymentStatusResponse.status === 'pending') {
+      } else if (paymentStatusResponse.status === 'Pending') {
         subscriptionStatus = 'pending';
         paymentStatus = 'pending';
       }
