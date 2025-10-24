@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
     const totalPages = Math.ceil(totalCount / limit);
 
     // Fetch bus routes
-    const busRoutes = await BusRoute.find(query)
+    const busRoutes = await (BusRoute as any).find(query)
       .sort(sortOptions)
       .skip(skip)
       .limit(limit)
