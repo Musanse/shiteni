@@ -15,22 +15,22 @@ export async function GET(request: NextRequest) {
 
     // Find the hotel vendor or staff member
     const User = (await import('@/models/User')).User;
-    let vendor = await User.findOne({ 
+    let vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'hotel'
     });
 
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
-      const staff = await User.findOne({ 
+      const staff = await (User as any).findOne({ 
         email: session.user.email,
         role: { $in: ['receptionist', 'housekeeping', 'manager', 'admin'] },
         serviceType: 'hotel'
       });
       
-      if (staff && staff.institutionId) {
-        // Find the actual hotel vendor using institutionId
-        vendor = await User.findById(staff.institutionId);
+      if (staff && staff.businessId) {
+        // Find the actual hotel vendor using businessId
+        vendor = await (User as any).findById(staff.businessId);
         console.log(`Staff member ${staff.email} accessing bookings for hotel vendor: ${vendor?.email}`);
       }
     }
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch bookings for this hotel vendor
-    const bookings = await Booking.find({
+    const bookings = await (Booking as any).find({
       vendorId: vendor._id.toString()
     }).sort({ createdAt: -1 });
 
