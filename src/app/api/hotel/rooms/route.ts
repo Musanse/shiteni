@@ -16,22 +16,22 @@ export async function GET() {
     await connectDB();
 
     // Find the hotel vendor or staff member
-    let vendor = await User.findOne({ 
+    let vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'hotel'
     });
 
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
-      const staff = await User.findOne({ 
+      const staff = await (User as any).findOne({ 
         email: session.user.email,
         role: { $in: ['receptionist', 'housekeeping', 'manager', 'admin'] },
         serviceType: 'hotel'
       });
       
-      if (staff && staff.institutionId) {
-        // Find the actual hotel vendor using institutionId
-        vendor = await User.findById(staff.institutionId);
+      if (staff && staff.businessId) {
+        // Find the actual hotel vendor using businessId
+        vendor = await (User as any).findById(staff.businessId);
         console.log(`Staff member ${staff.email} accessing rooms for hotel vendor: ${vendor?.email}`);
       }
     }
@@ -40,7 +40,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Hotel vendor not found' }, { status: 404 });
     }
 
-    const rooms = await Room.find({ vendorId: vendor._id.toString() }).sort({ createdAt: -1 });
+    const rooms = await (Room as any).find({ vendorId: vendor._id.toString() }).sort({ createdAt: -1 });
     
     console.log(`Found ${rooms.length} rooms for hotel vendor: ${vendor.email}`);
     rooms.forEach((room, index) => {
@@ -73,22 +73,22 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     // Find the hotel vendor or staff member
-    let vendor = await User.findOne({ 
+    let vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'hotel'
     });
 
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
-      const staff = await User.findOne({ 
+      const staff = await (User as any).findOne({ 
         email: session.user.email,
         role: { $in: ['receptionist', 'housekeeping', 'manager', 'admin'] },
         serviceType: 'hotel'
       });
       
-      if (staff && staff.institutionId) {
-        // Find the actual hotel vendor using institutionId
-        vendor = await User.findById(staff.institutionId);
+      if (staff && staff.businessId) {
+        // Find the actual hotel vendor using businessId
+        vendor = await (User as any).findById(staff.businessId);
         console.log(`Staff member ${staff.email} creating room for hotel vendor: ${vendor?.email}`);
       }
     }
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     // Check if room number already exists
-    const existingRoom = await Room.findOne({ 
+    const existingRoom = await (Room as any).findOne({ 
       number, 
       vendorId: vendor._id.toString() 
     });
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
     });
 
     console.log('Room object before save:', room);
-    await room.save();
+    await (room as any).save();
     console.log('Room saved successfully:', room);
     
     return NextResponse.json({ 
