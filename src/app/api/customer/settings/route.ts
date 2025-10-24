@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     await connectDB();
 
     // Fetch user profile
-    const user = await User.findById(userId).select('-password');
+    const user = await (User as any).findById(userId).select('-password');
     if (!user || user.role !== 'customer') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
@@ -35,10 +35,9 @@ export async function GET(request: NextRequest) {
       preferences: {
         emailNotifications: user.preferences?.emailNotifications ?? true,
         smsNotifications: user.preferences?.smsNotifications ?? true,
-        marketingEmails: user.preferences?.marketingEmails ?? false,
         language: user.preferences?.language || 'en',
-        timezone: user.preferences?.timezone || 'Africa/Lusaka',
-        currency: user.preferences?.currency || 'ZMW'
+        theme: user.preferences?.theme || 'light',
+        notifications: user.preferences?.notifications ?? true
       },
       security: {
         twoFactorEnabled: user.security?.twoFactorEnabled ?? false,
@@ -73,13 +72,13 @@ export async function PUT(request: NextRequest) {
     await connectDB();
 
     // Verify user is customer
-    const user = await User.findById(userId);
+    const user = await (User as any).findById(userId);
     if (!user || user.role !== 'customer') {
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
     // Update user profile
-    const updatedUser = await User.findByIdAndUpdate(
+    const updatedUser = await (User as any).findByIdAndUpdate(
       userId,
       {
         firstName: updateData.firstName,
