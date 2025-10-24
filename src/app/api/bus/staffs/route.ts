@@ -254,13 +254,11 @@ export async function POST(request: NextRequest) {
     try {
       const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${verificationToken}`;
       
-      const emailTemplate = emailTemplates.staffVerification({
-        firstName,
-        lastName,
-        companyName: 'Bus Company',
-        verificationUrl,
-        role
-      });
+      const emailTemplate = emailTemplates.staffAccountCreated(
+        `${firstName} ${lastName}`,
+        'Bus Company',
+        { email, password }
+      );
 
       await sendEmail(email, emailTemplate);
     } catch (emailError) {
