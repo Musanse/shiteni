@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch real messages from the database
-    const realMessages = await Message.find({
+    const realMessages = await (Message as any).find({
       $or: [
         { senderId: (session.user as any).id, recipientId: vendorId },
         { senderId: vendorId, recipientId: (session.user as any).id }
@@ -104,13 +104,13 @@ export async function POST(request: NextRequest) {
     const senderName = `${(session.user as any).firstName || ''} ${(session.user as any).lastName || ''}`.trim() || 'Customer';
     
     // Get vendor information
-    const vendor = await User.findById(vendorId);
+    const vendor = await (User as any).findById(vendorId);
     if (!vendor) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
     }
     
     // Create message
-    const newMessage = await Message.create({
+    const newMessage = await (Message as any).create({
       senderId: senderEmail,
       senderName: senderName,
       senderRole: 'customer',
