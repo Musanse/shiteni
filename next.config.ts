@@ -27,12 +27,14 @@ const nextConfig: NextConfig = {
     // Disable static optimization in development
     experimental: {
       optimizePackageImports: ['lucide-react', '@heroicons/react'],
+      optimizeCss: true,
     },
   }),
   // Production configuration
   ...(process.env.NODE_ENV === 'production' && {
     experimental: {
       optimizePackageImports: ['lucide-react', '@heroicons/react'],
+      optimizeCss: true,
     },
   }),
   async headers() {
@@ -95,6 +97,15 @@ const nextConfig: NextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000'
+          }
+        ]
+      },
+      {
+        source: '/_next/static/css/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
           }
         ]
       }
