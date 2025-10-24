@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     // Get all hotel vendors with timeout
     let hotelVendors;
     try {
-      const vendorsPromise = User.find({
+      const vendorsPromise = (User as any).find({
         serviceType: 'hotel',
         role: { $in: ['manager', 'admin'] }
       }).lean();
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
 
     let rooms;
     try {
-      const roomsPromise = Room.find(roomsQuery).lean();
+      const roomsPromise = (Room as any).find(roomsQuery).lean();
       const roomsTimeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Rooms query timeout')), 3000)
       );
