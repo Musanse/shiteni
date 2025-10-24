@@ -21,14 +21,14 @@ export async function GET(request: NextRequest) {
     console.log('Looking for hotel vendor with email:', session.user.email);
 
     // Get the hotel vendor - try multiple approaches
-    let hotelVendor = await User.findOne({ 
+    let hotelVendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'hotel'
     });
 
     // If not found with serviceType, try without it
     if (!hotelVendor) {
-      hotelVendor = await User.findOne({ 
+      hotelVendor = await (User as any).findOne({ 
         email: session.user.email
       });
       console.log('Found user without serviceType filter:', hotelVendor);
@@ -41,11 +41,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all staff members for this hotel
-    console.log('Searching for staff with institutionId:', hotelVendor._id);
+    console.log('Searching for staff with businessId:', hotelVendor._id);
     console.log('Hotel vendor _id type:', typeof hotelVendor._id);
     
-    const staff = await User.find({
-      institutionId: hotelVendor._id,
+    const staff = await (User as any).find({
+      businessId: hotelVendor._id,
       role: { $in: ['receptionist', 'housekeeping', 'manager', 'admin'] }
     }).select('-password');
 
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     if (staff.length > 0) {
       console.log('First staff member:', {
         id: staff[0]._id,
-        institutionId: staff[0].institutionId,
+        businessId: staff[0].businessId,
         role: staff[0].role,
         email: staff[0].email
       });
@@ -104,14 +104,14 @@ export async function POST(request: NextRequest) {
     console.log('POST - Looking for hotel vendor with email:', session.user.email);
 
     // Get the hotel vendor - try multiple approaches
-    let hotelVendor = await User.findOne({ 
+    let hotelVendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'hotel'
     });
 
     // If not found with serviceType, try without it
     if (!hotelVendor) {
-      hotelVendor = await User.findOne({ 
+      hotelVendor = await (User as any).findOne({ 
         email: session.user.email
       });
       console.log('POST - Found user without serviceType filter:', hotelVendor);
@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await (User as any).findOne({ email });
     if (existingUser) {
       return NextResponse.json(
         { error: 'User with this email already exists' },
@@ -204,10 +204,10 @@ export async function POST(request: NextRequest) {
       emailVerificationExpires: verificationExpires
     });
 
-    await newStaff.save();
+    await (newStaff as any).save();
     
     console.log('Staff created with ID:', newStaff._id);
-    console.log('Staff institutionId:', newStaff.institutionId);
+    console.log('Staff businessId:', newStaff.businessId);
 
     console.log(`Created new staff member: ${firstName} ${lastName} (${email}) for hotel: ${hotelVendor.businessName || hotelVendor.hotelName || hotelVendor.firstName + ' ' + hotelVendor.lastName}`);
 
