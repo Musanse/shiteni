@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     const date = searchParams.get('date');
 
     // Get all active trips (these are the scheduled trips with segments)
-    const trips = await BusTrip.find({ status: 'active' }).lean();
+    const trips = await (BusTrip as any).find({ status: 'active' }).lean();
     
     if (trips.length === 0) {
       return NextResponse.json({
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     
     for (const trip of trips) {
       // Get route details (this contains stops and fare segments)
-      const route = await BusRoute.findById(trip.routeId);
+      const route = await (BusRoute as any).findById(trip.routeId);
       if (!route) continue;
       
       // Get bus details
@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
 
     // Get unique routes for the routes section
     const uniqueRouteIds = [...new Set(trips.map(trip => trip.routeId.toString()))];
-    const routeDetails = await BusRoute.find({ _id: { $in: uniqueRouteIds } }).lean();
+    const routeDetails = await (BusRoute as any).find({ _id: { $in: uniqueRouteIds } }).lean();
     const routeMap = new Map(routeDetails.map(route => [route._id?.toString() || '', route]));
 
     return NextResponse.json({
