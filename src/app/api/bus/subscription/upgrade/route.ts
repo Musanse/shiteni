@@ -147,6 +147,7 @@ export async function POST(request: NextRequest) {
       paymentResponse = await lipilaPaymentService.processCardPayment({
         currency: LIPILA_CONFIG.currency,
         amount: plan.price,
+        accountNumber: customerInfo.phoneNumber, // Use phone number as account number
         phoneNumber: customerInfo.phoneNumber,
         email: customerInfo.email,
         fullName: customerInfo.name,
@@ -159,6 +160,7 @@ export async function POST(request: NextRequest) {
       paymentResponse = await lipilaPaymentService.processMobileMoneyPayment({
         currency: LIPILA_CONFIG.currency,
         amount: plan.price,
+        accountNumber: customerInfo.phoneNumber, // Use phone number as account number
         phoneNumber: customerInfo.phoneNumber,
         email: customerInfo.email,
         fullName: customerInfo.name,
