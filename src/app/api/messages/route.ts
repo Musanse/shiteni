@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     console.log(`Searching for messages between ${session.user.email} and ${targetId}`);
     
     // Check if current user is a vendor (hotel, bus, etc.)
-    const currentUser = await User.findOne({ email: session.user.email });
+    const currentUser = await (User as any).findOne({ email: session.user.email });
     console.log('Current user:', currentUser?.email, 'Role:', currentUser?.role, 'Service Type:', currentUser?.serviceType);
     
     let messages;
@@ -43,12 +43,12 @@ export async function GET(request: NextRequest) {
       console.log(`Vendor ${session.user.email} looking for messages with customer ${targetId}`);
       
       // Get the target user (customer) to find their ID
-      const targetUser = await User.findOne({ email: targetId });
+      const targetUser = await (User as any).findOne({ email: targetId });
       if (!targetUser) {
         return NextResponse.json({ error: 'Target user not found' }, { status: 404 });
       }
       
-      messages = await Message.find({
+      messages = await (Message as any).find({
         $or: [
           { senderId: currentUser._id.toString(), recipientId: targetUser._id.toString() },
           { senderId: targetUser._id.toString(), recipientId: currentUser._id.toString() }
@@ -59,12 +59,12 @@ export async function GET(request: NextRequest) {
       console.log(`Customer ${session.user.email} looking for messages with vendor ${targetId}`);
       
       // Get the target user (vendor) to find their ID
-      const targetUser = await User.findOne({ email: targetId });
+      const targetUser = await (User as any).findOne({ email: targetId });
       if (!targetUser) {
         return NextResponse.json({ error: 'Target user not found' }, { status: 404 });
       }
       
-      messages = await Message.find({
+      messages = await (Message as any).find({
         $or: [
           { senderId: currentUser._id.toString(), recipientId: targetUser._id.toString() },
           { senderId: targetUser._id.toString(), recipientId: currentUser._id.toString() }
