@@ -94,11 +94,11 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Get total count for pagination
-    const totalCount = await Hotel.countDocuments(query);
+    const totalCount = await (Hotel as any).countDocuments(query);
     const totalPages = Math.ceil(totalCount / limit);
 
     // Fetch hotels
-    const hotels = await Hotel.find(query)
+    const hotels = await (Hotel as any).find(query)
       .sort(sortOptions)
       .skip(skip)
       .limit(limit)
