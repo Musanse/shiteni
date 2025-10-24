@@ -472,12 +472,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
                 <span className="text-sm font-medium text-white">
-                  {session.user?.firstName?.charAt(0)}
+                  {session.user?.name?.charAt(0) || session.user?.email?.charAt(0)}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-800 dark:text-slate-100 truncate">
-                  {session.user?.firstName} {session.user?.lastName}
+                  {session.user?.name || session.user?.email}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                   {session.user?.email}
