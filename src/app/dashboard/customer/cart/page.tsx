@@ -123,7 +123,7 @@ export default function CustomerCartPage() {
   };
 
   const handleCheckout = async () => {
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       router.push('/auth/signin');
       return;
     }
