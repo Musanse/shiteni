@@ -254,17 +254,15 @@ export async function POST(request: NextRequest) {
     try {
       const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${verificationToken}`;
       
-      await sendEmail({
-        to: email,
-        subject: 'Welcome to Bus Company - Verify Your Email',
-        html: emailTemplates.staffVerification({
-          firstName,
-          lastName,
-          companyName: 'Bus Company',
-          verificationUrl,
-          role
-        })
+      const emailTemplate = emailTemplates.staffVerification({
+        firstName,
+        lastName,
+        companyName: 'Bus Company',
+        verificationUrl,
+        role
       });
+
+      await sendEmail(email, emailTemplate);
     } catch (emailError) {
       console.error('Failed to send verification email:', emailError);
       // Don't fail the request if email fails
