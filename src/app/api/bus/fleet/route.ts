@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const busCompanyId = session.user.id;
-    const bus = await Bus.create({
+    const bus = await (Bus as any).create({
       busName,
       busNumberPlate,
       numberOfSeats: parseInt(numberOfSeats),
