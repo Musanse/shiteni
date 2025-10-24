@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
     // Find the hotel vendor or staff member
     console.log('🔍 Looking for vendor with email:', session.user.email);
-    let vendor = await User.findOne({ 
+    let vendor = await (User as any).findOne({ 
       email: session.user.email,
       serviceType: 'hotel'
     });
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     // If not found as vendor, check if this is a staff member
     if (!vendor) {
       console.log('🔍 Looking for staff member with email:', session.user.email);
-      const staff = await User.findOne({ 
+      const staff = await (User as any).findOne({ 
         email: session.user.email,
         role: { $in: ['receptionist', 'housekeeping', 'manager', 'admin'] },
         serviceType: 'hotel'
@@ -39,9 +39,9 @@ export async function GET(request: NextRequest) {
       
       console.log('👤 Staff found:', staff ? 'Yes' : 'No');
       
-      if (staff && staff.institutionId) {
-        // Find the actual hotel vendor using institutionId
-        vendor = await User.findById(staff.institutionId);
+      if (staff && staff.businessId) {
+        // Find the actual hotel vendor using businessId
+        vendor = await (User as any).findById(staff.businessId);
         console.log(`Staff member ${staff.email} accessing dashboard for hotel vendor: ${vendor?.email}`);
       }
     }
@@ -66,11 +66,11 @@ export async function GET(request: NextRequest) {
       guests
     ] = await Promise.all([
       // Get all rooms (we'll add hotelId filtering later)
-      HotelRoom.find({}).lean(),
+      (HotelRoom as any).find({}).lean(),
       // Get all bookings
-      HotelBooking.find({}).lean(),
+      (HotelBooking as any).find({}).lean(),
       // Get all guests
-      HotelGuest.find({}).lean()
+      (HotelGuest as any).find({}).lean()
     ]);
 
     // Calculate statistics
