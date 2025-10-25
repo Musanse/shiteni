@@ -515,7 +515,6 @@ export default function HotelSettingsPage() {
               </div>
 
               {/* Gallery Grid */}
-              {console.log('Gallery images state:', galleryImages)}
               {galleryImages.length > 0 && (
                 <div className="space-y-4">
                   <h4 className="font-medium">Gallery Images</h4>
