@@ -359,7 +359,7 @@ export default function StoreSettingsPage() {
                     ) : (
                       <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-2 border-gray-200">
                         <span className="text-white text-2xl font-bold">
-                          {(session?.user?.firstName?.[0] || session?.user?.lastName?.[0] || 'U').toUpperCase()}
+                          {(session?.user?.name?.charAt(0) || session?.user?.email?.charAt(0) || 'U').toUpperCase()}
                         </span>
                       </div>
                     )}
