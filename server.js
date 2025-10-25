@@ -84,6 +84,26 @@ app.prepare().then(() => {
   server.listen(port, hostname, (err) => {
     if (err) {
       console.error('Failed to start server:', err);
+      
+      // Handle specific error types
+      if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${port} is already in use. Please:`);
+        console.error('   1. Kill the process using this port:');
+        console.error(`      lsof -ti:${port} | xargs kill -9`);
+        console.error('   2. Or use a different port:');
+        console.error(`      PORT=${port + 1} npm start`);
+        console.error('   3. Or check for zombie processes and restart your system');
+      } else if (err.code === 'ENOSPC') {
+        console.error('❌ No space left on device. Please:');
+        console.error('   1. Free up disk space');
+        console.error('   2. Check for large log files: find /var/log -name "*.log" -size +100M');
+        console.error('   3. Clean up temporary files: rm -rf /tmp/*');
+      } else if (err.code === 'EACCES') {
+        console.error('❌ Permission denied. Please:');
+        console.error('   1. Use a port number above 1024');
+        console.error('   2. Or run with appropriate permissions');
+      }
+      
       process.exit(1);
     }
     
@@ -102,6 +122,16 @@ app.prepare().then(() => {
   });
 }).catch((err) => {
   console.error('Failed to prepare Next.js app:', err);
+  
+  // Enhanced error handling for Next.js preparation
+  if (err.message.includes('ENOSPC')) {
+    console.error('❌ No space left on device during build preparation');
+    console.error('💡 Please free up disk space and try again');
+  } else if (err.message.includes('EACCES')) {
+    console.error('❌ Permission denied during build preparation');
+    console.error('💡 Please check file permissions in the project directory');
+  }
+  
   process.exit(1);
 });
 

@@ -82,7 +82,28 @@ async function connectDB() {
     
   } catch (e) {
     cached!.promise = null;
-    console.error('❌ MongoDB connection failed:', e);
+    cached!.conn = null;
+    
+    // Enhanced error logging
+    if (e instanceof Error) {
+      console.error('❌ MongoDB connection failed:', {
+        message: e.message,
+        name: e.name,
+        stack: e.stack
+      });
+      
+      // Provide specific guidance based on error type
+      if (e.message.includes('timeout')) {
+        console.error('💡 Suggestion: Check your network connection and MongoDB server status');
+      } else if (e.message.includes('authentication')) {
+        console.error('💡 Suggestion: Verify your MongoDB credentials in MONGODB_URI');
+      } else if (e.message.includes('ENOTFOUND')) {
+        console.error('💡 Suggestion: Check your MongoDB hostname in MONGODB_URI');
+      }
+    } else {
+      console.error('❌ MongoDB connection failed with unknown error:', e);
+    }
+    
     throw e;
   }
 
