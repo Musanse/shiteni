@@ -392,7 +392,7 @@ export default function StoreSettingsPage() {
                     </h3>
                     <p className="text-gray-500">{session?.user?.email}</p>
                     <Badge variant="secondary" className="mt-2">
-                      {session?.user?.role}
+                      Store Owner
                     </Badge>
                   </div>
                 </div>
