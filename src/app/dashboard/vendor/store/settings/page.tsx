@@ -388,7 +388,7 @@ export default function StoreSettingsPage() {
                   </div>
                   <div className="flex-1">
                     <h3 className="text-lg font-medium">
-                      {session?.user?.firstName} {session?.user?.lastName}
+                      {session?.user?.name || session?.user?.email}
                     </h3>
                     <p className="text-gray-500">{session?.user?.email}</p>
                     <Badge variant="secondary" className="mt-2">
