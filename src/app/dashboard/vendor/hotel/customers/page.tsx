@@ -410,7 +410,7 @@ export default function HotelCustomersPage() {
           <DialogHeader>
             <DialogTitle>Customer Details</DialogTitle>
             <DialogDescription>
-              Complete information about {selectedCustomer?.name}
+              Complete information about {selectedCustomer?.customerName}
             </DialogDescription>
           </DialogHeader>
           {selectedCustomer && (
