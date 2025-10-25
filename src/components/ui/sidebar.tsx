@@ -67,7 +67,7 @@ const adminNavItems = [
 ];
 
 // Role-based navigation items
-const staffNavItems: Record<InstitutionStaffRole, typeof institutionNavItems> = {
+const staffNavItems: Record<UserRole, typeof institutionNavItems> = {
   loan_officer: [
     { name: 'Dashboard', href: '/dashboard/institution', icon: Home },
     { name: 'Applications', href: '/dashboard/institution/applications', icon: FileText },

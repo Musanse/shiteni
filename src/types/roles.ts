@@ -20,7 +20,11 @@ export type UserRole =
   | 'conductor'
   | 'ticket_seller'
   | 'dispatcher'
-  | 'maintenance';
+  | 'maintenance'
+  // Institution roles
+  | 'loan_officer'
+  | 'credit_analyst'
+  | 'customer_service';
 
 // Role labels for display
 export const roleLabels: Record<UserRole, string> = {
@@ -45,4 +49,8 @@ export const roleLabels: Record<UserRole, string> = {
   ticket_seller: 'Ticket Seller',
   dispatcher: 'Dispatcher',
   maintenance: 'Maintenance',
+  // Institution roles
+  loan_officer: 'Loan Officer',
+  credit_analyst: 'Credit Analyst',
+  customer_service: 'Customer Service',
 };

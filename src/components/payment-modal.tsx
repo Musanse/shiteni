@@ -253,6 +253,12 @@ export default function PaymentModal({ subscription, onClose, onPaymentSuccess, 
     pollingTimeoutRef.current = setTimeout(poll, 10000);
   };
 
+  const handleRedirect = () => {
+    if (redirectUrl) {
+      window.open(redirectUrl, '_blank');
+    }
+  };
+
   const handleCancelPayment = async () => {
     if (!transactionId) {
       setError('No transaction to cancel');
