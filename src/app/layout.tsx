@@ -51,16 +51,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="manifest" href="/api/manifest" type="application/manifest+json" />
-        <meta name="theme-color" content="#3b82f6" />
-        <meta name="application-name" content="Shiteni" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Shiteni" />
-        <link rel="apple-touch-icon" href="/icons/favicon.ico" />
+      <body className="font-sans antialiased">
+        <Providers>{children}</Providers>
+        
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -125,11 +118,6 @@ export default function RootLayout({
             `,
           }}
         />
-      </head>
-      <body
-        className="font-sans antialiased"
-      >
-        <Providers>{children}</Providers>
       </body>
     </html>
   );
