@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import getToken from 'next-auth/jwt';
+import * as jwt from 'next-auth/jwt';
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
   // Try to get token from cookies directly
   let token = null;
   try {
-    token = await getToken({ 
+    token = await jwt.getToken({ 
       req: request, 
       secret: process.env.NEXTAUTH_SECRET 
     });
