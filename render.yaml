@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: shiteni
+    env: node
+    plan: starter
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXTAUTH_URL
+        sync: false  # Set this to your Render URL
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false  # Set this to your MongoDB connection string
+      - key: SMTP_HOST
+        sync: false  # Set this to your SMTP host
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false  # Set this to your SMTP username
+      - key: SMTP_PASS
+        sync: false  # Set this to your SMTP password
+      - key: LIPILA_SECRET_KEY
+        sync: false  # Set this to your Lipila secret key
+      - key: LIPILA_BASE_URL
+        value: "https://lipila-prod.hobbiton.app"
+      - key: LIPILA_CURRENCY
+        value: "ZMW"
+    healthCheckPath: /health
+    autoDeploy: true
