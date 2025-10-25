@@ -245,7 +245,7 @@ export async function withSubscriptionCheck(handler: Function, serviceType: stri
       }
 
       // Add subscription info to request context
-      request.subscription = subscriptionCheck.subscription;
+      (request as any).subscription = subscriptionCheck.subscription;
       
       return handler(request, context);
     } catch (error) {
