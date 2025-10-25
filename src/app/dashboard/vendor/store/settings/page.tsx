@@ -409,10 +409,11 @@ export default function StoreSettingsPage() {
                       disabled
                       className="bg-gray-50"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Contact support to change your name</p>
-                  </div>
-                
-                <div>
+                  <p className="text-xs text-gray-500 mt-1">Contact support to change your name</p>
+                </div>
+              </div>
+              
+              <div>
                   <Label htmlFor="email">Email Address</Label>
                   <Input
                     id="email"
