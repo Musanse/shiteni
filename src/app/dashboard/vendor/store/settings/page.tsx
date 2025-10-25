@@ -400,28 +400,17 @@ export default function StoreSettingsPage() {
                 <Separator />
                 
                 {/* Personal Information */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <Label htmlFor="firstName">First Name</Label>
+                    <Label htmlFor="fullName">Full Name</Label>
                     <Input
-                      id="firstName"
-                      value={session?.user?.firstName || ''}
+                      id="fullName"
+                      value={session?.user?.name || session?.user?.email || ''}
                       disabled
                       className="bg-gray-50"
                     />
                     <p className="text-xs text-gray-500 mt-1">Contact support to change your name</p>
                   </div>
-                  <div>
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      value={session?.user?.lastName || ''}
-                      disabled
-                      className="bg-gray-50"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Contact support to change your name</p>
-                  </div>
-                </div>
                 
                 <div>
                   <Label htmlFor="email">Email Address</Label>
