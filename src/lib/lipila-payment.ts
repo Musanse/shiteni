@@ -865,10 +865,7 @@ class LipilaPaymentService {
         : undefined
     };
 
-    // Handle payment type variations (mobile_money vs mobile-money)
-    const normalizedPaymentType = paymentType === 'mobile_money' ? 'mobile-money' : paymentType;
-    
-    if (normalizedPaymentType === 'mobile-money') {
+    if (paymentType === 'mobile-money') {
       return await this.processMobileMoneyPayment(paymentData);
     } else {
       return await this.processCardPayment(paymentData);
