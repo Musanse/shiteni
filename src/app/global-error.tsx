@@ -8,22 +8,40 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html>
-      <body>
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <h1 className="text-6xl font-bold text-red-600 mb-4">Error</h1>
-            <h2 className="text-2xl font-semibold text-gray-700 mb-4">Something went wrong!</h2>
-            <p className="text-gray-600 mb-8">An unexpected error occurred.</p>
-            <button 
-              onClick={reset}
-              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Try again
-            </button>
-          </div>
-        </div>
-      </body>
-    </html>
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      backgroundColor: '#f9fafb',
+      fontFamily: 'system-ui, sans-serif'
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <h1 style={{ fontSize: '4rem', fontWeight: 'bold', color: '#dc2626', marginBottom: '1rem' }}>
+          Error
+        </h1>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#374151', marginBottom: '1rem' }}>
+          Something went wrong!
+        </h2>
+        <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
+          An unexpected error occurred.
+        </p>
+        <button 
+          onClick={reset}
+          style={{
+            display: 'inline-block',
+            backgroundColor: '#2563eb',
+            color: 'white',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '0.5rem',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '1rem'
+          }}
+        >
+          Try again
+        </button>
+      </div>
+    </div>
   );
 }
