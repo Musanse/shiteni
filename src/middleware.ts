@@ -7,8 +7,8 @@ export async function middleware(request: NextRequest) {
   // Try to get token from cookies directly
   let token = null;
   try {
-    const { getToken } = await import('next-auth/jwt');
-    token = await getToken({ 
+    const jwt = await import('next-auth/jwt');
+    token = await jwt.getToken({ 
       req: request, 
       secret: process.env.NEXTAUTH_SECRET 
     });
