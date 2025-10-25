@@ -27,7 +27,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from './button';
-import { UserRole } from '@/types/roles';
+import { UserRole, InstitutionStaffRole } from '@/types/roles';
 
 interface SidebarProps {
   userRole: UserRole;
@@ -67,7 +67,7 @@ const adminNavItems = [
 ];
 
 // Role-based navigation items
-const staffNavItems: Record<UserRole, typeof institutionNavItems> = {
+const staffNavItems: Record<InstitutionStaffRole, typeof institutionNavItems> = {
   loan_officer: [
     { name: 'Dashboard', href: '/dashboard/institution', icon: Home },
     { name: 'Applications', href: '/dashboard/institution/applications', icon: FileText },

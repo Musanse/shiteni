@@ -54,3 +54,9 @@ export const roleLabels: Record<UserRole, string> = {
   credit_analyst: 'Credit Analyst',
   customer_service: 'Customer Service',
 };
+
+// Institution staff roles subset
+export type InstitutionStaffRole = 
+  | 'loan_officer'
+  | 'credit_analyst'
+  | 'customer_service';
