@@ -89,7 +89,6 @@ const staffNavItems: Record<InstitutionStaffRole, Array<{ name: string; href: st
     { name: 'Customers', href: '/dashboard/institution/customers', icon: UserCheck },
     { name: 'Applications', href: '/dashboard/institution/applications', icon: FileText },
   ],
-  manager: institutionNavItems, // Managers have access to all institution pages
 };
 
 export function Sidebar({ userRole, className }: SidebarProps) {
