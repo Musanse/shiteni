@@ -119,7 +119,7 @@ BookingSchema.pre('save', async function(next) {
   if (this.isNew && !this.bookingNumber) {
     try {
       // Use the same model instance to avoid circular reference
-      const BookingModel = this.constructor;
+      const BookingModel = this.constructor as any;
       const count = await BookingModel.countDocuments();
       this.bookingNumber = `BK${String(count + 1).padStart(6, '0')}`;
       console.log('Generated booking number:', this.bookingNumber);

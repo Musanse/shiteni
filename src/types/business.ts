@@ -18,7 +18,7 @@ export type StoreRole =
 export type PharmacyRole = 
   | 'pharmacist'
   | 'technician'
-  | 'cashier';
+  | 'pharmacy_cashier';
 
 export type BusRole = 
   | 'driver'
@@ -199,6 +199,7 @@ export const roleLabels: Record<UserRole, string> = {
   // Pharmacy roles
   pharmacist: 'Pharmacist',
   technician: 'Pharmacy Technician',
+  pharmacy_cashier: 'Pharmacy Cashier',
   // Bus roles
   driver: 'Driver',
   conductor: 'Conductor',
