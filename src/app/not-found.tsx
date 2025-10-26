@@ -1,6 +1,4 @@
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
-export const revalidate = 0;
+'use client';
 
 export default function NotFound() {
   return (
