@@ -15,9 +15,6 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react', '@heroicons/react'],
     optimizeCss: true,
   },
-  
-  // Disable static optimization to prevent error page prerendering issues
-  output: 'standalone',
   images: {
     remotePatterns: [
       {
