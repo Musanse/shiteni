@@ -9,7 +9,12 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true, // Ignore TypeScript errors during build for Render
   },
   outputFileTracingRoot: process.cwd(),
-  // Image optimization configuration
+  
+  // Skip static generation for error pages to avoid Html import issues
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@heroicons/react'],
+    optimizeCss: true,
+  },
   images: {
     remotePatterns: [
       {

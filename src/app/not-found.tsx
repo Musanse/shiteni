@@ -1,3 +1,7 @@
+// Disable static generation for error pages
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default function NotFound() {
   return (
     <div style={{ 
