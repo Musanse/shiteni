@@ -1,5 +1,8 @@
 'use client';
 
+// Force dynamic rendering to prevent SSR issues
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
