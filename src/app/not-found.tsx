@@ -1,6 +1,4 @@
-// Disable static generation
-export const dynamic = 'force-dynamic';
-export const revalidate = false;
+'use client';
 
 export default function NotFound() {
   return (
