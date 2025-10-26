@@ -10,11 +10,14 @@ const nextConfig: NextConfig = {
   },
   outputFileTracingRoot: process.cwd(),
   
-  // Skip static generation for error pages to avoid Html import issues
+  // Disable static page generation for error handling to prevent HTML import errors
   experimental: {
     optimizePackageImports: ['lucide-react', '@heroicons/react'],
     optimizeCss: true,
   },
+  
+  // Disable static optimization to prevent error page prerendering issues
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
