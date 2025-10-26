@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 
+// Force dynamic rendering to prevent HTML import errors
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Shiteni - Multi-Vending Platform",
   description: "Comprehensive multi-vending platform that transforms institutions into digital businesses, offering hotel management, online stores, pharmacy stores, and bus ticketing solutions",
