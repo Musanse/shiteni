@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 
 export const metadata: Metadata = {
   title: "Shiteni - Multi-Vending Platform",
@@ -51,8 +52,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/api/manifest" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Shiteni" />
+        <link rel="apple-touch-icon" href="/icons/favicon.ico" />
+      </head>
       <body className="font-sans antialiased">
         <Providers>{children}</Providers>
+        <PWAInstallPrompt />
         
         <script
           dangerouslySetInnerHTML={{
