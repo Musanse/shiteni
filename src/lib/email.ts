@@ -31,8 +31,18 @@ interface EmailTemplate {
 }
 
 // Email configuration for Namecheap hosting (SSL/TLS)
+// Use direct IP if SMTP_HOST is not resolving locally
+const getSMTPHost = () => {
+  const smtpHost = process.env.SMTP_HOST;
+  if (smtpHost === 'mail.shiteni.com') {
+    // Direct IP fallback for local development when DNS doesn't work
+    return process.env.SMTP_IP || smtpHost;
+  }
+  return smtpHost;
+};
+
 const emailConfig = {
-  host: process.env.SMTP_HOST, // Your domain's mail server
+  host: getSMTPHost(), // Your domain's mail server (with IP fallback)
   port: parseInt(process.env.SMTP_PORT || '587'), // Port from environment
   secure: process.env.SMTP_SECURE === 'true', // Use SSL based on environment
   auth: {
