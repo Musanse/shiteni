@@ -15,7 +15,7 @@ services:
       - key: MONGODB_URI
         sync: false  # Set this to your MongoDB connection string
       - key: SMTP_HOST
-        sync: false  # Set this to your SMTP host
+        value: "server350.web-hosting.com"  # Namecheap hosting SMTP server
       - key: SMTP_PORT
         value: "587"
       - key: SMTP_USER

@@ -1,24 +1,18 @@
 import * as nodemailer from 'nodemailer';
 
-// Email configuration - Use Gmail SMTP as fallback if mail.shiteni.com doesn't exist
+// Email configuration - Use Namecheap/hosting SMTP
 const emailConfig = {
-  host: process.env.SMTP_HOST || 'smtp.gmail.com', // Fallback to Gmail if host doesn't exist
+  host: process.env.SMTP_HOST || 'server350.web-hosting.com', // Namecheap hosting default
   port: parseInt(process.env.SMTP_PORT || '587'), // Port from environment
   secure: process.env.SMTP_SECURE === 'true', // Use SSL based on environment
   auth: {
-    user: process.env.SMTP_USER || process.env.GMAIL_USER, // Gmail user as fallback
-    pass: process.env.SMTP_PASS || process.env.GMAIL_PASS // Gmail password as fallback
+    user: process.env.SMTP_USER, // SMTP username
+    pass: process.env.SMTP_PASS  // SMTP password
   },
   tls: {
     rejectUnauthorized: false // Allow self-signed certificates
   }
 };
-
-// Check if we're using fallback configuration
-if (!process.env.SMTP_HOST) {
-  console.warn('⚠️ Warning: SMTP_HOST not configured, using Gmail SMTP as fallback');
-  console.warn('⚠️ Please configure proper SMTP settings for production');
-}
 
 // Debug: Log the actual configuration being used
 console.log('=== Email Configuration Debug ===');
