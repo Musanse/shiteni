@@ -160,17 +160,28 @@ export async function POST(request: NextRequest) {
       const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
       const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}&email=${encodeURIComponent(email)}`;
       
+      console.log('📧 Attempting to send verification email to:', email);
+      console.log('📧 Verification link:', verificationLink);
+      console.log('📧 SMTP Configuration:', {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        user: process.env.SMTP_USER,
+        passSet: !!process.env.SMTP_PASS
+      });
+      
       const emailTemplate = emailTemplates.userVerification(user.name || `${firstName} ${lastName}`, verificationLink);
       const emailResult = await sendEmail(email, emailTemplate);
       
       if (emailResult.success) {
-        console.log('Verification email sent successfully:', emailResult.messageId);
+        console.log('✅ Verification email sent successfully:', emailResult.messageId);
         emailSent = true;
       } else {
-        console.error('Failed to send verification email:', emailResult.error);
+        console.error('❌ Failed to send verification email:', emailResult.error);
+        console.error('❌ Email error details:', JSON.stringify(emailResult.error, null, 2));
       }
     } catch (emailError) {
-      console.error('Error sending verification email:', emailError);
+      console.error('❌ Exception sending verification email:', emailError);
+      console.error('❌ Email error stack:', emailError instanceof Error ? emailError.stack : 'No stack trace');
       // Don't fail registration if email fails
     }
 
