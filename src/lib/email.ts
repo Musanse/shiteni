@@ -292,7 +292,7 @@ export const emailTemplates = {
               <li>View business analytics</li>
             </ul>
             
-            <p>To get started, visit <a href="https://shiteni.com/login">shiteni.com/login</a> and use your credentials above.</p>
+            <p>To get started, visit <a href="https://shiteni.com/auth/signin">shiteni.com/auth/signin</a> and use your credentials above.</p>
           </div>
           <div class="footer">
             <p>© 2024 Shiteni. All rights reserved.</p>
@@ -318,7 +318,7 @@ export const emailTemplates = {
       IMPORTANT: Please change your password immediately after first login.
       
       You can now access the business dashboard and help manage operations.
-      Visit shiteni.com/login to get started.
+      Visit shiteni.com/auth/signin to get started.
       
       © 2024 Shiteni. All rights reserved.
     `

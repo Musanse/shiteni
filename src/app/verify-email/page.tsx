@@ -134,7 +134,7 @@ function VerifyEmailContent() {
           {status === 'success' && (
             <div className="space-y-3">
               <Button 
-                onClick={() => router.push('/login')}
+                onClick={() => router.push('/auth/signin')}
                 className="w-full bg-green-600 hover:bg-green-700"
               >
                 Sign In to Your Account
@@ -159,7 +159,7 @@ function VerifyEmailContent() {
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => router.push('/login')}
+                onClick={() => router.push('/auth/signin')}
                 className="w-full"
               >
                 Back to Login

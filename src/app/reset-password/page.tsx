@@ -245,7 +245,7 @@ function ResetPasswordForm() {
           {status === 'success' && (
             <div className="space-y-3">
               <Button 
-                onClick={() => router.push('/login')}
+                onClick={() => router.push('/auth/signin')}
                 className="w-full bg-green-600 hover:bg-green-700"
               >
                 Sign In with New Password
@@ -271,7 +271,7 @@ function ResetPasswordForm() {
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => router.push('/login')}
+                onClick={() => router.push('/auth/signin')}
                 className="w-full"
               >
                 Back to Login
