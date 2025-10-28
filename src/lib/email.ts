@@ -1,13 +1,43 @@
 import * as nodemailer from 'nodemailer';
 
-// Email configuration - Use Namecheap/hosting SMTP
+// TypeScript interfaces for email templates
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: string;
+}
+
+interface OrderDetails {
+  orderNumber: string;
+  orderDate: string | Date;
+  status: string;
+  paymentMethod: string;
+  items: OrderItem[];
+  total: string;
+}
+
+interface PromotionDetails {
+  title: string;
+  description: string;
+  discount: string;
+  expiryDate: string | Date;
+  link: string;
+}
+
+interface EmailTemplate {
+  subject: string;
+  html: string;
+  text: string;
+}
+
+// Email configuration for Namecheap hosting (SSL/TLS)
 const emailConfig = {
-  host: process.env.SMTP_HOST || 'server350.web-hosting.com', // Namecheap hosting default
+  host: process.env.SMTP_HOST, // Your domain's mail server
   port: parseInt(process.env.SMTP_PORT || '587'), // Port from environment
   secure: process.env.SMTP_SECURE === 'true', // Use SSL based on environment
   auth: {
-    user: process.env.SMTP_USER, // SMTP username
-    pass: process.env.SMTP_PASS  // SMTP password
+    user: process.env.SMTP_USER, // Your actual email address
+    pass: process.env.SMTP_PASS
   },
   tls: {
     rejectUnauthorized: false // Allow self-signed certificates
@@ -283,7 +313,7 @@ export const emailTemplates = {
   }),
 
   // Order confirmation email
-  orderConfirmation: (customerName: string, orderDetails: any) => ({
+  orderConfirmation: (customerName: string, orderDetails: OrderDetails) => ({
     subject: `Order Confirmation #${orderDetails.orderNumber} - Shiteni`,
     html: `
       <!DOCTYPE html>
@@ -322,7 +352,7 @@ export const emailTemplates = {
               <p><strong>Payment Method:</strong> ${orderDetails.paymentMethod}</p>
               
               <h4>Items Ordered:</h4>
-              ${orderDetails.items.map((item: any) => `
+              ${orderDetails.items.map((item: OrderItem) => `
                 <div class="item">
                   <strong>${item.name}</strong> - ${item.quantity} x ${item.price}
                 </div>
@@ -358,7 +388,7 @@ export const emailTemplates = {
       Payment Method: ${orderDetails.paymentMethod}
       
       Items Ordered:
-      ${orderDetails.items.map((item: any) => `${item.name} - ${item.quantity} x ${item.price}`).join('\n')}
+      ${orderDetails.items.map((item: OrderItem) => `${item.name} - ${item.quantity} x ${item.price}`).join('\n')}
       
       Total: ${orderDetails.total}
       
@@ -370,7 +400,7 @@ export const emailTemplates = {
   }),
 
   // Promotion/Offer email
-  promotion: (customerName: string, promotionDetails: any) => ({
+  promotion: (customerName: string, promotionDetails: PromotionDetails) => ({
     subject: `🎉 Special Offer: ${promotionDetails.title} - Shiteni`,
     html: `
       <!DOCTYPE html>
@@ -444,22 +474,45 @@ export const emailTemplates = {
 };
 
 // Send email function
-export const sendEmail = async (to: string, template: any) => {
+export const sendEmail = async (to: string, template: EmailTemplate) => {
   try {
-        const mailOptions = {
-          from: '"Shiteni Support" <support@shiteni.com>',
-          to: to,
-          subject: template.subject,
-          text: template.text,
-          html: template.html
-        };
+    console.log('📧 Attempting to send email to:', to);
+    console.log('📧 Email subject:', template.subject);
+    
+    const mailOptions = {
+      from: '"Shiteni Support" <support@shiteni.com>',
+      to: to,
+      subject: template.subject,
+      text: template.text,
+      html: template.html
+    };
+
+    console.log('📧 Email configuration:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      host: emailConfig.host,
+      port: emailConfig.port,
+      secure: emailConfig.secure,
+      user: emailConfig.auth.user,
+      hasPassword: !!emailConfig.auth.pass
+    });
 
     const result = await transporter.sendMail(mailOptions);
     console.log('✅ Email sent successfully:', result.messageId);
-    return { success: true, messageId: result.messageId };
+    console.log('✅ Response:', result.response);
+    return { success: true, messageId: result.messageId, response: result.response };
   } catch (error) {
+    const errorObj = error as Record<string, unknown>;
     console.error('❌ Error sending email:', error);
-    return { success: false, error: error };
+    console.error('❌ Error details:', {
+      message: errorObj.message,
+      code: errorObj.code,
+      command: errorObj.command,
+      response: errorObj.response,
+      responseCode: errorObj.responseCode
+    });
+    return { success: false, error: (error as Error).message || String(error) };
   }
 };
 
