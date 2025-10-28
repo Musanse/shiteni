@@ -57,6 +57,7 @@ const emailConfig = {
 // Debug: Log the actual configuration being used
 console.log('=== Email Configuration Debug ===');
 console.log('SMTP_HOST:', process.env.SMTP_HOST);
+console.log('SMTP_IP:', process.env.SMTP_IP, '(fallback IP)');
 console.log('SMTP_PORT:', process.env.SMTP_PORT);
 console.log('SMTP_SECURE:', process.env.SMTP_SECURE);
 console.log('SMTP_USER:', process.env.SMTP_USER);
@@ -67,6 +68,7 @@ console.log('Final config:', {
   secure: emailConfig.secure,
   user: emailConfig.auth.user
 });
+console.log('✅ Using host IP:', emailConfig.host, 'for', process.env.SMTP_HOST);
 
 // Create transporter
 const transporter = nodemailer.createTransport(emailConfig);
