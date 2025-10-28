@@ -56,12 +56,13 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Test email error:', error);
+    const errorObj = error as Error;
     return NextResponse.json({
       success: false,
-      error: error.message || 'Unknown error',
-      stack: error.stack
+      error: errorObj.message || 'Unknown error',
+      stack: process.env.NODE_ENV === 'development' ? errorObj.stack : undefined
     }, { status: 500 });
   }
 }
